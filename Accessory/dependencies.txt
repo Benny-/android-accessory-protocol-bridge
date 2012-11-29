@@ -1,0 +1,10 @@
+# Userspace usb communication
+apt-get install libusb-dev
+apt-get install libusb-1.0-0-dev
+
+# New device detection
+apt-get install libudev-dev
+
+# d-bus communication
+apt-get install libdbus-1-dev
+

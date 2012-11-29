@@ -1,0 +1,78 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ScrollView_signal_filter"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <EditText
+            android:id="@+id/Busname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:ems="10"
+            android:hint="Busname"
+            android:text="test.signal.source" />
+
+        <EditText
+            android:id="@+id/Objectpath"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/Busname"
+            android:ems="10"
+            android:hint="Objectpath"
+            android:text="/test/signal/Object" >
+        </EditText>
+
+        <EditText
+            android:id="@+id/Interface"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/Objectpath"
+            android:ems="10"
+            android:hint="Interface"
+            android:text="test.signal.Type" />
+
+        <EditText
+            android:id="@+id/Membername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/Interface"
+            android:ems="10"
+            android:hint="Member name"
+            android:text="Test" />
+
+        <Button
+            android:id="@+id/button_addwatch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/Membername"
+            android:text="Add watch" >
+
+            <requestFocus />
+        </Button>
+
+        <Button
+            android:id="@+id/button_removewatch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/button_addwatch"
+            android:text="Remove Watch" />
+    </RelativeLayout>
+
+</ScrollView>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView_rpc"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <EditText
+            android:id="@+id/Busname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Busname"
+            android:text="org.gnome.ScreenSaver" />
+
+        <EditText
+            android:id="@+id/Objectpath"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Objectpath"
+            android:text="/" />
+
+        <EditText
+            android:id="@+id/Interface"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Interface"
+            android:text="org.gnome.ScreenSaver" />
+
+        <EditText
+            android:id="@+id/Functionname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Function name"
+            android:text="Lock" >
+        </EditText>
+
+        <Button
+            android:id="@+id/button_dbus_call"
+            android:text="Dbus method Call" >
+
+            <requestFocus />
+        </Button>
+
+        <Button
+            android:id="@+id/button_keepalive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Keep alive" />
+    </TableLayout>
+
+</ScrollView>
