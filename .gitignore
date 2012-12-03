@@ -5,6 +5,7 @@
 *.pydevproject
 .project
 .metadata
+gen/
 bin/
 tmp/
 *.tmp
@@ -161,3 +162,30 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+#############
+## Project specific
+#############
+
+/Accessory/AndroidAccessory/androidaccessoryconfig.h
+/Accessory/AAP-Bridge/AAP-bridge
+
+# C
+*.o
+*.lo
+
+# Autotools
+.deps/
+autom4te.cache/
+config.log
+*.pc
+*.la
+Makefile
+.dirstamp
+config.h
+config.status
+.libs/
+stamp-h*
+libtool
+*.tar.gz
+
