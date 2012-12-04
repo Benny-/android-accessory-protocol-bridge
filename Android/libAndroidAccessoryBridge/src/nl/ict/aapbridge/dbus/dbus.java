@@ -15,8 +15,6 @@ import nl.ict.aapbridge.helper.IntegerHelper;
  * 
  * @author jurgen
  *
- *
- *
  */
 
 //@todo add broadcast listener

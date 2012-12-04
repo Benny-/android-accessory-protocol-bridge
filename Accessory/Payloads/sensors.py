@@ -22,6 +22,17 @@ class SensorService(dbus.service.Object):
     """
         The SensorService emits sensor data to the d-bus.
         
+        bus-name:   nl.ict.sensors
+        objectpath: /nl/ict/sensors
+        interface:  nl.ict.sensors
+        
+        Methods:
+            AdjustSignalFrequency
+            ReadSensors
+            
+        Signals:
+            Sensor
+        
         It is possible to adjust the emit frequency using a d-bus call.
         The following command line will set emit frequency to 3 seconds.
         dbus-send --system --print-reply --dest=nl.ict.sensors /nl/ict/sensors nl.ict.sensors.AdjustSignalFrequency double:3

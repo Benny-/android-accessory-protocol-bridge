@@ -6,7 +6,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content">
 
         <EditText
             android:id="@+id/Busname"
@@ -17,7 +17,7 @@
             android:layout_alignParentTop="true"
             android:ems="10"
             android:hint="Busname"
-            android:text="test.signal.source" />
+            android:text="nl.ict.sensors" />
 
         <EditText
             android:id="@+id/Objectpath"
@@ -28,7 +28,7 @@
             android:layout_below="@+id/Busname"
             android:ems="10"
             android:hint="Objectpath"
-            android:text="/test/signal/Object" >
+            android:text="/nl/ict/sensors" >
         </EditText>
 
         <EditText
@@ -40,7 +40,7 @@
             android:layout_below="@+id/Objectpath"
             android:ems="10"
             android:hint="Interface"
-            android:text="test.signal.Type" />
+            android:text="nl.ict.sensors" />
 
         <EditText
             android:id="@+id/Membername"
@@ -51,7 +51,7 @@
             android:layout_below="@+id/Interface"
             android:ems="10"
             android:hint="Member name"
-            android:text="Test" />
+            android:text="Sensor" />
 
         <Button
             android:id="@+id/button_addwatch"

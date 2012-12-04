@@ -18,6 +18,7 @@ import static nl.ict.aapbridge.TAG.TAG;
 import nl.ict.aapbridge.SystemHolder;
 import nl.ict.aapbridge.aap.AccessoryConnection;
 import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
+import nl.ict.aapbridge.dbus.message.DbusMessage;
 
 import android.content.Intent;
 import android.os.Handler;
@@ -109,7 +110,7 @@ public class AccessoryBridge
 					if(message != null)
 					{
 						AccessoryBridge.messages.remove();
-						Log.d(TAG, "Message received: "+message);
+						Log.v(TAG, "Message received: "+message);
 						
 						if(message.getType() == MessageType.KEEPALIVE && message.toString().length() > 1)
 						{
@@ -122,45 +123,16 @@ public class AccessoryBridge
 						
 						if(message.getType() == MessageType.SIGNAL)
 						{
-							ByteBuffer dbusSignal = ByteBuffer.wrap(message.getData());
-							ByteOrder byteOrder;
-							if (dbusSignal.get() == 'l')
-							{
-								byteOrder = ByteOrder.LITTLE_ENDIAN;
+							try{
+								DbusMessage dbusmessage = new DbusMessage(message.getData());
+								Log.d(TAG, dbusmessage.getArguments().toString());
 							}
-							else if (dbusSignal.get() == 'B')
+							catch(RuntimeException ex)
 							{
-								byteOrder = ByteOrder.BIG_ENDIAN;
-							} else
-							{
-								throw new Error("Unknown endian");
+								Log.e(TAG, "", ex);
 							}
-							dbusSignal.order(byteOrder);
-							
-							dbusSignal.get(); // Message type
-							dbusSignal.get(); // flags
-							dbusSignal.get(); // Major protocol version
-							int size = dbusSignal.getInt(); // Length in bytes of the message body. XXX: Conversion from unsigned to signed.
-							dbusSignal.getInt(); // The serial of this message, used as a cookie by the sender to identify the reply corresponding to this request.
-							
-							CharSequence signature = null;
-							
-							byte headerFieldsSize = dbusSignal.get();
-							while(dbusSignal.position() < size)
-							{
-								byte headertype = dbusSignal.get();
-								if(headertype > 9)
-									throw new Error("Unknown header field");
-							}
-							//dbusSignal.asCharBuffer().subSequence(0, 6);
-							
-							final CharSequence finalSignature = signature;
-							handler.post(new Runnable() {
-								public void run() {
-									Toast.makeText(SystemHolder.getContext(), "Signature: "+finalSignature+": "+message, Toast.LENGTH_SHORT).show();
-								}
-							});
 						}
+						
 					}
 			}
 			} catch (Exception e)

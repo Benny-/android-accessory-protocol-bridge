@@ -189,3 +189,6 @@ stamp-h*
 libtool
 *.tar.gz
 
+# Eclipse
+lint.xml
+
