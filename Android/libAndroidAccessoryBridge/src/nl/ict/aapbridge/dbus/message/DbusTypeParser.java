@@ -55,8 +55,6 @@ public class DbusTypeParser {
 		if(extractor == null)
 		{
 			throw new RuntimeException("Could not find a extractor for signature "+signature.charAt(0));
-			//System.err.println("Could not find a extractor for signature '"+signature.charAt(0)+"'");
-			//return null;
 		}
 		return extractor.parse(signature, bb);
 	}
