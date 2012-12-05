@@ -3,7 +3,6 @@
 #################
 
 *.pydevproject
-.project
 .metadata
 gen/
 bin/
