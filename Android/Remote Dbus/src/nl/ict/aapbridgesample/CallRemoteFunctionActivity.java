@@ -1,13 +1,15 @@
 package nl.ict.aapbridgesample;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import nl.ict.aapbridge.R;
 import nl.ict.aapbridge.bridge.AccessoryMessage;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.MessageHandler;
 import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
-import nl.ict.aapbridge.dbus.dbus;
+import nl.ict.aapbridge.dbus.Dbus;
 import nl.ict.aapbridge.SystemHolder;
 import android.app.Activity;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import com.android.future.usb.UsbManager;
 public class CallRemoteFunctionActivity extends Activity
 {
 	public static final String TAG = CallRemoteFunctionActivity.class.getName();
+	public static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private AccessoryBridge aapbridge;
     
@@ -53,9 +56,13 @@ public class CallRemoteFunctionActivity extends Activity
         
         button_dbus_call.setOnClickListener(new OnClickListener() {
         	public void onClick(View v) {
-        		dbus d = new dbus();
+        		Dbus d = new Dbus();
         		try {
-					d.methodCall(textfield_functionname.getText().toString(), 0);
+					d.methodCall(
+							textfield_busname.getText().toString(),
+							textfield_objectpath.getText().toString(),
+							textfield_interface.getText().toString(),
+							textfield_functionname.getText().toString() );
 				} catch (Exception e) {
 					Toast.makeText(SystemHolder.getContext(), "Accessory not connected", Toast.LENGTH_SHORT).show();
 		        	finish();

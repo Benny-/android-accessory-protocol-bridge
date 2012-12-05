@@ -12,7 +12,6 @@ import org.apache.http.util.ByteArrayBuffer;
 import nl.ict.aapbridge.R;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
-import nl.ict.aapbridge.dbus.dbus;
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
@@ -25,6 +24,7 @@ import android.widget.EditText;
 public class SignalFilterActivity extends Activity {
 	
 	public static final String TAG = SignalFilterActivity.class.getName();
+	public static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private AccessoryBridge aapbridge;
 	
@@ -92,13 +92,13 @@ public class SignalFilterActivity extends Activity {
     
     private void textInputsToBytes(ByteBuffer buffer)
     {
-		buffer.put(textfield_busname.getText().toString().getBytes(Charset.forName("UTF-8")));
+		buffer.put(textfield_busname.getText().toString().getBytes(utf8));
 		buffer.put((byte) 0);
-		buffer.put(textfield_objectpath.getText().toString().getBytes(Charset.forName("UTF-8")));
+		buffer.put(textfield_objectpath.getText().toString().getBytes(utf8));
 		buffer.put((byte) 0);
-		buffer.put(textfield_interface.getText().toString().getBytes(Charset.forName("UTF-8")));
+		buffer.put(textfield_interface.getText().toString().getBytes(utf8));
 		buffer.put((byte) 0);
-		buffer.put(textfield_membername.getText().toString().getBytes(Charset.forName("UTF-8")));
+		buffer.put(textfield_membername.getText().toString().getBytes(utf8));
 		buffer.put((byte) 0);
     }
 }

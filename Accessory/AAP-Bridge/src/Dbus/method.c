@@ -8,7 +8,10 @@
 
 extern DBusConnection *con;
 extern DBusError dbusError;
-//blocking
+
+/**
+ * This call blocks until it receives a reply from dbus.
+ */
 void callmethod(MESSAGE* accessoryMessage) {
 
 	void* dbusMessage = accessoryMessage->data;
@@ -29,7 +32,7 @@ void callmethod(MESSAGE* accessoryMessage) {
 			dbusMessage);
 
 	if (message == NULL) {
-		printf("Message Null\n");
+		fprintf(stderr,"Method.c: Message Null\n");
 	} else {
 		/*
 		 //@todo check for empty vartypes/vars not the nices way for adding multiple vars to method solution
@@ -56,13 +59,13 @@ void callmethod(MESSAGE* accessoryMessage) {
 		 */
 		// send the message and flush the connection
 		if (!dbus_connection_send_with_reply(methodCallsCon, message, &pending, -1)) { // -1 is default timeout
-			printf("Out Of Memory!\n");
+			fprintf(stderr,"Out Of Memory!\n");
 			exit(1);
 		}
 
 
 		if (NULL == pending) {
-			printf("Pending Call Null\n");
+			fprintf(stderr,"Pending Call Null\n");
 		}
 
 		dbus_connection_flush(methodCallsCon);
@@ -86,16 +89,6 @@ void callmethod(MESSAGE* accessoryMessage) {
 		}
 		// free the pending message handle
 		dbus_pending_call_unref(pending);
-
-		// read the parameters
-		if (!dbus_message_iter_init(message, &args))
-			printf("Message has no arguments!\n");
-
-		//find a solution for dynamic returning....
-		else if (DBUS_TYPE_BOOLEAN != dbus_message_iter_get_arg_type(&args))
-			printf("Argument is not boolean!\n");
-		else
-			dbus_message_iter_get_basic(&args, &returnvalue);
 
 		char* marshalled;
 		int marshalled_size;

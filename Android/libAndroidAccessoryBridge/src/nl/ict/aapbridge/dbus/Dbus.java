@@ -18,15 +18,22 @@ import nl.ict.aapbridge.helper.IntegerHelper;
  */
 
 //@todo add broadcast listener
-public class dbus {
-	public void methodCall(String name, Integer... vars) throws Exception
+public class Dbus {
+	public void methodCall(
+			String busname,
+			String objectpath,
+			String interfaceName,
+			String functionName,
+			Integer... vars) throws Exception
 	{  
 		DbusMessage dMessage;
 		if(vars.length > 4) {
 			throw new Exception("Too manny arguments, not implemented yet");
 		}
-
-		dMessage = new DbusMessage(name);
+		
+		// TODO: Send busname, objectpath and interfaceName to the accessory.
+		// Now it only sends the function name.
+		dMessage = new DbusMessage(functionName);
 		
 		for(Integer var : vars) {
 			dMessage.addVar(var);
@@ -37,11 +44,7 @@ public class dbus {
 
 		AccessoryBridge.Write(dMessage.getbytes(), methodcallid ,MessageType.DBUS);
 		
-//		while(!found) {
-//			//re
-//			
-//		}
-		//@todo wait for reply
+		// TODO: wait for reply
 	}
 	
 	public static class DbusMessage {
@@ -151,6 +154,5 @@ public class dbus {
 			}
 			return mName.getBytes();
 		}
-
 	}
 }
