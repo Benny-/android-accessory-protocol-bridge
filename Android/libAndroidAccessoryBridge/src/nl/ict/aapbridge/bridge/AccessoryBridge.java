@@ -32,7 +32,6 @@ import com.android.future.usb.UsbManager;
 /**
  * The class that handles the communication with Android Accessory
  * @author jurgen
- * @todo rewrite to singleton
  */
 public class AccessoryBridge
 {
