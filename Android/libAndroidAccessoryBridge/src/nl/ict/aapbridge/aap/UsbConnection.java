@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -40,11 +41,11 @@ import com.android.future.usb.UsbManager;
 public class UsbConnection implements AccessoryConnection
 {
 	
-	Context mContext;
-	FileInputStream mInputStream;
-	FileOutputStream mOutputStream;
-	ParcelFileDescriptor mFileDescriptor;
-	UsbAccessory mAccessory;
+	private Context mContext;
+	private FileInputStream mInputStream;
+	private FileOutputStream mOutputStream;
+	private ParcelFileDescriptor mFileDescriptor;
+	private UsbAccessory mAccessory;
 	private boolean disconnected = false;
 
 	private static final String ACTION_USB_PERMISSION = "com.google.android.DemoKit.action.USB_PERMISSION";
