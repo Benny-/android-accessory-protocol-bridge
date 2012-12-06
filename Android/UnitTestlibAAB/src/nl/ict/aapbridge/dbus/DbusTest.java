@@ -56,13 +56,18 @@ public class DbusTest extends android.test.AndroidTestCase  {
 		}
 	}
 	
-	public void testLock() throws Exception
+//	public void testLock() throws Exception
+//	{
+//		new Dbus().methodCall("org.gnome.ScreenSaver","/org/gnome/ScreenSaver" ,"org.gnome.ScreenSaver" ,"Lock" );
+//	}
+	
+	public void testLocalEchoAABUnitTestB() throws Exception
 	{
-		new Dbus().methodCall("org.gnome.ScreenSaver","/" ,"org.gnome.ScreenSaver" ,"Lock" );
+		new Dbus().methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
 	}
 	
-	public void testAlwaysPassed()
+	public void testLocalEchoAABUnitTestC() throws Exception
 	{
-		
+		new Dbus().methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
 	}
 }
