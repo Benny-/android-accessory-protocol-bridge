@@ -61,7 +61,8 @@ static void* signalWatch(void* user_data) {
 			 * the signalWatch() thread might hog the mutex all for itself.
 			 *
 			 * Other threads might require the dbus connection (and the mutex).
-			 * One way to minimize this starvation is to yield control to another thread.
+			 * One way to minimize this starvation is to yield control to another
+			 * thread when the signalWatch() thread released the mutex.
 			 *
 			 * This is a sub-optimal solution. The best solution would be a fair mutex.
 			 */

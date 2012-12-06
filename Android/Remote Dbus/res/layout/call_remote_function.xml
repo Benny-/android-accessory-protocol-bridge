@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Objectpath"
-            android:text="/" />
+            android:text="/org/gnome/ScreenSaver" />
 
         <EditText
             android:id="@+id/Interface"

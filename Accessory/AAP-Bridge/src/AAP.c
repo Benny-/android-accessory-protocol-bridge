@@ -57,7 +57,7 @@ int main (int argc, char *argv[])
 	signal(SIGSEGV, &stop);
 	signal(SIGINT, &stop);
 
-	if(--argc) // Connect to sysBus if we have a few arguments.
+	if(--argc) // Connect to sysBus if we have no arguments.
 	{
 		puts("Connecting to DBUS_BUS_SYSTEM\n");
 		initDbus(DBUS_BUS_SYSTEM);
@@ -115,7 +115,7 @@ int main (int argc, char *argv[])
 				else
 					removeSignalWatch(busname,objectpath,interfacename,signalname);
 			} else {
-				printf("can\'t handle received message type\n");
+				fprintf(stderr,"can\'t handle received message type: 0x%02hhx\n",*message->data);
 			}
 
 			if(message != NULL)

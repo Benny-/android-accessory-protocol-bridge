@@ -34,19 +34,32 @@ public class DbusTypeParser {
 	}
 	
 	/**
-	 * A DbusExtractor is a object who can convert a bytestream into a DbusType object.
+	 * A DbusExtractor is something which can convert a bytestream into a DbusType object or native java object.
 	 *
 	 */
-	public static interface DbusExtractor
-	{
+	public static interface DbusExtractor {
 		abstract char getSupportedToplevelType();
 		abstract Object parse(String signature, ByteBuffer bb);
 	}
 	
+	/**
+	 * DbusSerialiser is the opposite of a DbusExtractor and converts java types to a byte array.
+	 *
+	 */
+	public static interface DbusSerialiser {
+		abstract Class getSupportedJavaType();
+		abstract byte[] serialise(Object object);
+	}
+	
 	private static final HashMap<Character, DbusExtractor> extractors = new HashMap<Character, DbusExtractor>();
+	private static final HashMap<Class, DbusSerialiser> serialisers = new HashMap<Class, DbusTypeParser.DbusSerialiser>();
 	
 	public static void registerExtractor(DbusExtractor extractor) {
 		extractors.put(extractor.getSupportedToplevelType(), extractor);
+	}
+	
+	public static void registerSerialiser(DbusSerialiser dbusSerialiser) {
+		serialisers.put(dbusSerialiser.getSupportedJavaType(), dbusSerialiser);
 	}
 	
 	public static Object extract(String signature, ByteBuffer bb)

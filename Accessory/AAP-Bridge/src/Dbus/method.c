@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "dbuslib.h"
 #include "../Message/AccessoryMessage.h"
 #include "../Message/handlemessage.h"
@@ -15,6 +16,10 @@ extern DBusError dbusError;
 void callmethod(MESSAGE* accessoryMessage) {
 
 	void* dbusMessage = accessoryMessage->data;
+	char* busname = dbusMessage;
+	char* objectpath = busname + strlen(busname) + 1;
+	char* interfacename = objectpath + strlen(objectpath) + 1;
+	char* function_name = interfacename + strlen(interfacename) + 1;
 
 	//dbus vars
 	DBusMessage* message;
@@ -26,13 +31,13 @@ void callmethod(MESSAGE* accessoryMessage) {
 
 	// create a signal and check for errors
 	message = dbus_message_new_method_call(
-			"org.gnome.ScreenSaver",
-			"/org/gnome/ScreenSaver",
-			"org.gnome.ScreenSaver",
-			dbusMessage);
+			busname,
+			objectpath,
+			interfacename,
+			function_name);
 
 	if (message == NULL) {
-		fprintf(stderr,"Method.c: Message Null\n");
+		fprintf(stderr,"Method.c: Reply message is Null\n");
 	} else {
 		/*
 		 //@todo check for empty vartypes/vars not the nices way for adding multiple vars to method solution
@@ -62,7 +67,6 @@ void callmethod(MESSAGE* accessoryMessage) {
 			fprintf(stderr,"Out Of Memory!\n");
 			exit(1);
 		}
-
 
 		if (NULL == pending) {
 			fprintf(stderr,"Pending Call Null\n");
