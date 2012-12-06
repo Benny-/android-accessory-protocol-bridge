@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.MessageHandler;
 import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
+import nl.ict.aapbridge.dbus.message.DbusTypeParser;
 import nl.ict.aapbridge.helper.ExtByteArrayOutputStream;
 import nl.ict.aapbridge.helper.IntegerHelper;
-
 
 /**
  * 
@@ -52,7 +52,7 @@ public class Dbus {
 		bb.putInt(arguments.length);
 		for(Object argument : arguments)
 		{
-			// TODO: Convert java types to binary.
+			DbusTypeParser.serialise(argument,bb);
 		}
 		
 		bridge.Write(bb.array(), 0 ,MessageType.DBUS);

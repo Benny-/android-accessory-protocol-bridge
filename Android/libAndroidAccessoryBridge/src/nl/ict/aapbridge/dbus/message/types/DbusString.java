@@ -8,9 +8,12 @@ import java.nio.charset.CharsetEncoder;
 import nl.ict.aapbridge.dbus.message.DbusContainerType;
 import nl.ict.aapbridge.dbus.message.DbusTypeParser;
 import nl.ict.aapbridge.dbus.message.DbusTypeParser.DbusExtractor;
+import nl.ict.aapbridge.dbus.message.DbusTypeParser.DbusSerializer;
 import static nl.ict.aapbridge.dbus.message.DbusTypeParser.align;
 
 public class DbusString implements DbusContainerType{
+	
+	public static final Charset dbusStringEncoding = Charset.forName("UTF-8");
 	
 	String string;
 	
@@ -36,11 +39,28 @@ public class DbusString implements DbusContainerType{
 		}
 	}
 	
-	static {
-		DbusTypeParser.registerExtractor(new Extractor());
+	private static class Serializer implements DbusSerializer
+	{
+
+		@Override
+		public Class getSupportedJavaType() {
+			return String.class;
+		}
+
+		@Override
+		public void serialize(Object object, ByteBuffer bb) {
+			bb.put((byte)'s');
+			bb.put((byte) 0);
+			bb.put( ((String) object).getBytes(dbusStringEncoding) );
+			bb.put((byte) 0);
+		}
 	}
 	
-	public static final Charset dbusStringEncoding = Charset.forName("UTF-8");
+	static {
+		DbusTypeParser.registerExtractor(new Extractor());
+		DbusTypeParser.registerSerialiser(new Serializer());
+	}
+	
 	private DbusString(ByteBuffer bb) {
 		// DbusString maps to java String's so no DbusString object will be created. Hence the private constructor.
 	}

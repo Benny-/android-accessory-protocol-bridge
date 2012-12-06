@@ -9,19 +9,18 @@ import nl.ict.aapbridge.dbus.message.DbusTypeParser;
 import nl.ict.aapbridge.dbus.message.DbusTypeParser.DbusExtractor;
 import nl.ict.aapbridge.dbus.message.DbusTypeParser.DbusSerializer;
 
-public class DbusDouble {
+public class DbusBoolean {
 	
 	private static class Extractor implements DbusExtractor
 	{
 		@Override
 		public char getSupportedToplevelType() {
-			return 'd';
+			return 'b';
 		}
 
 		@Override
 		public Object parse(String signature, ByteBuffer bb) {
-			align(bb, 8);
-			return bb.getDouble();
+			return bb.get()>1 ? true:0;
 		}
 	}
 	
@@ -30,14 +29,14 @@ public class DbusDouble {
 
 		@Override
 		public Class getSupportedJavaType() {
-			return Double.class;
+			return Boolean.class;
 		}
 
 		@Override
 		public void serialize(Object object, ByteBuffer bb) {
-			bb.put((byte)'d');
+			bb.put((byte)'b');
 			bb.put((byte) 0);
-			bb.putDouble((Double) object);
+			bb.put((byte) (((Boolean) object) ? 1:0) );
 		}
 	}
 	
@@ -46,7 +45,7 @@ public class DbusDouble {
 		DbusTypeParser.registerSerialiser(new Serializer());
 	}
 	
-	private DbusDouble() {
+	private DbusBoolean() {
 		// This class only contains static functions.
 	}
 }

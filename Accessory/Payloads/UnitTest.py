@@ -31,6 +31,10 @@ class AABUnitTestB(dbus.service.Object):
     @dbus.service.method(InterfaceA, in_signature='', out_signature='')
     def LocalEcho(self):
         print(str(datetime.now()) + " Local echo from AABUnitTestB")
+    
+    @dbus.service.method(InterfaceB, in_signature='y', out_signature='')
+    def ExpectingY(self, y):
+        print(str(datetime.now()) + " ExpectingY: "+repr(y) )
 
 class AABUnitTestC(dbus.service.Object):
     InterfaceB = "nl.ict.AABUnitTest.C"
