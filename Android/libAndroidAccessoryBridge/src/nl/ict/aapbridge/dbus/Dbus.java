@@ -25,6 +25,12 @@ public class Dbus {
 	
 	public static final Charset utf8 = Charset.forName("UTF-8");
 	
+	private final AccessoryBridge bridge;
+	
+	public Dbus(AccessoryBridge bridge) {
+		this.bridge = bridge;
+	}
+	
 	public void methodCall(
 			String busname,
 			String objectpath,
@@ -49,7 +55,7 @@ public class Dbus {
 			// TODO: Convert java types to binary.
 		}
 		
-		AccessoryBridge.Write(bb.array(), 0 ,MessageType.DBUS);
+		bridge.Write(bb.array(), 0 ,MessageType.DBUS);
 		
 		// TODO: wait for reply
 	}

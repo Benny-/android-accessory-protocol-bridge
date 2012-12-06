@@ -63,11 +63,11 @@ public class DbusTest extends android.test.AndroidTestCase  {
 	
 	public void testLocalEchoAABUnitTestB() throws Exception
 	{
-		new Dbus().methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
+		new Dbus(aab).methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
 	}
 	
 	public void testLocalEchoAABUnitTestC() throws Exception
 	{
-		new Dbus().methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
+		new Dbus(aab).methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
 	}
 }

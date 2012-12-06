@@ -56,7 +56,7 @@ public class CallRemoteFunctionActivity extends Activity
         
         button_dbus_call.setOnClickListener(new OnClickListener() {
         	public void onClick(View v) {
-        		Dbus d = new Dbus();
+        		Dbus d = new Dbus(aapbridge);
         		try {
 					d.methodCall(
 							textfield_busname.getText().toString(),
@@ -74,7 +74,7 @@ public class CallRemoteFunctionActivity extends Activity
         button_keepalive.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				try {
-					AccessoryBridge.Write("Ping".getBytes(), 0, MessageType.KEEPALIVE);
+					aapbridge.Write("Ping".getBytes(), 0, MessageType.KEEPALIVE);
 				} catch (Exception e) {
 					Toast.makeText(SystemHolder.getContext(), "Accessory not connected", Toast.LENGTH_SHORT).show();
 		        	finish();

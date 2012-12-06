@@ -36,13 +36,13 @@ import com.android.future.usb.UsbManager;
 public class AccessoryBridge
 {
 	private AccessoryConnection connection;
-	private static OutputStream mFops;
+	private OutputStream mFops;
 	public static Queue<AccessoryMessage> messages;
 	public static Handler handler = new Handler();
 	
 	public AccessoryBridge(AccessoryConnection connection) throws IOException {
 		this.connection = connection;
-		AccessoryBridge.mFops = this.connection.getOutputStream();
+		mFops = this.connection.getOutputStream();
 		new UsbListener(this.connection.getInputStream()).start();
 		messages = new LinkedList<AccessoryMessage>();
 	}
@@ -59,7 +59,7 @@ public class AccessoryBridge
 	 * @param type
 	 * @throws Exception
 	 */
-	public static void Write(byte[] message, int id, AccessoryMessage.MessageType type) throws Exception {
+	public void Write(byte[] message, int id, AccessoryMessage.MessageType type) throws Exception {
 
 		byte[] buffer = MessageHandler.encode(message, id, type); //encode message
 		
@@ -71,7 +71,7 @@ public class AccessoryBridge
 	}
 	
 	/**
-	 * Thread who receive the data from Android Accessory bus, decodes it and its to the queue
+	 * Thread who receive the data from Android Accessory bus, decodes it and sends it to the queue
 	 * @author Jurgen
 	 *
 	 */

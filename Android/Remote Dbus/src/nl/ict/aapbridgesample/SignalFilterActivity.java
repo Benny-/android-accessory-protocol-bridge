@@ -60,7 +60,7 @@ public class SignalFilterActivity extends Activity {
 					buffer.put((byte)1); // First byte is if we wish to register or unregister.
 					textInputsToBytes(buffer);
 					
-					AccessoryBridge.Write(
+					aapbridge.Write(
 							buffer.array(),
 							0,
 							MessageType.SIGNAL);
@@ -79,7 +79,7 @@ public class SignalFilterActivity extends Activity {
 					buffer.put((byte)0); // First byte is if we wish to register or unregister.
 					textInputsToBytes(buffer);
 					
-					AccessoryBridge.Write(
+					aapbridge.Write(
 							buffer.array(),
 							0,
 							MessageType.SIGNAL);
