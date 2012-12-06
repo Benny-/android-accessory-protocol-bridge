@@ -2,6 +2,7 @@
 
 from threading import Timer
 from pprint import pprint
+from datetime import datetime
 import gobject
 import glob
 import dbus
@@ -29,7 +30,7 @@ class AABUnitTestB(dbus.service.Object):
     
     @dbus.service.method(InterfaceA, in_signature='', out_signature='')
     def LocalEcho(self):
-        print("Local echo from AABUnitTestB")
+        print(str(datetime.now()) + " Local echo from AABUnitTestB")
 
 class AABUnitTestC(dbus.service.Object):
     InterfaceB = "nl.ict.AABUnitTest.C"
@@ -39,7 +40,7 @@ class AABUnitTestC(dbus.service.Object):
     
     @dbus.service.method(InterfaceA, in_signature='', out_signature='')
     def LocalEcho(self):
-        print("Local echo from AABUnitTestC")
+        print(str(datetime.now()) + " Local echo from AABUnitTestC")
 
 bus_name = dbus.service.BusName('nl.ict.AABUnitTest', bus)
 serviceB = AABUnitTestB('/nl/ict/AABUnitTest/B',bus_name)
