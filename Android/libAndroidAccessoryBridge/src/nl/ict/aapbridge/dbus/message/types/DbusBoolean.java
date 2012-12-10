@@ -20,7 +20,8 @@ public class DbusBoolean {
 
 		@Override
 		public Object parse(String signature, ByteBuffer bb) {
-			return bb.get()>1 ? true:0;
+			align(bb, 4); // Yes. A dbus boolean is a 4 byte aligned to a 4 byte block.
+			return bb.getInt()>1 ? true:0;
 		}
 	}
 	
@@ -35,7 +36,6 @@ public class DbusBoolean {
 		@Override
 		public void serialize(Object object, ByteBuffer bb) {
 			bb.put((byte)'b');
-			bb.put((byte) 0);
 			bb.put((byte) (((Boolean) object) ? 1:0) );
 		}
 	}
