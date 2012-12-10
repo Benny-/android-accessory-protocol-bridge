@@ -34,7 +34,6 @@ public class DbusInt64 {
 		@Override
 		public void serialize(Object object, ByteBuffer bb) {
 			bb.put((byte)'x');
-			bb.put((byte) 0);
 			bb.putLong((Long) object);
 		}
 	}

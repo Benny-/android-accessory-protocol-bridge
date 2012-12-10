@@ -33,7 +33,6 @@ public class DbusByte implements DbusType{
 		@Override
 		public void serialize(Object object, ByteBuffer bb) {
 			bb.put((byte)'y');
-			bb.put((byte) 0);
 			bb.put((Byte) object);
 		}
 	}

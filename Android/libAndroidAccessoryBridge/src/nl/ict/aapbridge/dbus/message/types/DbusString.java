@@ -54,7 +54,6 @@ public class DbusString implements DbusContainerType{
 		@Override
 		public void serialize(Object object, ByteBuffer bb) {
 			bb.put((byte)'s');
-			bb.put((byte) 0);
 			bb.put( ((String) object).getBytes(dbusStringEncoding) );
 			bb.put((byte) 0);
 		}

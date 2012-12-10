@@ -36,7 +36,6 @@ public class DbusDouble {
 		@Override
 		public void serialize(Object object, ByteBuffer bb) {
 			bb.put((byte)'d');
-			bb.put((byte) 0);
 			bb.putDouble((Double) object);
 		}
 	}

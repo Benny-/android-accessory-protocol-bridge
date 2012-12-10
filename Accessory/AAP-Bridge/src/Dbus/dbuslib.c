@@ -10,7 +10,7 @@ DBusError dbusError;
 /**
  * Print a binair data as hexidecimal characters to stdout
  */
-static void PrintBin(const char* data, int len)
+void PrintBin(const char* data, int len)
 {
 	for(int i = 0; i<len; i++)
 	{

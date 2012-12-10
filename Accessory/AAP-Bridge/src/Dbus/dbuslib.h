@@ -23,7 +23,9 @@ typedef struct DMessage {
 	int prevmessage;
 } DMESSAGE;
 
+void PrintBin(const char* data, int len);
 char* PrintDBusMessage(DBusMessage* message);
+
 void initDbus(DBusBusType bus_type);
 
 #endif
