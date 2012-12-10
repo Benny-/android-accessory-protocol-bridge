@@ -33,13 +33,85 @@ class AABUnitTestB(dbus.service.Object):
     def LocalEcho(self):
         print(str(datetime.now()) + " Local echo from AABUnitTestB")
     
-    @dbus.service.method(InterfaceB, in_signature='y', out_signature='')
-    def ExpectingByte(self, y):
-        print(str(datetime.now()) + " Expecting: y Got: "+repr(y) )
-        
-    @dbus.service.method(InterfaceB, in_signature='s', out_signature='')
-    def ExpectingString(self, y):
-        print(str(datetime.now()) + " Expecting: s Got: "+repr(y) )
+    @dbus.service.method(InterfaceB, in_signature='y', out_signature='y')
+    def ExpectingByte(self, val):
+        print(str(datetime.now()) + " Expecting: y Got: "+repr(val) )
+        return val;
+    
+    @dbus.service.method(InterfaceB, in_signature='b', out_signature='b')
+    def ExpectingBoolean(self, val):
+        print(str(datetime.now()) + " Expecting: b Got: "+repr(val) )
+        return val;
+    
+    @dbus.service.method(InterfaceB, in_signature='n', out_signature='n')
+    def ExpectingInt16(self, val):
+        print(str(datetime.now()) + " Expecting: n Got: "+repr(val) )
+        return val;
+    
+    @dbus.service.method(InterfaceB, in_signature='q', out_signature='q')
+    def ExpectingUint16(self, val):
+        print(str(datetime.now()) + " Expecting: q Got: "+repr(val) )
+        return val;
+    
+    @dbus.service.method(InterfaceB, in_signature='i', out_signature='i')
+    def ExpectingInt32(self, val):
+        print(str(datetime.now()) + " Expecting: i Got: "+repr(val) )
+        return val;
+    
+    @dbus.service.method(InterfaceB, in_signature='u', out_signature='u')
+    def ExpectingUint32(self, val):
+        print(str(datetime.now()) + " Expecting: u Got: "+repr(val) )
+        return val;
+    
+    @dbus.service.method(InterfaceB, in_signature='x', out_signature='x')
+    def ExpectingInt64(self, val):
+        print(str(datetime.now()) + " Expecting: x Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='t', out_signature='t')
+    def ExpectingUint64(self, val):
+        print(str(datetime.now()) + " Expecting: t Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='d', out_signature='d')
+    def ExpectingDouble(self, val):
+        print(str(datetime.now()) + " Expecting: d Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='s', out_signature='s')
+    def ExpectingString(self, val):
+        print(str(datetime.now()) + " Expecting: s Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='o', out_signature='o')
+    def ExpectingObjectPath(self, val):
+        print(str(datetime.now()) + " Expecting: o Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='g', out_signature='g')
+    def ExpectingSignature(self, val):
+        print(str(datetime.now()) + " Expecting: g Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='ai', out_signature='ai')
+    def ExpectingArrayInt32(self, val):
+        print(str(datetime.now()) + " Expecting: ai Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='(isi)', out_signature='(isi)')
+    def ExpectingStruct(self, val):
+        print(str(datetime.now()) + " Expecting: (isi) Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='a{si}', out_signature='a{si}')
+    def ExpectingDict(self, val):
+        print(str(datetime.now()) + " Expecting: a{si} Got: "+repr(val) )
+        return val;
+
+    @dbus.service.method(InterfaceB, in_signature='h', out_signature='h')
+    def ExpectingFd(self, val):
+        print(str(datetime.now()) + " Expecting: h Got: "+repr(val) )
+        return val;
 
 class AABUnitTestC(dbus.service.Object):
     InterfaceC = "nl.ict.AABUnitTest.Signals"
