@@ -30,16 +30,7 @@ public class DbusObjectPath implements DbusContainerType{
 	}
 	
 	public DbusObjectPath(String signature, ByteBuffer bb) {
-		align(bb, 4);
-		int length = bb.getInt();
-		StringBuilder sb = new StringBuilder();
-		while(length > 0)
-		{
-			sb.append((char)bb.get());
-			length--;
-		}
-		bb.get(); // D-bus specs append a null byte.
-		string = sb.toString();
+		string = (String) DbusString.parse(signature, bb);
 	}
 
 	@Override

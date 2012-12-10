@@ -14,6 +14,8 @@ import static nl.ict.aapbridge.dbus.message.DbusTypeParser.align;
 
 public class DbusArray extends ArrayList<Object> implements DbusContainerType{
 	
+	private String signature;
+	
 	private static class Extractor implements DbusExtractor
 	{
 		@Override
@@ -40,14 +42,15 @@ public class DbusArray extends ArrayList<Object> implements DbusContainerType{
 		while(bb.position() < end)
 		{
 			this.add(DbusTypeParser.extract(signature.substring(1), bb));
-			//Log.v(TAG, "DbusArray got another element now at postion 0x"+Integer.toHexString(bb.position()));
+			//Log.v(TAG, "DbusArray got another element now at position 0x"+Integer.toHexString(bb.position()));
 		}
+		
+		this.signature = signature.substring(1);
 	}
 
 	@Override
 	public String getSignature() {
-		// TODO Auto-generated method stub
-		return null;
+		return signature;
 	}
 
 }

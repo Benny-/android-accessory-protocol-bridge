@@ -17,25 +17,29 @@ public class DbusString implements DbusContainerType{
 	
 	String string;
 	
+	public static Object parse(String signature, ByteBuffer bb){
+		align(bb, 4);
+		int length = bb.getInt();
+		StringBuilder sb = new StringBuilder();
+		while(length > 0)
+		{
+			sb.append((char)bb.get()); // TODO: Properly decode the utf-8.
+			length--;
+		}
+		bb.get(); // D-bus specs append a null byte.
+		return sb.toString();
+	}
+	
 	private static class Extractor implements DbusExtractor
 	{
 		@Override
 		public char getSupportedToplevelType() {
 			return 's';
-		}
-
+		}		
+		
 		@Override
 		public Object parse(String signature, ByteBuffer bb) {
-			align(bb, 4);
-			int length = bb.getInt();
-			StringBuilder sb = new StringBuilder();
-			while(length > 0)
-			{
-				sb.append((char)bb.get()); // TODO: Properly decode the utf-8.
-				length--;
-			}
-			bb.get(); // D-bus specs append a null byte.
-			return sb.toString();
+			return DbusString.parse(signature, bb);
 		}
 	}
 	
