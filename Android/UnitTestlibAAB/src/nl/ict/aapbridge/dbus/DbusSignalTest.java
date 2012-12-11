@@ -16,11 +16,25 @@ public class DbusSignalTest extends android.test.AndroidTestCase  {
 		{
 			aab = UsbConnectorService.getAAPBridge(getContext());
 		}
+		
+		DbusSignals dbusSignals = new DbusSignals(aab);
+		dbusSignals.addWatch("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/C", "nl.ict.AABUnitTest.Signals", "");
+		Thread.sleep(500);
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		DbusSignals dbusSignals = new DbusSignals(aab);
+		dbusSignals.removeWatch("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/C", "nl.ict.AABUnitTest.Signals", "");
+		Thread.sleep(500);
 	}
 	
 	public void testSignal() throws Exception
 	{
-		new Dbus(aab).methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.Methods" ,"StartEmittingSignals" );
+		new Dbus(aab).methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.Signals" ,"StartEmittingSignals" );
+		Thread.sleep(15000);
 	}
 	
 }

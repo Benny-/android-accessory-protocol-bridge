@@ -53,7 +53,7 @@ void reverse_bytes(char* bytes, size_t len) {
 void encodemessage(uint8_t* data, size_t data_len,  MESSAGETYPE type)
 {
 	if (data == NULL) {
-		printf("Data = NULL\n");
+		fprintf(stderr, "Data = NULL\n");
 	} else {
 //	unsigned char tmp[MESSAGEMAX];
 //	int i = 0;

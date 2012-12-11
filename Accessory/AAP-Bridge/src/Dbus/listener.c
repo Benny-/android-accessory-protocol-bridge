@@ -43,7 +43,7 @@ static void* signalWatch(void* user_data) {
 		if(m != NULL)
 		{
 			char* str = PrintDBusMessage(m);
-			if(str != NULL && connectedToAndroid)
+			if(connectedToAndroid)
 			{
 				char* marshalled;
 				int size;
@@ -81,7 +81,7 @@ void initSignalWatcher(DBusBusType bus_type)
 	con = dbus_bus_get_private(bus_type, &dbusError);
 
 	if (dbus_error_is_set(&dbusError)) {
-		printf("%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
+		fprintf(stderr, "%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
 		dbus_error_free(&dbusError);
 	}
 
@@ -167,7 +167,7 @@ void addSignalWatch(
 	dbus_bus_add_match(con,cstr_rule,&dbusError);
 	pthread_mutex_unlock(&dbus_mutex);
 	if (dbus_error_is_set(&dbusError)) {
-		printf("%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
+		fprintf(stderr, "%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
 		dbus_error_free(&dbusError);
 	}
 
@@ -192,7 +192,7 @@ void removeSignalWatch(
 	dbus_bus_remove_match(con,cstr_rule,&dbusError);
 	pthread_mutex_unlock(&dbus_mutex);
 	if (dbus_error_is_set(&dbusError)) {
-		printf("%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
+		fprintf(stderr, "%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
 		dbus_error_free(&dbusError);
 	}
 

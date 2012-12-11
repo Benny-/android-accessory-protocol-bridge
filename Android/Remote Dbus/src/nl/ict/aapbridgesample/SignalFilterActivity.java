@@ -1,21 +1,13 @@
 package nl.ict.aapbridgesample;
 
-import java.io.StringWriter;
-import java.net.URLDecoder;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import java.text.StringCharacterIterator;
-
-import org.apache.http.util.ByteArrayBuffer;
 
 import nl.ict.aapbridge.R;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
-import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
-import android.os.Bundle;
+import nl.ict.aapbridge.dbus.DbusSignals;
 import android.app.Activity;
+import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -54,16 +46,12 @@ public class SignalFilterActivity extends Activity {
         button_addwatch.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				try {
-					ByteBuffer buffer = ByteBuffer.allocate(1024);
-					buffer.order(ByteOrder.LITTLE_ENDIAN);
-					
-					buffer.put((byte)1); // First byte is if we wish to register or unregister.
-					textInputsToBytes(buffer);
-					
-					aapbridge.Write(
-							buffer.array(),
-							0,
-							MessageType.SIGNAL);
+					DbusSignals dbusSignals = new DbusSignals(aapbridge);
+					dbusSignals.addWatch(
+							textfield_busname.getText().toString(),
+							textfield_objectpath.getText().toString(),
+							textfield_interface.getText().toString(),
+							textfield_membername.getText().toString());
 				} catch (Exception e) {
 					Log.e(TAG, "", e);
 				}
@@ -73,32 +61,16 @@ public class SignalFilterActivity extends Activity {
         button_removewatch.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				try {
-					ByteBuffer buffer = ByteBuffer.allocate(1024);
-					buffer.order(ByteOrder.LITTLE_ENDIAN);
-					
-					buffer.put((byte)0); // First byte is if we wish to register or unregister.
-					textInputsToBytes(buffer);
-					
-					aapbridge.Write(
-							buffer.array(),
-							0,
-							MessageType.SIGNAL);
+					DbusSignals dbusSignals = new DbusSignals(aapbridge);
+					dbusSignals.removeWatch(
+							textfield_busname.getText().toString(),
+							textfield_objectpath.getText().toString(),
+							textfield_interface.getText().toString(),
+							textfield_membername.getText().toString());
 				} catch (Exception e) {
 					Log.e(TAG, "", e);
 				}
 			}
 		});
-    }
-    
-    private void textInputsToBytes(ByteBuffer buffer)
-    {
-		buffer.put(textfield_busname.getText().toString().getBytes(utf8));
-		buffer.put((byte) 0);
-		buffer.put(textfield_objectpath.getText().toString().getBytes(utf8));
-		buffer.put((byte) 0);
-		buffer.put(textfield_interface.getText().toString().getBytes(utf8));
-		buffer.put((byte) 0);
-		buffer.put(textfield_membername.getText().toString().getBytes(utf8));
-		buffer.put((byte) 0);
     }
 }

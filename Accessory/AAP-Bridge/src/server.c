@@ -69,7 +69,7 @@ void* sender(void* user_data) {
 		}
 	}
 	connectedToAndroid = 0;
-	printf("Sender thread has stopped\n");
+	fprintf(stderr, "Sender thread has stopped\n");
 	return NULL;
 }
 

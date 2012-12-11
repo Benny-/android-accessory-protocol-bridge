@@ -118,10 +118,9 @@ public class AccessoryBridge
 									Toast.makeText(SystemHolder.getContext(), "Received a "+message.getType().toString()+": "+message, Toast.LENGTH_SHORT).show();
 								}
 							});
-						}
-						
-						if(message.getType() == MessageType.SIGNAL)
+						} else if(message.getType() == MessageType.SIGNAL)
 						{
+							Log.i(TAG, "Received a SIGNAL");
 							try{
 								DbusMessage dbusmessage = new DbusMessage(message.getData());
 								Log.d(TAG, dbusmessage.getArguments().toString());
@@ -130,6 +129,20 @@ public class AccessoryBridge
 							{
 								Log.e(TAG, "", ex);
 							}
+						} else if(message.getType() == MessageType.DBUS)
+						{
+							Log.i(TAG, "Received a DBUS response");
+							try{
+								DbusMessage dbusmessage = new DbusMessage(message.getData());
+								Log.d(TAG, dbusmessage.getArguments().toString());
+							}
+							catch(RuntimeException ex)
+							{
+								Log.w(TAG, "Cant read this DBUS response yet.");
+							}
+						} else
+						{
+							Log.w(TAG, "Received unknown type: "+message.getType().ordinal());
 						}
 						
 					}

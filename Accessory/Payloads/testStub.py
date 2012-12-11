@@ -99,7 +99,7 @@ class AABUnitTestB(dbus.service.Object):
         return val;
 
     @dbus.service.method(InterfaceB, in_signature='(isi)', out_signature='(isi)')
-    def ExpectingStruct(self, val):
+    def ExpectingStruct1(self, val):
         print(str(datetime.now()) + " Expecting: (isi) Got: "+repr(val) )
         return val;
 
