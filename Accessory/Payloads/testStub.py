@@ -113,6 +113,16 @@ class AABUnitTestB(dbus.service.Object):
         print(str(datetime.now()) + " Expecting: h Got: "+repr(val) )
         return val;
 
+    @dbus.service.method(InterfaceB, in_signature='ssss', out_signature='ssss')
+    def ExpectingMultiString(self, uno, duo, tres, dos ):
+        print(str(datetime.now()) + " Expecting: ssss Got: "+repr( (uno, duo, tres, dos) ))
+        return (uno, duo, tres, dos);
+
+    @dbus.service.method(InterfaceB, in_signature='yyiyx', out_signature='yyiyx')
+    def ExpectingComplex1(self, byte1,byte2,i,byte3,x ):
+        print(str(datetime.now()) + " Expecting: yyiyx Got: "+repr( (byte1,byte2,i,byte3,x) ))
+        return (byte1,byte2,i,byte3,x);
+
 class AABUnitTestC(dbus.service.Object):
     InterfaceC = "nl.ict.AABUnitTest.Signals"
     
@@ -122,26 +132,58 @@ class AABUnitTestC(dbus.service.Object):
     @dbus.service.method(InterfaceA, in_signature='', out_signature='')
     def LocalEcho(self):
         print(str(datetime.now()) + " Local echo from AABUnitTestC")
+
+    @dbus.service.signal(InterfaceC, signature='y')
+    def Byte(self,val):
+        pass
+    
+    @dbus.service.signal(InterfaceC, signature='b')
+    def Boolean(self,val):
+        pass
+    
+    @dbus.service.signal(InterfaceC, signature='n')
+    def Int16(self,val):
+        pass
+    
+    @dbus.service.signal(InterfaceC, signature='q')
+    def Uint32(self,val):
+        pass
+    
+    @dbus.service.signal(InterfaceC, signature='i')
+    def Int32(self,val):
+        pass
     
     @dbus.service.signal(InterfaceC, signature='d')
-    def Double(self,d):
+    def Double(self,val):
         pass
-        
-    @dbus.service.signal(InterfaceC, signature='i')
-    def Int32(self,i):
+    
+    @dbus.service.signal(InterfaceC, signature='s')
+    def String(self,val):
         pass
     
     @dbus.service.signal(InterfaceC, signature='sd')
     def Sensor(self,name,value):
         pass
     
+    @dbus.service.signal(InterfaceC, signature='ysdyi')
+    def Complex1(self,var1,var2,var3,var4,var5):
+        pass
+    
     def Emit(self):
+        time.sleep(1)
+        self.Byte(2)
+        time.sleep(1)
+        self.Boolean(True)
+        time.sleep(1)
+        self.Int32(3)
+        time.sleep(1)
+        self.String("The only real advantage to punk music is that nobody can whistle it.")
         time.sleep(1)
         self.Double(5.5)
         time.sleep(1)
-        self.Int32(7)
-        time.sleep(1)
         self.Sensor("humidity1",9.923)
+        time.sleep(1)
+        self.Complex1(8,"Never do today what you can put off until tomorrow.",45.00000003,9,9084)
     
     @dbus.service.method(InterfaceC, in_signature='', out_signature='')
     def StartEmittingSignals(self):
