@@ -3,6 +3,7 @@ package nl.ict.aapbridge.bridge;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import android.provider.ContactsContract.Contacts.Data;
 import android.util.Log;
 
 import nl.ict.aapbridge.helper.ByteHelper;
@@ -138,7 +139,7 @@ public class AccessoryMessage {
 			o.write(mTotalmessages);
 			o.write(mTotalsize);
 			o.write(mType);
-			o.write(ByteHelper.reverse(mData));
+			o.write(mData);
 			o.close();
 		} catch (IOException e) {
 			Log.wtf(TAG, "This should never happen", e);
@@ -148,6 +149,11 @@ public class AccessoryMessage {
 	
 	@Override
 	public String toString() {
-		return new String(getData(),Charset.forName("UTF-8"));
+		StringBuffer sb = new StringBuffer();
+		for(int i =0; i<mTotalsize; i++)
+		{
+			sb.append(Integer.toHexString(getData()[i]));
+		}
+		return sb.toString();
 	}
 }

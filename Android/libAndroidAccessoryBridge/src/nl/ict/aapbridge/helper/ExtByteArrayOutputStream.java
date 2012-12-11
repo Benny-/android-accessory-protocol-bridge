@@ -24,18 +24,6 @@ public class ExtByteArrayOutputStream extends ByteArrayOutputStream {
 	}
 	
 	/**
-	 * write (reversed array of bytes to outputstream
-	 */
-	public void write(byte[] value) {
-		try {
-			super.write(ByteHelper.reverse(value));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	/**
 	 * write (enum) accessorymessage messagetype to outputstream
 	 * @param value
 	 * @throws IOException
