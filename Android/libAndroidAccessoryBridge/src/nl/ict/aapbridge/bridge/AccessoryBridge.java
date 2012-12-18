@@ -1,32 +1,22 @@
 package nl.ict.aapbridge.bridge;
 
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import static nl.ict.aapbridge.TAG.TAG;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import static nl.ict.aapbridge.TAG.TAG;
 import nl.ict.aapbridge.SystemHolder;
 import nl.ict.aapbridge.aap.AccessoryConnection;
 import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
-
-import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
-
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
 
 
 /**
@@ -39,12 +29,23 @@ public class AccessoryBridge
 	private OutputStream mFops;
 	public static Queue<AccessoryMessage> messages;
 	public static Handler handler = new Handler();
+	private Timer pinger = new Timer("Pinger", true);
 	
 	public AccessoryBridge(AccessoryConnection connection) throws IOException {
 		this.connection = connection;
 		mFops = this.connection.getOutputStream();
 		new UsbListener(this.connection.getInputStream()).start();
 		messages = new LinkedList<AccessoryMessage>();
+		pinger.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					AccessoryBridge.this.Write("Ping".getBytes(), 0, MessageType.KEEPALIVE);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}, 0, 10000);
 	}
 	
 	public void Disconnect() throws IOException
@@ -76,10 +77,10 @@ public class AccessoryBridge
 	 *
 	 */
 	public class UsbListener extends Thread{
-		private InputStream mFips;
+		private InputStream inputStream;
 		
 		public UsbListener(InputStream inputStream) {
-			this.mFips = inputStream;
+			this.inputStream = inputStream;
 		} 
 		
 		public void run() {
@@ -89,7 +90,7 @@ public class AccessoryBridge
 			while(ret >= 0)
 			{
 					Log.d(TAG, "Reading mFips");
-					ret = mFips.read(buffer);
+					ret = inputStream.read(buffer);
 					
 					// The following block will crash the next "mFips.read(buffer);"
 					// IDK what is going on.
@@ -153,7 +154,7 @@ public class AccessoryBridge
 			} finally
 			{
 				try {
-					mFips.close();
+					inputStream.close();
 				} catch (IOException e) {
 					Log.e(TAG, "", e);
 				}
