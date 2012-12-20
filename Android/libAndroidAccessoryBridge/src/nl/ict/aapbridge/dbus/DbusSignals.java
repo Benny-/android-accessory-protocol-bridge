@@ -1,31 +1,50 @@
 package nl.ict.aapbridge.dbus;
 
+import java.io.IOException;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
-import nl.ict.aapbridge.bridge.AccessoryBridge;
-import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
+import android.os.Message;
 
-public class DbusSignals {
+import nl.ict.aapbridge.bridge.AccessoryBridge;
+import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
+import nl.ict.aapbridge.bridge.AccessoryBridge.Service;
+import nl.ict.aapbridge.dbus.message.DbusMessage;
+
+public class DbusSignals implements Service{
 	public static final Charset utf8 = Charset.forName("UTF-8");
 	
-	private final AccessoryBridge bridge;
+	private short receiveLength = 0;
 	
-	public DbusSignals(AccessoryBridge bridge) {
-		this.bridge = bridge;
-	}
+	private final Port port;
+	private final DbusHandler handler;
+	private final ByteBuffer receiveBuffer = ByteBuffer.allocate(8000);
 	
-	public void addWatch(
+	/**
+	 * 
+	 * @param dbusHandler
+	 * @param bridge
+	 * @param busname
+	 * @param objectpath
+	 * @param interfaceName
+	 * @param memberName
+	 * @throws IOException
+	 * @throws BufferOverflowException
+	 */
+	public DbusSignals(
+			DbusHandler dbusHandler,
+			AccessoryBridge bridge,
 			String busname,
 			String objectpath,
 			String interfaceName,
-			String memberName) throws Exception
+			String memberName) throws IOException
 	{
-		ByteBuffer bb = ByteBuffer.allocate(1024);
-		bb.order(ByteOrder.LITTLE_ENDIAN);
+		receiveBuffer.limit(2);
 		
-		bb.put((byte)1); // First byte is if we wish to register or unregister the watch.
+		ByteBuffer bb = ByteBuffer.allocate(8000);
+		bb.order(ByteOrder.LITTLE_ENDIAN);
 		
 		bb.put(busname.getBytes(utf8));
 		bb.put((byte)0);
@@ -36,35 +55,40 @@ public class DbusSignals {
 		bb.put(memberName.getBytes(utf8));
 		bb.put((byte)0);
 		
-		bridge.Write(
-				bb.array(),
-				0,
-				MessageType.SIGNAL);
+		this.handler = dbusHandler;
+		this.port = bridge.requestService((byte)3, bb, this);
 	}
-	
-	public void removeWatch(
-			String busname,
-			String objectpath,
-			String interfaceName,
-			String memberName) throws Exception
-	{
-		ByteBuffer bb = ByteBuffer.allocate(1024);
-		bb.order(ByteOrder.LITTLE_ENDIAN);
-		
-		bb.put((byte)0); // First byte is if we wish to register or unregister the watch.
-		
-		bb.put(busname.getBytes(utf8));
-		bb.put((byte)0);
-		bb.put(objectpath.getBytes(utf8));
-		bb.put((byte)0);
-		bb.put(interfaceName.getBytes(utf8));
-		bb.put((byte)0);
-		bb.put(memberName.getBytes(utf8));
-		bb.put((byte)0);
-		
-		bridge.Write(
-				bb.array(),
-				0,
-				MessageType.SIGNAL);
+
+	@Override
+	public void onDataReady(int length) throws IOException {
+		while(length > 0)
+		{
+			length -= port.read(receiveBuffer);
+			if(!receiveBuffer.hasRemaining())
+			{
+				if(receiveLength == 0)
+				{
+					receiveBuffer.rewind();
+					receiveBuffer.order(ByteOrder.LITTLE_ENDIAN);
+					receiveLength = receiveBuffer.getShort();
+					receiveBuffer.rewind();
+					receiveBuffer.limit(receiveLength);
+				}
+				else
+				{
+					receiveBuffer.rewind();
+					DbusMessage dbusMessage = new DbusMessage(receiveBuffer);
+					Message.obtain(handler, DbusHandler.MessageTypes.DbusSignals.ordinal(), dbusMessage);
+					receiveBuffer.rewind();
+					receiveBuffer.limit(2);
+					receiveLength = 0;
+				}
+			}
+		}
+	}
+
+	@Override
+	public Port getPort() {
+		return port;
 	}
 }
