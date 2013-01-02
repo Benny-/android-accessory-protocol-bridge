@@ -2,30 +2,32 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <bluetooth/bluetooth.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/sdp.h>
 #include <bluetooth/sco.h>
 #include <bluetooth/sdp_lib.h>
 #include <bluetooth/rfcomm.h>
 #include <bluetooth/l2cap.h>
+#include "bt.h"
 
 struct BT_SERVICE
 {
+	struct sockaddr_rc loc_addr;
 	sdp_session_t* sdp_session;
 	sdp_record_t* sdp_record;
 	int fd;
 };
 
-static sdp_session_t* register_service(uint32_t svc_uuid_int[], uint8_t rfcomm_channel)
+static sdp_session_t* register_service(
+    const char* service_name,
+    const char* svc_dsc,
+    const char* service_prov,
+    uint32_t svc_uuid_int[],
+    uint8_t rfcomm_channel )
 {
     // Stolen from http://www.btessentials.com/examples/bluez/sdp-register.c
-    const char *service_name = "Roto-Rooter Data Router";
-    const char *svc_dsc = "An experimental plumbing router";
-    const char *service_prov = "Roto-Rooter";
 
     char test[100];
     int check = ba2str(BDADDR_ANY,test);
@@ -47,7 +49,7 @@ static sdp_session_t* register_service(uint32_t svc_uuid_int[], uint8_t rfcomm_c
     sdp_session_t *session = 0;
 
     // set the general service ID
-    sdp_uuid128_create( &svc_uuid, &svc_uuid_int );
+    sdp_uuid128_create( &svc_uuid, svc_uuid_int );
     sdp_set_service_id( &record, svc_uuid );
 
     char str[256] = "";
@@ -105,9 +107,38 @@ static sdp_session_t* register_service(uint32_t svc_uuid_int[], uint8_t rfcomm_c
     return session;
 }
 
-BT_SERVICE* bt_listen(uuid_int[4] uuid)
+BT_SERVICE* bt_listen(
+        const char* service_name,
+        const char* svc_dsc,
+        const char* service_prov,
+        uint32_t svc_uuid_int[4] )
 {
-    return NULL;
+	BT_SERVICE* bt_service = malloc(sizeof(BT_SERVICE));
+
+	uint8_t port = 3;
+    sdp_session_t* session = register_service(service_name, svc_dsc, service_prov, svc_uuid_int, port);
+
+    struct sockaddr_rc rem_addr = { 0 };
+    socklen_t opt = sizeof(rem_addr);
+
+    // allocate socket
+    bt_service->fd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+    printf("socket() returned fd %d\n", bt_service->fd);
+
+    // bind socket to of the first available local bluetooth adapter
+    bt_service->loc_addr.rc_family = AF_BLUETOOTH;
+    bt_service->loc_addr.rc_bdaddr = *BDADDR_ANY;
+    bt_service->loc_addr.rc_channel = (uint8_t) port;
+
+    int r;
+    r = bind(bt_service->fd, (struct sockaddr *)&bt_service->loc_addr, sizeof(bt_service->loc_addr));
+    printf("bind() on channel %d returned %d\n", port, r);
+
+    // put socket into listening mode
+    r = listen(bt_service->fd, 1);
+    printf("listen() returned %d\n", r);
+
+    return bt_service;
 }
 
 int bt_getFD(BT_SERVICE* service)
@@ -115,8 +146,9 @@ int bt_getFD(BT_SERVICE* service)
     return service->fd;
 }
 
-void bt_release(BT_SERVICE* service)
+void bt_close(BT_SERVICE* service)
 {
-    sdp_record_unregister(service->sdp_session, service->sdp_record);
+	sdp_close( service->sdp_session );
+    // sdp_record_unregister(service->sdp_session, service->sdp_record); // HELP: I dont know if I should call sdp_close() or sdp_record_unregister()
     close(service->fd);
 }

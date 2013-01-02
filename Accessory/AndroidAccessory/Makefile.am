@@ -18,7 +18,8 @@ EXTRA_DIST = src/*.h
 libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_SOURCES = $(libandroidaccessory_la_HEADERS) \
                         src/accessory.c \
                         src/initialize.c \
-                        src/usb.c
+                        src/usb.c \
+                        src/bt.c
 
 # Headers who will be installed on the system
 androidaccessory_includedir = $(includedir)/androidaccessory-$(ANDROIDACCESSORY_API_VERSION)

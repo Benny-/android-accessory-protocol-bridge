@@ -175,6 +175,7 @@ pip-log.txt
 
 # Autotools
 .deps/
+m4/
 autom4te.cache/
 config.log
 *.pc

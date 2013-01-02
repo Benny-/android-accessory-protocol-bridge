@@ -1,11 +1,15 @@
+#include <inttypes.h>
 
 typedef struct BT_SERVICE BT_SERVICE;
 
-BT_SERVICE* bt_listen(uuid_int[4] uuid);
+BT_SERVICE* bt_listen(
+        const char* service_name,
+        const char* svc_dsc,
+        const char* service_prov,
+        uint32_t svc_uuid_int[4] );
 /*
 Return a standart server socket. accept() from socket.h can be used to obtain connections.
-Close must never be called on this socket. Use release(BT_SERVICE* service) if you are done.
+Close must never be called on this socket. Use close(BT_SERVICE* service) if you are done.
 */
 int bt_getFD(BT_SERVICE* service);
-void bt_release(BT_SERVICE* service);
-
+void bt_close(BT_SERVICE* service);
