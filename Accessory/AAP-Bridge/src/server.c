@@ -28,6 +28,10 @@ void* receiver(void* user_data) {
 		PrintBin(read.buffer, read.read);
 		puts("\n");
 
+		// TODO: Receive messages in parts.
+
+		decodemessage(read.buffer);
+
 		if (read.error) {
 			// Our device disconnected, stop the loop
 			printf("Receiver thread is going to stop\n");
