@@ -20,5 +20,3 @@ AAP-Bridge managed the communication from android and the d-bus on the local sys
 - /Android/Remote Dbus
 
 The Accessory map contains the library for communicating to the remote d-bus. In addition to this it contains the "Remote Dbus" project. This Android application uses the library to send arbitrary d-bus function calls and listen to arbitrary d-bus signals.
-
-test
