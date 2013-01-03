@@ -3,7 +3,6 @@ package nl.ict.aapbridge.dbus.message;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import nl.ict.aapbridge.dbus.RemoteException;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import nl.ict.aapbridge.dbus.message.types.DbusObjectPath;
 import nl.ict.aapbridge.dbus.message.types.DbusSignature;
@@ -65,7 +64,9 @@ public class DbusMessage {
 		}
 	}
 	
-	public DbusMessage(ByteBuffer bb) {
+	public DbusMessage(byte[] marshalled) {
+		
+		ByteBuffer bb = ByteBuffer.wrap(marshalled);
 		ByteOrder endian = null;
 		{
 			byte endian_marshalled = bb.get();
@@ -95,7 +96,7 @@ public class DbusMessage {
 		arguments = new DbusStruct("("+Signature.getSignatureString()+")",bb);
 	}
 	
-	public DbusStruct getArguments() throws RemoteException
+	public DbusStruct getArguments()
 	{
 		return arguments;
 	}
