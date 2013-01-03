@@ -32,7 +32,7 @@ public class BTConnection implements AccessoryConnection {
 	private boolean disconnected = false;
 
 	private static final UUID MY_UUID_INSECURE = UUID
-			.fromString("1dd35050-a437-11e1-b3dd-0800200c9a66");
+			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 	public BTConnection(String address) throws IOException {
 		mAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -43,25 +43,11 @@ public class BTConnection implements AccessoryConnection {
 	}
 
 	public InputStream getInputStream() throws IOException {
-		try
-		{
-			return mSocket.getInputStream();
-		}
-		finally
-		{
-			disconnected = true;
-		}
+		return mSocket.getInputStream();
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		try
-		{
-			return mSocket.getOutputStream();
-		}
-		finally
-		{
-			disconnected = true;
-		}
+		return mSocket.getOutputStream();
 	}
 
 	public void close() throws IOException {
