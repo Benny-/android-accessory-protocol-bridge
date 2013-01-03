@@ -16,7 +16,6 @@ package nl.ict.aapbridge.aap;
  */
 
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,7 +37,7 @@ public class BTConnection implements AccessoryConnection, Closeable {
 	private boolean disconnected = false;
 
 	private static final UUID MY_UUID_INSECURE = UUID
-			.fromString("a48e5d50-188b-4fca-b261-89c13914e118");
+			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 	public BTConnection(String address) throws IOException {
 		mAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -49,25 +48,11 @@ public class BTConnection implements AccessoryConnection, Closeable {
 	}
 
 	public InputStream getInputStream() throws IOException {
-		try
-		{
-			return mSocket.getInputStream();
-		}
-		finally
-		{
-			disconnected = true;
-		}
+		return mSocket.getInputStream();
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		try
-		{
-			return mSocket.getOutputStream();
-		}
-		finally
-		{
-			disconnected = true;
-		}
+		return mSocket.getOutputStream();
 	}
 
 	@Override

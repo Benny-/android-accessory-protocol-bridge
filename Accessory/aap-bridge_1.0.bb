@@ -3,7 +3,7 @@ DESCRIPTION = "This program allow interfacing from Android to the local d-bus us
 HOMEPAGE = "ict.nl"
 LICENSE = "Idk"
 
-DEPENDS = "dbus-1"
+DEPENDS = "dbus-1, libandroidaccessory-1.0"
 
 # Update checksum if license file changes.
 LIC_FILES_CHKSUM = "file://COPYING;md5=4347375aa52ecf07c16943db6168fc19"

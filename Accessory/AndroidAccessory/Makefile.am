@@ -18,7 +18,8 @@ EXTRA_DIST = src/*.h
 libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_SOURCES = $(libandroidaccessory_la_HEADERS) \
                         src/accessory.c \
                         src/initialize.c \
-                        src/usb.c
+                        src/usb.c \
+                        src/bt.c
 
 # Headers who will be installed on the system
 androidaccessory_includedir = $(includedir)/androidaccessory-$(ANDROIDACCESSORY_API_VERSION)
@@ -27,10 +28,11 @@ androidaccessory_include_HEADERS = include/accessory.h
 androidaccessory_libincludedir = $(libdir)/androidaccessory-$(ANDROIDACCESSORY_API_VERSION)/include
 nodist_androidaccessory_libinclude_HEADERS = androidaccessoryconfig.h
 
+# Compile flags
+libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_CFLAGS = -I$(top_srcdir)/include -std=c99
+
 # Linker options
 libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_LDFLAGS = -version-info $(ANDROIDACCESSORY_SO_VERSION)
-
-libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_CFLAGS = -I$(top_srcdir)/include -std=c99
 
 ## Install the generated pkg-config file (.pc) into the expected location for
 ## architecture-dependent package configuration information.  Occasionally,

@@ -5,7 +5,7 @@ includedir=@includedir@
 
 Name: @PACKAGE_NAME@
 Description: "This library allows this computer to be seen as a android accessory using the Android accessory protocol"
-Requires: libudev libusb-1.0
+Requires: libudev libusb-1.0 bluez
 Version: @PACKAGE_VERSION@
 URL: @PACKAGE_URL@
 Libs: -L${libdir} -landroidaccessory-@ANDROIDACCESSORY_API_VERSION@
