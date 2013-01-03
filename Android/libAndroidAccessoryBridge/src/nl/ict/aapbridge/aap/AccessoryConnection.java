@@ -20,42 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * 
- * Provides an abstraction layer to a android accessory.
- *
- */
 public interface AccessoryConnection {
-	
-	/**
-	 * Retrieves a inputstream to read data from the accessory.
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
 	public abstract InputStream getInputStream() throws IOException;
-	
-	/**
-	 * Retrieves a outputstream to write data to the accessory.
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
 	public abstract OutputStream getOutputStream() throws IOException;
-	
-	/**
-	 * Closes the input and output streams. No more bytes may be read or written to the streams.
-	 * 
-	 * @throws IOException
-	 */
+
 	public abstract void close() throws IOException;
-	
-	/**
-	 * Check if both communication channels are closed.
-	 * 
-	 * Will always return true if {@link #close() close} has been called.
-	 * 
-	 * @return
-	 */
 	public boolean disconnected();
 }

@@ -20,12 +20,11 @@ import nl.ict.aapbridge.aap.AccessoryConnection;
 import nl.ict.aapbridge.dbus.Dbus;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.DbusSignals;
-import android.os.RemoteException;
 import android.util.Log;
 
+
 /**
- * Handles the communication with the android accessory bridge.
- * 
+ * The class that handles the communication with Android Accessory
  * @author jurgen
  */
 public class AccessoryBridge implements Channel
@@ -75,22 +74,13 @@ public class AccessoryBridge implements Channel
 			short writeAmount = (short) (buffer.remaining() > 4000 ? 4000 : buffer.remaining());
 			header.putShort(writeAmount);
 			header.position(0);
-			synchronized (this) {
+			synchronized (outputStream) {
 				outputStream.write(header.array(), 0, header.remaining());
 				outputStream.write(buffer.array(), buffer.arrayOffset(), writeAmount);
 			}
 			return writeAmount;
 		}
 
-		/**
-		 * Read a number of bytes and put them in the buffer. This call be only be done if bytes are ready.
-		 * 
-		 * {@link nl.ict.aapbridge.bridge.AccessoryBridge.Service#onDataReady(int) onDataReady} will be called if bytes are ready. All byte MUST be read before returning
-		 * from that function.
-		 * 
-		 * {@link #read(ByteBuffer)} might not read all bytes in one go. You must keep calling this function until
-		 * all you have read all bytes as specified by Service#onDataReady(int).
-		 */
 		@Override
 		public int read(ByteBuffer buffer) throws IOException {
 			return inputStream.read(buffer.array(), buffer.arrayOffset(), buffer.remaining());
@@ -98,16 +88,6 @@ public class AccessoryBridge implements Channel
 	}
 	
 	public interface Service {
-		/**
-		 * Called from the ReceiverThread if bytes must be read.
-		 * 
-		 * The bytes must be read from the port before this function call returns.
-		 * 
-		 * @param length
-		 * @throws IOException
-		 * @see Port#read(ByteBuffer)
-		 * @see ReceiverThread
-		 */
 		void onDataReady(int length) throws IOException;
 		Port getPort();
 	}
@@ -132,19 +112,10 @@ public class AccessoryBridge implements Channel
 		portRequest.mark();
 	}
 	
-	/**
-	 * Builds a accessory bridge on the android accessory protocol. This will be required before you can use any of the other protocols.
-	 * 
-	 * @param connection The underlying connection to use. This can be bluetooth, usb or any other implementation
-	 * @throws IOException
-	 * @see {@link Dbus}
-	 * @see {@link DbusSignals}
-	 */
 	public AccessoryBridge(AccessoryConnection connection) throws IOException {
 		this.connection = connection;
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
-		
 		new ReceiverThread().start();
 		pinger.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -159,19 +130,7 @@ public class AccessoryBridge implements Channel
 		}, 5000, 10000);
 	}
 	
-	/**
-	 * Sends a request to the accessory for the requested service.
-	 * 
-	 * The accessory
-	 * 
-	 * @param serviceIdentifier
-	 * @param arguments
-	 * @param service
-	 * @return a {@link Port port} associated with requested port.
-	 * @throws IOException
-	 * @throws ServiceRequestException
-	 */
-	public synchronized Port requestService(byte serviceIdentifier, ByteBuffer arguments, Service service) throws IOException, ServiceRequestException
+	public synchronized Port requestService(byte serviceIdentifier, ByteBuffer arguments, Service service) throws IOException
 	{
 		portRequest.reset();
 		portRequest.put(serviceIdentifier);
@@ -181,16 +140,11 @@ public class AccessoryBridge implements Channel
 			serviceSpawner.write(portRequest);
 		while(arguments.hasRemaining())
 			serviceSpawner.write(arguments);
-		
-		// TODO: Wait for response.
 		return null;
 	}
 	
 	private static final ByteBuffer emptyByteBuffer = ByteBuffer.allocate(0);
-	/**
-	 * Calls {@link #requestService(byte, ByteBuffer, Service) requestService(byte, ByteBuffer arguments, Service)} } with empty arguments.
-	 */
-	public synchronized Port requestService(byte serviceIdentifier, Service service) throws IOException, ServiceRequestException
+	public synchronized Port requestService(byte serviceIdentifier, Service service) throws IOException
 	{
 		return requestService(serviceIdentifier, emptyByteBuffer, service);
 	}
@@ -221,7 +175,7 @@ public class AccessoryBridge implements Channel
 					short destinationPort = bb.getShort();
 					short dataLength = bb.getShort();
 					
-					Log.d(TAG, "AAB msg: Port "+destinationPort+" dataLength: "+dataLength);
+					Log.d(TAG, "AAB msg: Port "+destinationPort+" dataLength:"+dataLength);
 					Service service = activeServices.get(destinationPort);
 					if(service == null)
 						Log.w(TAG, "Received a message for a port where no service is listening");
@@ -242,38 +196,24 @@ public class AccessoryBridge implements Channel
 		}
 	}
 	
-	/**
-	 * Creates a Dbus object. This is the same as new {@link Dbus#Dbus(DbusHandler, AccessoryBridge)}
-	 * @throws ServiceRequestException 
-	 * 
-	 * @see Dbus
-	 */
-	public Dbus createDbus(DbusHandler dbusHandler) throws IOException, ServiceRequestException
+	public Dbus createDbus(DbusHandler dbusHandler) throws IOException
 	{
 		return new Dbus(dbusHandler, this);
 	}
 	
-	/**
-	 * Creates a DbusSignals object. This is the same as new {@link DbusSignals#DbusSignals(DbusHandler, AccessoryBridge, String, String, String, String)}
-	 * 
-	 * @see DbusSignals
-	 */
 	public DbusSignals createDbusSignal(
 			DbusHandler dbusHandler,
 			String busname,
 			String objectpath,
 			String interfaceName,
-			String memberName) throws IOException, ServiceRequestException
+			String memberName) throws IOException
 	{
 		return new DbusSignals(dbusHandler, this, busname, objectpath, interfaceName, memberName);
 	}
 	
-	/**
-	 * @TODO: Implement createBulkTransfer
-	 */
 	public void createBulkTransfer()
 	{
-		
+		// TODO: Implement createBulkTransfer.
 	}
 
 	@Override

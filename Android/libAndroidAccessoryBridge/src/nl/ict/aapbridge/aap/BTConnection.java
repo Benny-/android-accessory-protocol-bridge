@@ -25,12 +25,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
-/**
- * 
- * Creates a connection to a android accessory using a rfcomm bluetooth socket.
- * 
- */
-public class BTConnection implements AccessoryConnection, Closeable {
+public class BTConnection implements AccessoryConnection {
 
 	private final BluetoothAdapter mAdapter;
 	private BluetoothSocket mSocket;
@@ -55,13 +50,9 @@ public class BTConnection implements AccessoryConnection, Closeable {
 		return mSocket.getOutputStream();
 	}
 
-	@Override
 	public void close() throws IOException {
-		if(!disconnected)
-		{
-			disconnected = true;
-			mSocket.close();
-		}
+		disconnected = true;
+		mSocket.close();
 	}
 
 	public boolean disconnected() {
