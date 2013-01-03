@@ -292,7 +292,7 @@ libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_SOURCES = $(libandroidacce
 
 # Headers who will be installed on the system
 androidaccessory_includedir = $(includedir)/androidaccessory-$(ANDROIDACCESSORY_API_VERSION)
-androidaccessory_include_HEADERS = include/accessory.h include/usb.h
+androidaccessory_include_HEADERS = include/accessory.h
 androidaccessory_libincludedir = $(libdir)/androidaccessory-$(ANDROIDACCESSORY_API_VERSION)/include
 nodist_androidaccessory_libinclude_HEADERS = androidaccessoryconfig.h
 
