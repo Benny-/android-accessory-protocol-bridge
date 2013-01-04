@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <uuid/uuid.h>
 #include <stdint.h>
 #include <math.h>
 #include "receivequeue.h"
