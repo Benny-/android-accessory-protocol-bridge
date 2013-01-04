@@ -167,3 +167,8 @@ int writeAccessoryUSB(const void* buffer, int size, AapConnection* con)
 	pthread_mutex_unlock(&con->writeLock);
 	return response;
 }
+
+void closeAccessoryUSB(AapConnection* con)
+{
+	closeUsb(con->usbConnection.dev_handle);
+}

@@ -18,5 +18,6 @@ struct udev_device* tryGetNextUSB(struct udev_monitor *udev_monitor);
 
 AccessoryRead readAccessoryUSB(AapConnection* con);
 int writeAccessoryUSB(const void* buffer, int size, AapConnection* con);
+void closeAccessoryUSB(AapConnection* con);
 
 #endif

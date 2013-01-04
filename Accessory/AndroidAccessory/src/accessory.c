@@ -124,6 +124,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 					// TODO: Populate aapconnection
 					aapconnection->writeAccessory = &writeAccessoryUSB;
 					aapconnection->readAccessory = &readAccessoryUSB;
+					aapconnection->closeAccessory = &closeAccessoryUSB;
 				}
 			}
 			else
@@ -146,6 +147,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 			aapconnection->length = 1024;
 			aapconnection->writeAccessory = &writeAccessoryBT;
 			aapconnection->readAccessory = &readAccessoryBT;
+			aapconnection->closeAccessory = &closeAccessoryBT;
 		}
 	}
 
@@ -155,7 +157,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 void closeAndroidConnection(AapConnection* con)
 {
 	pthread_mutex_destroy(&con->writeLock);
-	// TODO: Release usb or bt resources.
+	con->closeAccessory(con);
 	free(con);
 }
 

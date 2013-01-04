@@ -51,6 +51,7 @@ struct AapConnection
 	};
 	int (*writeAccessory)(const void* buffer, int size, AapConnection* con);
 	AccessoryRead (*readAccessory)(AapConnection* con);
+	void (*closeAccessory)(AapConnection* con);
 	pthread_mutex_t writeLock;
 
 	/**

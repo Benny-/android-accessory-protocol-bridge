@@ -21,5 +21,6 @@ void bt_close(BT_SERVICE* service);
 
 AccessoryRead readAccessoryBT(AapConnection* con);
 int writeAccessoryBT(const void* buffer, int size, AapConnection* con);
+void closeAccessoryBT(AapConnection* con);
 
 #endif

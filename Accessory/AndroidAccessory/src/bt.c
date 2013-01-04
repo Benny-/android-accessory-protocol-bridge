@@ -193,3 +193,8 @@ int writeAccessoryBT(const void* buffer, int size, AapConnection* con)
 	pthread_mutex_unlock(&con->writeLock);
 	return error;
 }
+
+void closeAccessoryBT(AapConnection* con)
+{
+	close(con->btConnection.fd);
+}
