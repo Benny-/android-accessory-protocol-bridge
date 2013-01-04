@@ -11,6 +11,7 @@
 #include <bluetooth/sdp_lib.h>
 #include <bluetooth/rfcomm.h>
 #include <bluetooth/l2cap.h>
+
 #include "bt.h"
 
 struct BT_SERVICE
@@ -177,8 +178,18 @@ AccessoryRead readAccessoryBT(AapConnection* con)
 
 int writeAccessoryBT(const void* buffer, int size, AapConnection* con)
 {
+	int error = 0;
 	pthread_mutex_lock(&con->writeLock);
-
-
-	return 0;
+	while(size > 0 || !error )
+	{
+		int wrote = write(con->btConnection.fd, buffer, size);
+		buffer += wrote;
+		size -= wrote;
+		if(wrote < 1)
+		{
+			error = 1;
+		}
+	}
+	pthread_mutex_unlock(&con->writeLock);
+	return error;
 }

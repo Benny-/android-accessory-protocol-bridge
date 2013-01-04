@@ -81,6 +81,13 @@ Accessory* initAccessory(
 	return accessory;
 }
 
+static AapConnection* mallocAapConnection()
+{
+	AapConnection* aapconnection = malloc(sizeof(AapConnection));
+	pthread_mutex_init(&aapconnection->writeLock, NULL);
+	return aapconnection;
+}
+
 AapConnection* getNextAndroidConnection(Accessory* accessory)
 {
 	struct udev_device *usb_device;
@@ -112,7 +119,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 				libusb_device_handle* dev_handle = tryOpenAccessory(usb_device);
 				if(dev_handle != NULL)
 				{
-					aapconnection = malloc(sizeof(AapConnection));
+					aapconnection = mallocAapConnection();
 					aapconnection->usbConnection.dev_handle = dev_handle;
 					// TODO: Populate aapconnection
 					aapconnection->writeAccessory = &writeAccessoryUSB;
@@ -133,7 +140,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 			accessory->fds[1].revents = 0;
 
 			int fd = accept(bt_getFD(accessory->bt_service),NULL,NULL);
-			aapconnection = malloc(sizeof(AapConnection));
+			aapconnection = mallocAapConnection();
 			aapconnection->btConnection.fd = fd;
 			aapconnection->receiveBuffer = malloc(1024); // Arbitrary buffer size.
 			aapconnection->length = 1024;
@@ -147,13 +154,16 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 
 void closeAndroidConnection(AapConnection* con)
 {
-	// TODO: Implement this function.
+	pthread_mutex_destroy(&con->writeLock);
+	// TODO: Release usb or bt resources.
+	free(con);
 }
 
 void deInitaccessory(Accessory* accessory)
 {
+	udev_monitor_unref(accessory->udev_monitor);
+	udev_unref(accessory->udev_context);
 	libusb_exit(accessory->usb_context);
-	// TODO: We need to close the udev monitor.
 	bt_close(accessory->bt_service);
 	free(accessory);
 }

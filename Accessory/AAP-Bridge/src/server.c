@@ -34,13 +34,13 @@ void* receiver(void* user_data) {
 
 		if (read.error) {
 			// Our device disconnected, stop the loop
-			printf("Receiver thread is going to stop\n");
+			fprintf(stderr,"Receiver thread is going to stop\n");
 			addreceivequeue(NULL);
 			work = 0;
 			break;
 		}
 	}
-	printf("Receiver thread has stopped\n");
+	fprintf(stderr,"Receiver thread has stopped\n");
 	return NULL;
 }
 
@@ -60,7 +60,13 @@ void* sender(void* user_data) {
 
 		//decodemessage(buffer);
 		error = writeAccessory(buffer, sizeof(MESSAGE), con);
+
+		printf("Bytes send: %i\n",sizeof(MESSAGE));
+		PrintBin(buffer, sizeof(MESSAGE));
+		puts("\n");
+
 		if (error) {
+			fprintf(stderr,"Error writing to accessory\n");
 			// Our device disconnected, stop the loop
 			work = 0;
 			break;
