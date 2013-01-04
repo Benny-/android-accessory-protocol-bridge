@@ -116,7 +116,7 @@ public class AccessoryBridge
 						{
 							handler.post(new Runnable() {
 								public void run() {
-									Toast.makeText(SystemHolder.getContext(), "Received a "+message.getType().toString()+": "+message, Toast.LENGTH_SHORT).show();
+									Log.v(TAG, "Received a KEEPALIVE");
 								}
 							});
 						} else if(message.getType() == MessageType.SIGNAL)

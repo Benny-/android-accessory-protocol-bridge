@@ -2,7 +2,6 @@ package nl.ict.aapbridgesample;
 
 import java.nio.charset.Charset;
 
-import nl.ict.aapbridge.R;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.dbus.DbusSignals;
 import android.app.Activity;

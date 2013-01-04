@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import nl.ict.aapbridge.R;
 import nl.ict.aapbridge.bridge.AccessoryMessage;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.MessageHandler;
