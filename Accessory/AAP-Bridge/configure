@@ -2772,6 +2772,7 @@ am__tar='$${TAR-tar} chof - "$$tardir"' am__untar='$${TAR-tar} xf -'
 
 
 
+# Checks for programs.
 DEPDIR="${am__leading_dot}deps"
 
 ac_config_commands="$ac_config_commands depfiles"
@@ -3879,7 +3880,7 @@ fi
 
 
 
-# Checks for libraries.
+# Checks for packages.
 
 
 

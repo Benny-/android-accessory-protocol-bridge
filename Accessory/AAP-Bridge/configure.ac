@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.68])
-AC_INIT(AAP-Bridge, 1.0, benny.jacobs@ict.nl)
+AC_PREREQ([2.69])
+AC_INIT([AAP-Bridge],[1.0],[benny.jacobs@ict.nl])
 AC_CONFIG_SRCDIR([src/AAP.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -10,9 +10,10 @@ AM_INIT_AUTOMAKE([subdir-objects])
 
 AC_CONFIG_MACRO_DIR([m4])
 
+# Checks for programs.
 AM_PROG_CC_C_O
 
-# Checks for libraries.
+# Checks for packages.
 PKG_CHECK_MODULES(DEPENDENCIES, [dbus-1 >= 1.6.1, libandroidaccessory-1.0])
 
 # Checks for header files.
