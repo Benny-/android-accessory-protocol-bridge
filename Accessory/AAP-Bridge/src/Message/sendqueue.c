@@ -15,7 +15,7 @@ int currentsendposition = 0;
 int itemsinsendqueue = 0;
 
 int initSendQueue(){
-	return sem_init(&inSendQueue, 0, 0);
+	return sem_init(&inSendQueue, 0, 0) | pthread_mutex_init(&queueSendMutex, NULL);
 }
 
 void addSendQueue(MESSAGE* message) {

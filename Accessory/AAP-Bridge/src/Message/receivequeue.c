@@ -15,7 +15,7 @@ int currentposistion = 0;
 sem_t inReceiveQueue;
 
 int initreceiveQueue() {
-	return sem_init(&inReceiveQueue, 0, 0);
+	return sem_init(&inReceiveQueue, 0, 0) | pthread_mutex_init(&queueReceiveMutex, NULL);
 }
 
 void addreceivequeue(MESSAGE *buffer) {
