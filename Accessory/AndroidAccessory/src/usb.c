@@ -89,13 +89,25 @@ struct udev_device* tryGetNextUSB(struct udev_monitor *udev_monitor)
 int isAndroid(struct udev_device *usb_device)
 {
 	int isAndroid = 0;
-	for (int i = 0; i < (sizeof vendors / sizeof *vendors) && !isAndroid; i++)
-	{
-//		if (udev_device_get_ == vendors[i]) {
-//			printf("Supported vendor Id found: %04hx\n", desc.idVendor);
+
+	printf("ID_VENDOR_ID: %s\n", udev_device_get_property_value(usb_device, "ID_VENDOR_ID"));
+	printf("ID_MODEL_ID: %s\n", udev_device_get_property_value(usb_device, "ID_MODEL_ID"));
+	printf("ID_VENDOR: %s\n", udev_device_get_property_value(usb_device, "ID_VENDOR"));
+	printf("ID_MODEL: %s\n", udev_device_get_property_value(usb_device, "ID_MODEL"));
+
+//	if(atoi(udev_device_get_property_value(usb_device, "ID_VENDOR_ID")) == 0x0FF9)
+//	{
+//		for (int i = 0; i < (sizeof vendors / sizeof *vendors) && !isAndroid; i++)
+//		{
+//			if ( atoi(udev_device_get_property_value(usb_device, "ID_VENDOR_ID")) == vendors[i] )
+//			{
+//				isAndroid = 1;
+//			}
 //		}
-	}
-	return isAndroid;
+//	}
+//	return isAndroid;
+
+	return strcmp(udev_device_get_property_value(usb_device, "ID_MODEL"), "Android_Phone");
 }
 
 int isAccessory(struct udev_device *usb_device)
