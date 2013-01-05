@@ -180,7 +180,7 @@ int writeAccessoryBT(const void* buffer, int size, AapConnection* con)
 {
 	int error = 0;
 	pthread_mutex_lock(&con->writeLock);
-	while(size > 0 || !error )
+	while(size > 0 && !error )
 	{
 		int wrote = write(con->btConnection.fd, buffer, size);
 		buffer += wrote;
