@@ -3,8 +3,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include "initialize.h"
 #include "accessory.h"
 #include "usb.h"
+#include "config.h"
 
 int writeAccessory(const void* buffer, int size, AapConnection* con)
 {
@@ -17,13 +19,12 @@ AccessoryRead readAccessory(AapConnection* con)
 }
 
 Accessory* initAccessory(
-		const char* manufacturer,	// usb accessory protocol
-		const char* modelName,		// usb accessory protocol
-		const char* name,			// Used for bt
-		const char* description,	// Used for bt & usb accessory protocol
-		const char* version,		// usb accessory protocol
-		const char* uri,			// usb accessory protocol
-		const char* serialNumber)	// usb accessory protocol
+		const char* manufacturer,
+		const char* modelName,
+		const char* description,
+		const char* version,
+		const char* uri,
+		const char* serialNumber)
 {
  	libusb_context *usb_context;
  	if (libusb_init(&usb_context))
@@ -50,7 +51,6 @@ Accessory* initAccessory(
 	Accessory* accessory = malloc(sizeof(Accessory));
 	accessory->manufacturer = manufacturer;
 	accessory->modelName = modelName;
-	accessory->name = name;
 	accessory->description = description;
 	accessory->version = version;
 	accessory->uri = uri;
@@ -60,7 +60,7 @@ Accessory* initAccessory(
 	accessory->udev_monitor = udev_monitor;
 
 	uint32_t svc_uuid_int[] = { 0x01110000, 0x00100000, 0x80000080, 0xFB349B5F };
-	accessory->bt_service = bt_listen(name, description, NULL, svc_uuid_int );
+	accessory->bt_service = bt_listen(modelName, description, NULL, svc_uuid_int );
 
 	accessory->fds[0].fd = udev_monitor_get_fd(accessory->udev_monitor);
 	accessory->fds[0].events = POLLIN;
@@ -96,7 +96,6 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 	while(aapconnection == NULL)
 	{
 		int fds = poll(accessory->fds, accessory->bt_service == NULL ? 1 : 2, -1);
-		printf("LOG: There are %i descriptor(s) ready\n",fds);
 
 		if(accessory->fds[0].revents)
 		{
@@ -106,31 +105,36 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 			usb_device = tryGetNextUSB(accessory->udev_monitor);
 			if (usb_device == NULL)
 			{
-				printf("LOG: New UDEV device is not a usb device\n");
 				continue;
 			}
-			else if(isAndroid(usb_device))
+			else
 			{
-				tryPutAccessoryMode(usb_device);
-				udev_device_unref(usb_device);
-			}
-			else if(isAccessory(usb_device))
-			{
-				libusb_device_handle* dev_handle = tryOpenAccessory(usb_device);
+				libusb_device_handle* dev_handle = findAndInitAccessory(
+						accessory->manufacturer,
+						accessory->modelName,
+						accessory->description,
+						accessory->version,
+						accessory->uri,
+						accessory->serialNumber);
 				if(dev_handle != NULL)
 				{
 					aapconnection = mallocAapConnection();
 					aapconnection->usbConnection.dev_handle = dev_handle;
-					// TODO: Populate aapconnection
+					aapconnection->usbConnection.aoa_endpoint_in = aoa_endpoint_in;
+					aapconnection->usbConnection.aoa_endpoint_out = aoa_endpoint_out;
+					/**
+					 * Very carefully picked buffer size.
+					 *
+					 * Buffer need to be a multiple of 64 and 512 to prevent packetoverflows.
+					 *
+					 * http://libusb.sourceforge.net/api-1.0/packetoverflow.html
+					 */
+					aapconnection->receiveBuffer = malloc(16384);
+					aapconnection->length = 16384;
 					aapconnection->writeAccessory = &writeAccessoryUSB;
 					aapconnection->readAccessory = &readAccessoryUSB;
 					aapconnection->closeAccessory = &closeAccessoryUSB;
 				}
-			}
-			else
-			{
-				// The newly attached device is not android nor accessory.
-				// So we ignore it.
 				udev_device_unref(usb_device);
 			}
 		}

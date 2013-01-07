@@ -22,13 +22,12 @@ typedef struct AccessoryRead
 } AccessoryRead;
 
 Accessory* initAccessory(
-		const char* manufacturer,	// usb accessory protocol
-		const char* modelName,		// usb accessory protocol
-		const char* name,			// Used for bt
+		const char* manufacturer,	// Used for usb accessory protocol
+		const char* modelName,		// Used for bt & usb accessory protocol
 		const char* description,	// Used for bt & usb accessory protocol
-		const char* version,		// usb accessory protocol
-		const char* uri,			// usb accessory protocol
-		const char* serialNumber);	// usb accessory protocol
+		const char* version,		// Used for usb accessory protocol
+		const char* uri,			// Used for usb accessory protocol
+		const char* serialNumber);	// Used for usb accessory protocol
 void deInitaccessory(Accessory* accessory);
 
 AapConnection* getNextAndroidConnection(Accessory* accessory);
