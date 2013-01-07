@@ -103,7 +103,7 @@ public class AccessoryBridge
 //						Log.d(TAG, strbuilder.toString());
 					}
 					
-					Log.d(TAG, "Decoding the bytes received from the accessory");
+					Log.d(TAG, "Read "+ret+" from accessory");
 					MessageHandler.decode(buffer);
 					
 					final AccessoryMessage message = AccessoryBridge.messages.peek();

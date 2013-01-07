@@ -72,7 +72,6 @@ int main (int argc, char *argv[])
 	accessory = initAccessory(
 					"ICT",
 					"AAP",
-					"AAP",
 					"AAP Bridge Prototype",
 					"1.0",
 					"http://www.ict.nl","2254711");

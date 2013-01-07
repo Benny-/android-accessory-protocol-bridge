@@ -9,7 +9,7 @@
 
 pthread_t receive = 0, send = 0;
 
-static volatile int work = 1;
+static volatile int work;
 volatile int connectedToAndroid = 0;
 static AapConnection* con = NULL;
 
@@ -56,12 +56,15 @@ void* sender(void* user_data) {
 		MESSAGE* buffer = pollSendQueue();
 
 		if(buffer == NULL)
+		{
+			fprintf(stderr,"Sender thread going to make a graceful exit\n");
 			break;
+		}
 
 		//decodemessage(buffer);
 		error = writeAccessory(buffer, sizeof(MESSAGE), con);
 
-		printf("Bytes send: %i\n",sizeof(MESSAGE));
+		printf("Bytes send: %zu\n",sizeof(MESSAGE));
 		PrintBin(buffer, sizeof(MESSAGE));
 		puts("\n");
 
@@ -82,13 +85,15 @@ void* sender(void* user_data) {
  * the Android Accessory bus it also initialize the send/receive queue
  */
 void initServer(AapConnection* newCon){
+	work = 1;
 	con = newCon;
-	pthread_create(&receive, NULL, receiver, NULL);
-	pthread_create(&send, NULL, sender, NULL);
 
 	//initialize the send and receive queue
 	initreceiveQueue();
 	initSendQueue();
+
+	pthread_create(&receive, NULL, receiver, NULL);
+	pthread_create(&send, NULL, sender, NULL);
 }
 
 AapConnection* getCurrentConnection()
@@ -98,9 +103,11 @@ AapConnection* getCurrentConnection()
 
 void deInitServer()
 {
-	work = 1;
 	pthread_join(receive,NULL);
 	pthread_join(send,NULL);
 	receive = 0;
 	send = 0;
+
+	deInitSendQueue();
+	deInitreceiveQueue();
 }

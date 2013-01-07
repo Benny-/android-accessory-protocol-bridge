@@ -7,15 +7,23 @@
 
 #define MESSAGEQUEMAX 64
 
-//the actual queue
-MESSAGE* sendQueue[MESSAGEQUEMAX];
-pthread_mutex_t queueSendMutex;
-sem_t inSendQueue;
-int currentsendposition = 0;
-int itemsinsendqueue = 0;
+static MESSAGE* sendQueue[MESSAGEQUEMAX];
 
-int initSendQueue(){
-	return sem_init(&inSendQueue, 0, 0) | pthread_mutex_init(&queueSendMutex, NULL);
+static pthread_mutex_t queueSendMutex;
+static sem_t inSendQueue;
+static int currentsendposition;
+static int itemsinsendqueue;
+
+void initSendQueue(){
+	itemsinsendqueue = 0;
+	currentsendposition = 0;
+	sem_init(&inSendQueue, 0, 0);
+	pthread_mutex_init(&queueSendMutex, NULL);
+}
+
+void deInitSendQueue(){
+	sem_destroy(&inSendQueue);
+	pthread_mutex_destroy(&queueSendMutex);
 }
 
 void addSendQueue(MESSAGE* message) {
