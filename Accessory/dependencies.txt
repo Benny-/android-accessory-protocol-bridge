@@ -12,7 +12,7 @@ sudo apt-get install default-jdk
 sudo apt-get install libudev-dev
 
 # Userspace usb communication
-sudo apt-get install libusb-dev libusb-1.0-0-dev
+sudo apt-get install libusb-1.0-0-dev
 
 # bluetooth communication
 sudo apt-get install bluez libbluetooth-dev

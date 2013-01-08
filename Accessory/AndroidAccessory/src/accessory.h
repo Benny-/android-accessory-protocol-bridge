@@ -48,7 +48,7 @@ struct AapConnection
 	{
 		BTConnection btConnection;
 		USBConnection usbConnection;
-	};
+	} physicalConnection;
 	int (*writeAccessory)(const void* buffer, int size, AapConnection* con);
 	AccessoryRead (*readAccessory)(AapConnection* con);
 	void (*closeAccessory)(AapConnection* con);

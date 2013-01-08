@@ -167,7 +167,7 @@ AccessoryRead readAccessoryBT(AapConnection* con)
 	AccessoryRead rd;
 	rd.buffer = con->receiveBuffer;
 
-	rd.read = read(con->btConnection.fd, rd.buffer, con->length);
+	rd.read = read(con->physicalConnection.btConnection.fd, rd.buffer, con->length);
 	if(rd.read < 1)
 		rd.error = 1;
 	else
@@ -182,7 +182,7 @@ int writeAccessoryBT(const void* buffer, int size, AapConnection* con)
 	pthread_mutex_lock(&con->writeLock);
 	while(size > 0 && !error )
 	{
-		int wrote = write(con->btConnection.fd, buffer, size);
+		int wrote = write(con->physicalConnection.btConnection.fd, buffer, size);
 		buffer += wrote;
 		size -= wrote;
 		if(wrote < 1)
@@ -196,5 +196,5 @@ int writeAccessoryBT(const void* buffer, int size, AapConnection* con)
 
 void closeAccessoryBT(AapConnection* con)
 {
-	close(con->btConnection.fd);
+	close(con->physicalConnection.btConnection.fd);
 }

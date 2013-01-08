@@ -14,7 +14,6 @@
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
 #include "accessory.h"
-#include "usb.h"
 
 Accessory* accessory;
 

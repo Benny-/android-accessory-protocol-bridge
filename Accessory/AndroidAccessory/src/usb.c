@@ -9,6 +9,42 @@
 #include <locale.h>
 #include <unistd.h>
 
+const char *libusb_error_name(int error_code)
+{
+	enum libusb_error error = error_code;
+	switch (error) {
+	case LIBUSB_SUCCESS:
+		return "LIBUSB_SUCCESS";
+	case LIBUSB_ERROR_IO:
+		return "LIBUSB_ERROR_IO";
+	case LIBUSB_ERROR_INVALID_PARAM:
+		return "LIBUSB_ERROR_INVALID_PARAM";
+	case LIBUSB_ERROR_ACCESS:
+		return "LIBUSB_ERROR_ACCESS";
+	case LIBUSB_ERROR_NO_DEVICE:
+		return "LIBUSB_ERROR_NO_DEVICE";
+	case LIBUSB_ERROR_NOT_FOUND:
+		return "LIBUSB_ERROR_NOT_FOUND";
+	case LIBUSB_ERROR_BUSY:
+		return "LIBUSB_ERROR_BUSY";
+	case LIBUSB_ERROR_TIMEOUT:
+		return "LIBUSB_ERROR_TIMEOUT";
+	case LIBUSB_ERROR_OVERFLOW:
+		return "LIBUSB_ERROR_OVERFLOW";
+	case LIBUSB_ERROR_PIPE:
+		return "LIBUSB_ERROR_PIPE";
+	case LIBUSB_ERROR_INTERRUPTED:
+		return "LIBUSB_ERROR_INTERRUPTED";
+	case LIBUSB_ERROR_NO_MEM:
+		return "LIBUSB_ERROR_NO_MEM";
+	case LIBUSB_ERROR_NOT_SUPPORTED:
+		return "LIBUSB_ERROR_NOT_SUPPORTED";
+	case LIBUSB_ERROR_OTHER:
+		return "LIBUSB_ERROR_OTHER";
+	}
+	return "**UNKNOWN**";
+}
+
 /**
  * tries to open the usbdevice with pid and pid
  * @param vid vendor id of the usb device
@@ -90,8 +126,8 @@ AccessoryRead readAccessoryUSB(AapConnection* con)
 		return accessoryRead;
 	}
 	error = libusb_bulk_transfer(
-			con->usbConnection.dev_handle,
-			con->usbConnection.aoa_endpoint_in,
+			con->physicalConnection.usbConnection.dev_handle,
+			con->physicalConnection.usbConnection.aoa_endpoint_in,
 			con->receiveBuffer,
 			con->length,
 			&con->read,
@@ -119,8 +155,8 @@ int writeAccessoryUSB(const void* buffer, int size, AapConnection* con)
 	while(size && !error )
 	{
 		error = libusb_bulk_transfer(
-				con->usbConnection.dev_handle,
-				con->usbConnection.aoa_endpoint_out,
+				con->physicalConnection.usbConnection.dev_handle,
+				con->physicalConnection.usbConnection.aoa_endpoint_out,
 				(void*)buffer,
 				size,
 				&transferred,
@@ -134,5 +170,5 @@ int writeAccessoryUSB(const void* buffer, int size, AapConnection* con)
 
 void closeAccessoryUSB(AapConnection* con)
 {
-	closeUsb(con->usbConnection.dev_handle);
+	closeUsb(con->physicalConnection.usbConnection.dev_handle);
 }

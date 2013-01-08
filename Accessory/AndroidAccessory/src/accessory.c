@@ -119,9 +119,9 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 				if(dev_handle != NULL)
 				{
 					aapconnection = mallocAapConnection();
-					aapconnection->usbConnection.dev_handle = dev_handle;
-					aapconnection->usbConnection.aoa_endpoint_in = aoa_endpoint_in;
-					aapconnection->usbConnection.aoa_endpoint_out = aoa_endpoint_out;
+					aapconnection->physicalConnection.usbConnection.dev_handle = dev_handle;
+					aapconnection->physicalConnection.usbConnection.aoa_endpoint_in = aoa_endpoint_in;
+					aapconnection->physicalConnection.usbConnection.aoa_endpoint_out = aoa_endpoint_out;
 					/**
 					 * Very carefully picked buffer size.
 					 *
@@ -146,7 +146,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 
 			int fd = accept(bt_getFD(accessory->bt_service),NULL,NULL);
 			aapconnection = mallocAapConnection();
-			aapconnection->btConnection.fd = fd;
+			aapconnection->physicalConnection.btConnection.fd = fd;
 			aapconnection->receiveBuffer = malloc(1024); // Arbitrary buffer size.
 			aapconnection->length = 1024;
 			aapconnection->writeAccessory = &writeAccessoryBT;

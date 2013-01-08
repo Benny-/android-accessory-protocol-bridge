@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.68])
 AC_INIT([AAP-Bridge],[1.0],[benny.jacobs@ict.nl])
 AC_CONFIG_SRCDIR([src/AAP.c])
 AC_CONFIG_HEADERS([config.h])
