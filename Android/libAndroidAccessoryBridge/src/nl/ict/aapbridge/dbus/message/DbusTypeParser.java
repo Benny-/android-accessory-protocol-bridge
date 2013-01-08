@@ -17,6 +17,9 @@ import nl.ict.aapbridge.dbus.message.types.DbusObjectPath;
 import nl.ict.aapbridge.dbus.message.types.DbusSignature;
 import nl.ict.aapbridge.dbus.message.types.DbusString;
 import nl.ict.aapbridge.dbus.message.types.DbusStruct;
+import nl.ict.aapbridge.dbus.message.types.DbusUint16;
+import nl.ict.aapbridge.dbus.message.types.DbusUint32;
+import nl.ict.aapbridge.dbus.message.types.DbusUint64;
 import nl.ict.aapbridge.dbus.message.types.DbusVariant;
 
 public class DbusTypeParser {
@@ -101,6 +104,9 @@ public class DbusTypeParser {
 			Class.forName(DbusSignature.class.getCanonicalName());
 			Class.forName(DbusString.class.getCanonicalName());
 			Class.forName(DbusStruct.class.getCanonicalName());
+			Class.forName(DbusUint16.class.getCanonicalName());
+			Class.forName(DbusUint32.class.getCanonicalName());
+			Class.forName(DbusUint64.class.getCanonicalName());
 			Class.forName(DbusVariant.class.getCanonicalName());
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
