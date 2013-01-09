@@ -32,7 +32,7 @@ public class BTConnection implements AccessoryConnection {
 	private boolean disconnected = false;
 
 	private static final UUID MY_UUID_INSECURE = UUID
-			.fromString("00001101-0000-1000-8000-00805F9B34FB");
+			.fromString("a48e5d50-188b-4fca-b261-89c13914e118");
 
 	public BTConnection(String address) throws IOException {
 		mAdapter = BluetoothAdapter.getDefaultAdapter();

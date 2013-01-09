@@ -25,17 +25,17 @@ static sdp_session_t* register_service(
     const char* service_name,
     const char* svc_dsc,
     const char* service_prov,
-    uint32_t svc_uuid_int[],
+    uint32_t svc_uuid_int[4],
     uint8_t rfcomm_channel )
 {
     // Stolen from http://www.btessentials.com/examples/bluez/sdp-register.c
 
-    char test[100];
-    int check = ba2str(BDADDR_ANY,test);
+	char str[256] = "";
+    int check = ba2str(BDADDR_ANY,str);
     printf("check: %i\n",check);
-    printf("%s\n",test);
+    printf("%s\n",str);
 
-    uuid_t root_uuid, l2cap_uuid, rfcomm_uuid, svc_uuid,
+    uuid_t root_uuid, l2cap_uuid, rfcomm_uuid, svc_class_custom_uuid,
            svc_class_uuid;
     sdp_list_t *l2cap_list = 0,
                *rfcomm_list = 0,
@@ -49,17 +49,13 @@ static sdp_session_t* register_service(
     sdp_record_t record = { 0 };
     sdp_session_t *session = 0;
 
-    // set the general service ID
-    sdp_uuid128_create( &svc_uuid, svc_uuid_int );
-    sdp_set_service_id( &record, svc_uuid );
-
-    char str[256] = "";
-    sdp_uuid2strn(&svc_uuid, str, 256);
-    printf("Registering UUID %s\n", str);
-
     // set the service class
+    sdp_uuid128_create( &svc_class_custom_uuid, svc_uuid_int );
+    svc_class_list = sdp_list_append(0, &svc_class_custom_uuid);
+    sdp_uuid2strn(&svc_class_custom_uuid, str, 256);
+    printf("Registering custom UUID %s\n", str);
     sdp_uuid16_create(&svc_class_uuid, SERIAL_PORT_SVCLASS_ID);
-    svc_class_list = sdp_list_append(0, &svc_class_uuid);
+    svc_class_list = sdp_list_append(svc_class_list, &svc_class_uuid);
     sdp_set_service_classes(&record, svc_class_list);
 
     // set the Bluetooth profile information
