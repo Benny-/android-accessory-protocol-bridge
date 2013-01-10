@@ -28,12 +28,7 @@ static sdp_session_t* register_service(
     uint32_t svc_uuid_int[4],
     uint8_t rfcomm_channel )
 {
-    // Stolen from http://www.btessentials.com/examples/bluez/sdp-register.c
-
 	char str[256] = "";
-    int check = ba2str(BDADDR_ANY,str);
-    printf("check: %i\n",check);
-    printf("%s\n",str);
 
     uuid_t root_uuid, l2cap_uuid, rfcomm_uuid, svc_class_custom_uuid,
            svc_class_uuid;
@@ -51,7 +46,7 @@ static sdp_session_t* register_service(
 
     // set the service class
     sdp_uuid128_create( &svc_class_custom_uuid, svc_uuid_int );
-    svc_class_list = sdp_list_append(0, &svc_class_custom_uuid);
+    svc_class_list = sdp_list_append(svc_class_list, &svc_class_custom_uuid);
     sdp_uuid2strn(&svc_class_custom_uuid, str, 256);
     printf("Registering custom UUID %s\n", str);
     sdp_uuid16_create(&svc_class_uuid, SERIAL_PORT_SVCLASS_ID);
@@ -121,7 +116,6 @@ BT_SERVICE* bt_listen(
 
     // allocate socket
     bt_service->fd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-    printf("socket() returned fd %d\n", bt_service->fd);
 
     // bind socket to of the first available local bluetooth adapter
     loc_addr.rc_family = AF_BLUETOOTH;
@@ -153,7 +147,6 @@ int bt_getFD(BT_SERVICE* service)
 void bt_close(BT_SERVICE* service)
 {
 	sdp_close( service->sdp_session );
-    // sdp_record_unregister(service->sdp_session, service->sdp_record); // HELP: I dont know if I should call sdp_close() or sdp_record_unregister()
     close(service->fd);
     free(service);
 }

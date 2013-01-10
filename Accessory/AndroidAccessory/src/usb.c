@@ -9,6 +9,12 @@
 #include <locale.h>
 #include <unistd.h>
 
+/**
+ * libusb_error_name() function originates from the libusb-1.0 source.
+ *
+ * Old versions of libusb-1.0 do not provide this function. This function is included
+ * here so it does not break on a old version of libusb-1.0.
+ */
 const char *libusb_error_name(int error_code)
 {
 	enum libusb_error error = error_code;

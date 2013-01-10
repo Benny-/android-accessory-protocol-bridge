@@ -74,6 +74,7 @@ Accessory* initAccessory(
 	}
 	else
 	{
+		fprintf(stderr, "Not listening on bluetooth. Do you have a bt device and have sufficient permissions (added to bluetooth group) ?\n");
 		accessory->fds[1].fd = -1;
 		accessory->fds[1].revents = 0;
 	}
