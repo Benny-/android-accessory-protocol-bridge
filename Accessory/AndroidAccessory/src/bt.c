@@ -27,6 +27,7 @@ static sdp_session_t* register_service(
     uint32_t svc_uuid_int[4],
     uint8_t rfcomm_channel )
 {
+	int error = -1;
 	char str[256] = "";
 
     uuid_t root_uuid, l2cap_uuid, rfcomm_uuid, svc_class_custom_uuid,
@@ -85,7 +86,7 @@ static sdp_session_t* register_service(
     // and disconnect
     session = sdp_connect(BDADDR_ANY, BDADDR_LOCAL, SDP_RETRY_IF_BUSY);
     if(session != NULL)
-    	sdp_record_register(session, &record, 0);
+    	error = sdp_record_register(session, &record, 0);
 
     // cleanup
     sdp_data_free( channel );
@@ -95,6 +96,9 @@ static sdp_session_t* register_service(
     sdp_list_free( access_proto_list, 0 );
     sdp_list_free( svc_class_list, 0 );
     sdp_list_free( profile_list, 0 );
+
+    if(error == -1)
+    	return NULL;
 
     return session;
 }
