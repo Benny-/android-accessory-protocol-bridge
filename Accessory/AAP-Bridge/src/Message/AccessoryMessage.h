@@ -19,4 +19,7 @@ typedef struct AccessoryMessage
 	MESSAGETYPE type;
 	unsigned char data[1024];
 } MESSAGE;
+
+void decodemessage(uint8_t* message);
+
 #endif

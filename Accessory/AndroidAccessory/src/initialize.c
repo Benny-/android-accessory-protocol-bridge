@@ -69,7 +69,7 @@ libusb_device_handle* findAndInitAccessory(
 					int errorCode = libusb_open(tmpdevice,&handle);
 					if ( errorCode != 0 )
 					{
-						error(errorCode);
+						fputs(libusb_error_name(errorCode), stderr);
 					}
 					determineEndpoints(tmpdevice);
 					libusb_free_device_list(list, 1);
@@ -160,7 +160,7 @@ libusb_device_handle* reInitAccessory() {
 			}
 			else
 			{
-				error(errorCode);
+				fputs(libusb_error_name(errorCode), stderr);
 			}
 			libusb_free_device_list(list, 1);
 			return handle;
@@ -242,7 +242,7 @@ libusb_device_handle* setupAccessory(
 	if ((response = libusb_control_transfer(handle,
 			LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR, 52, 0, 0,
 			(unsigned char*)MANUFACTURER, strlen(MANUFACTURER) + 1, 0)) < 0) {
-		error(response);
+		fputs(libusb_error_name(response), stderr);
 		return NULL ;
 	}
 
@@ -276,16 +276,17 @@ libusb_device_handle* setupAccessory(
 		return NULL ; //try to set-up Accessory
 	}
 
-	if (DEBUG)
-		printf("Accessory Identification sent\n");
+#ifdef DEBUG
+	printf("Accessory Identification sent\n");
+#endif
 
 	if ((response = libusb_control_transfer(handle, LIBUSB_ENDPOINT_OUT|LIBUSB_REQUEST_TYPE_VENDOR, 53, 0, 0, NULL, 0, 0)) < 0) {
 		return NULL;
 	}
 
-	if (DEBUG)
-		printf("Attempted to put device into accessory mode\n");
-
+#ifdef DEBUG
+	printf("Attempted to put device into accessory mode\n");
+#endif
 
 	if (handle != NULL) {
 		libusb_release_interface(handle, 0);
@@ -328,7 +329,7 @@ int checkAndroid(libusb_device_handle* handle) {
 			printf("No Android Accessory support, continuing...\n");
 		}
 		else {
-			error(response);
+			fputs(libusb_error_name(response), stderr);
 		}
 		return -1;
 	}

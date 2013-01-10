@@ -11522,8 +11522,6 @@ fi
 
 
 
-# Checks for libraries.
-
 # Checks for header files.
 for ac_header in locale.h stdlib.h string.h unistd.h
 do :

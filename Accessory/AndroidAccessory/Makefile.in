@@ -107,7 +107,8 @@ libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_OBJECTS = src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-accessory.lo \
 	src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-initialize.lo \
-	src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-usb.lo
+	src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-usb.lo \
+	src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.lo
 libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_OBJECTS = $(am_libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_OBJECTS)
 libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_LINK =  \
 	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -287,18 +288,21 @@ EXTRA_DIST = src/*.h
 libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_SOURCES = $(libandroidaccessory_la_HEADERS) \
                         src/accessory.c \
                         src/initialize.c \
-                        src/usb.c
+                        src/usb.c \
+                        src/bt.c
 
 
 # Headers who will be installed on the system
 androidaccessory_includedir = $(includedir)/androidaccessory-$(ANDROIDACCESSORY_API_VERSION)
-androidaccessory_include_HEADERS = include/accessory.h include/usb.h
+androidaccessory_include_HEADERS = include/accessory.h
 androidaccessory_libincludedir = $(libdir)/androidaccessory-$(ANDROIDACCESSORY_API_VERSION)/include
 nodist_androidaccessory_libinclude_HEADERS = androidaccessoryconfig.h
 
+# Compile flags
+libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_CFLAGS = -I$(top_srcdir)/include -std=c99
+
 # Linker options
 libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_LDFLAGS = -version-info $(ANDROIDACCESSORY_SO_VERSION)
-libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_CFLAGS = -I$(top_srcdir)/include -std=c99
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libandroidaccessory-$(ANDROIDACCESSORY_API_VERSION).pc
 all: config.h androidaccessoryconfig.h
@@ -409,6 +413,8 @@ src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-initialize.lo:  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-usb.lo:  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.lo:  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 libandroidaccessory-@ANDROIDACCESSORY_API_VERSION@.la: $(libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_OBJECTS) $(libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_DEPENDENCIES) $(EXTRA_libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_DEPENDENCIES) 
 	$(libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_LINK) -rpath $(libdir) $(libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_OBJECTS) $(libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_LIBADD) $(LIBS)
 
@@ -416,6 +422,8 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-accessory.$(OBJEXT)
 	-rm -f src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-accessory.lo
+	-rm -f src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.$(OBJEXT)
+	-rm -f src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.lo
 	-rm -f src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-initialize.$(OBJEXT)
 	-rm -f src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-initialize.lo
 	-rm -f src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-usb.$(OBJEXT)
@@ -425,6 +433,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-accessory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-initialize.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-usb.Plo@am__quote@
 
@@ -472,6 +481,13 @@ src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-usb.lo: src/usb.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='src/usb.c' object='src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-usb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-usb.lo `test -f 'src/usb.c' || echo '$(srcdir)/'`src/usb.c
+
+src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.lo: src/bt.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.lo -MD -MP -MF src/$(DEPDIR)/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.Tpo -c -o src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.lo `test -f 'src/bt.c' || echo '$(srcdir)/'`src/bt.c
+@am__fastdepCC_TRUE@	$(am__mv) src/$(DEPDIR)/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.Tpo src/$(DEPDIR)/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='src/bt.c' object='src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o src/libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la-bt.lo `test -f 'src/bt.c' || echo '$(srcdir)/'`src/bt.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

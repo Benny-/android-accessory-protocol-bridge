@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT(libandroidaccessory, 1.0, benny.jacobs@ict.nl)
+AC_INIT([libandroidaccessory],[1.0],[benny.jacobs@ict.nl])
 AC_CONFIG_SRCDIR([src/config.h])
 AC_CONFIG_HEADERS([config.h androidaccessoryconfig.h])
 
@@ -18,8 +18,6 @@ LT_INIT
 
 dnl this allows us specify individual liking flags for each target
 AM_PROG_CC_C_O 
-
-# Checks for libraries.
 
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h stdlib.h string.h unistd.h])

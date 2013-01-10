@@ -14,9 +14,8 @@
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
 #include "accessory.h"
-#include "usb.h"
 
-void stop(int sig);
+Accessory* accessory;
 
 /**
  * Signalhandler
@@ -31,10 +30,9 @@ void stop(int sig) {
 
 	MESSAGE* message = createmessage(1, 1, 1, sizeof(deathmessage), deathmessage,
 						OTHER);
-	response = writeAccessory((unsigned char*)message, &transferred);
+	response = writeAccessory(message, sizeof(MESSAGE), getCurrentConnection() );
 	if(response)
 	{
-		error(response);
 		printf("Could not send braindeath message to android, but thats okay. *DIES*\n");
 	}
 
@@ -70,22 +68,19 @@ int main (int argc, char *argv[])
 		initSignalWatcher(DBUS_BUS_SESSION);
 	}
 
+	accessory = initAccessory(
+					"ICT",
+					"AAP",
+					"AAP Bridge Prototype",
+					"1.0",
+					"http://www.ict.nl","2254711");
+
 	while(1)
 	{
-		printf("Waiting for next USB connection\n");
-		waitForConnectedUSBDevice();
+		printf("Waiting for next connection\n");
+		AapConnection* con = getNextAndroidConnection(accessory);
 
-		if(initAccessory(
-				"ICT",
-				"AAP",
-				"AAP Bridge Prototype",
-				"1.0",
-				"http://www.ict.nl","2254711") < 0) {
-			printf("initAccessory failed\n");
-			return -1;
-		} else {
-			initServer();
-		}
+		initServer(con);
 
 		MESSAGE *message = NULL;
 		do {
@@ -122,11 +117,11 @@ int main (int argc, char *argv[])
 				free(message);
 		} while(message != NULL);
 
-
 		deInitServer();
 		printf("Read and write threads have stopped\n");
-		deInitaccessory();
 	}
+
+	deInitaccessory(accessory);
 
 	return 0;
 }

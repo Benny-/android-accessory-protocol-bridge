@@ -1,19 +1,41 @@
-/*-------------------------------------------------- accessory.h */
-
 #ifndef ACCESSORY_H
 #define ACCESSORY_H
-#include "usb.h"
 
-int initAccessory(
-		const char* manufacturer,
-		const char* modelName,
-		const char* description,
-		const char* version,
-		const char* uri,
-		const char* serialNumber);
-void deInitaccessory();
-int writeAccessory(unsigned char* buffer, int* transferred);
-int readAccessory(unsigned char* buffer, int* transferred);
+typedef struct Accessory Accessory;
+typedef struct AapConnection AapConnection;
+
+typedef struct AccessoryRead
+{
+	int error;
+	int read;
+	/**
+	 * AccessoryRead.buffer points to a shared buffer (managed by struct AapConnection)
+	 * and will change between calls to readAccessory(AapConnection* con)
+	 *
+	 * As a result, you will not have to deallocate it.
+	 *
+	 * The reason why it should be this way is related to usb buffer overflows.
+	 * See http://libusb.sourceforge.net/api-1.0/packetoverflow.html
+	 *
+	 */
+	void* buffer;
+} AccessoryRead;
+
+Accessory* initAccessory(
+		const char* manufacturer,	// Used for usb accessory protocol
+		const char* modelName,		// Used for bt & usb accessory protocol
+		const char* description,	// Used for bt & usb accessory protocol
+		const char* version,		// Used for usb accessory protocol
+		const char* uri,			// Used for usb accessory protocol
+		const char* serialNumber);	// Used for usb accessory protocol
+void deInitaccessory(Accessory* accessory);
+
+AapConnection* getNextAndroidConnection(Accessory* accessory);
+void closeAndroidConnection(AapConnection* con);
+
+int writeAccessory(const void* buffer, int size, AapConnection* con);
+AccessoryRead readAccessory(AapConnection* con);
+
+const char* AccessoryError(int errorcode);
 
 #endif
-

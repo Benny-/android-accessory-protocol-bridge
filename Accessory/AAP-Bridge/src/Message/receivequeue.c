@@ -8,14 +8,21 @@
 
 #define MESSAGEQUEMAX 64
 
-MESSAGE* receiveequeue[MESSAGEQUEMAX];
+static MESSAGE* receiveequeue[MESSAGEQUEMAX];
 
-pthread_mutex_t queueReceiveMutex;
-int currentposistion = 0;
-sem_t inReceiveQueue;
+static pthread_mutex_t queueReceiveMutex;
+static int currentposistion;
+static sem_t inReceiveQueue;
 
-int initreceiveQueue() {
-	return sem_init(&inReceiveQueue, 0, 0);
+void initreceiveQueue() {
+	currentposistion = 0;
+	sem_init(&inReceiveQueue, 0, 0);
+	pthread_mutex_init(&queueReceiveMutex, NULL);
+}
+
+void deInitreceiveQueue() {
+	sem_destroy(&inReceiveQueue);
+	pthread_mutex_destroy(&queueReceiveMutex);
 }
 
 void addreceivequeue(MESSAGE *buffer) {

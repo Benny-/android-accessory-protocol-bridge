@@ -3,7 +3,8 @@
 #ifndef SENDMESSAGEQUEUE_H
 #define SENDMESSAGEQUEUE_H
 
-int initSendQueue();
+void initSendQueue();
+void deInitSendQueue();
 void addSendQueue(MESSAGE* message);
 void addBulkSendQueue(MESSAGE* message[], int count);
 MESSAGE* pollSendQueue();

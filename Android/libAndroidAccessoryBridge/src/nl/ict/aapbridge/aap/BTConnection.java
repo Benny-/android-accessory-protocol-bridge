@@ -16,7 +16,6 @@ package nl.ict.aapbridge.aap;
  */
 
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,12 +25,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
-/**
- * 
- * Creates a connection to a android accessory using a rfcomm bluetooth socket.
- * 
- */
-public class BTConnection implements AccessoryConnection, Closeable {
+public class BTConnection implements AccessoryConnection {
 
 	private final BluetoothAdapter mAdapter;
 	private BluetoothSocket mSocket;
@@ -49,34 +43,16 @@ public class BTConnection implements AccessoryConnection, Closeable {
 	}
 
 	public InputStream getInputStream() throws IOException {
-		try
-		{
-			return mSocket.getInputStream();
-		}
-		finally
-		{
-			disconnected = true;
-		}
+		return mSocket.getInputStream();
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		try
-		{
-			return mSocket.getOutputStream();
-		}
-		finally
-		{
-			disconnected = true;
-		}
+		return mSocket.getOutputStream();
 	}
 
-	@Override
 	public void close() throws IOException {
-		if(!disconnected)
-		{
-			disconnected = true;
-			mSocket.close();
-		}
+		disconnected = true;
+		mSocket.close();
 	}
 
 	public boolean disconnected() {
@@ -84,3 +60,4 @@ public class BTConnection implements AccessoryConnection, Closeable {
 	}
 
 }
+

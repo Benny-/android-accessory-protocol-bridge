@@ -5,285 +5,166 @@ import static nl.ict.aapbridge.TAG.TAG;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.ByteChannel;
-import java.nio.channels.Channel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import nl.ict.aapbridge.SystemHolder;
 import nl.ict.aapbridge.aap.AccessoryConnection;
-import nl.ict.aapbridge.dbus.Dbus;
-import nl.ict.aapbridge.dbus.DbusHandler;
-import nl.ict.aapbridge.dbus.DbusSignals;
-import android.os.RemoteException;
+import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
+import nl.ict.aapbridge.dbus.message.DbusMessage;
+import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
+
 
 /**
- * Handles the communication with the android accessory bridge.
- * 
+ * The class that handles the communication with Android Accessory
  * @author jurgen
  */
-public class AccessoryBridge implements Channel
+public class AccessoryBridge
 {
-	public class Port implements ByteChannel, ReadableByteChannel {
-		
-		ByteBuffer header = ByteBuffer.allocate(4);
-		
-		private boolean inputOpen = true;
-		private boolean outputOpen = true;
-		
-		private Port(int portNr) {
-			header.order(ByteOrder.LITTLE_ENDIAN);
-			header.putShort((short) portNr);
-			header.mark();
-		}
-		
-		@Override
-		public void close() throws IOException {
-			inputOpen = false;
-			// TODO: Send close over the wire.
-		}
-		
-		public void eof() throws IOException {
-			outputOpen = false;
-			// TODO: Send eof over the wire.
-		}
-
-		@Override
-		public boolean isOpen() {
-			return inputOpen || outputOpen;
-		}
-		
-		public boolean isInputOpen()
-		{
-			return inputOpen;
-		}
-		
-		public boolean isOutputOpen()
-		{
-			return outputOpen;
-		}
-
-		@Override
-		public int write(ByteBuffer buffer) throws IOException {
-			header.reset();
-			short writeAmount = (short) (buffer.remaining() > 4000 ? 4000 : buffer.remaining());
-			header.putShort(writeAmount);
-			header.position(0);
-			synchronized (this) {
-				outputStream.write(header.array(), 0, header.remaining());
-				outputStream.write(buffer.array(), buffer.arrayOffset(), writeAmount);
-			}
-			return writeAmount;
-		}
-
-		/**
-		 * Read a number of bytes and put them in the buffer. This call be only be done if bytes are ready.
-		 * 
-		 * {@link nl.ict.aapbridge.bridge.AccessoryBridge.Service#onDataReady(int) onDataReady} will be called if bytes are ready. All byte MUST be read before returning
-		 * from that function.
-		 * 
-		 * {@link #read(ByteBuffer)} might not read all bytes in one go. You must keep calling this function until
-		 * all you have read all bytes as specified by Service#onDataReady(int).
-		 */
-		@Override
-		public int read(ByteBuffer buffer) throws IOException {
-			return inputStream.read(buffer.array(), buffer.arrayOffset(), buffer.remaining());
-		}
-	}
-	
-	public interface Service {
-		/**
-		 * Called from the ReceiverThread if bytes must be read.
-		 * 
-		 * The bytes must be read from the port before this function call returns.
-		 * 
-		 * @param length
-		 * @throws IOException
-		 * @see Port#read(ByteBuffer)
-		 * @see ReceiverThread
-		 */
-		void onDataReady(int length) throws IOException;
-		Port getPort();
-	}
-	
 	private AccessoryConnection connection;
-	private OutputStream outputStream;
-	private InputStream inputStream;
-	private Map<Short, Service> activeServices = new HashMap<Short, Service>();
-	private Port serviceSpawner = new Port(0);
-	private Port keepalive = new Port(1);
+	private OutputStream mFops;
+	public static Queue<AccessoryMessage> messages;
+	public static Handler handler = new Handler();
 	private Timer pinger = new Timer("Pinger", true);
 	
-	private static final ByteBuffer ping = ByteBuffer.allocate(4);
-	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
-	
-	static {
-		ping.order(ByteOrder.LITTLE_ENDIAN);
-		ping.put("ping".getBytes(Charset.forName("utf-8")));
-		
-		portRequest.order(ByteOrder.LITTLE_ENDIAN);
-		portRequest.put((byte)'o');
-		portRequest.mark();
-	}
-	
-	/**
-	 * Builds a accessory bridge on the android accessory protocol. This will be required before you can use any of the other protocols.
-	 * 
-	 * @param connection The underlying connection to use. This can be bluetooth, usb or any other implementation
-	 * @throws IOException
-	 * @see {@link Dbus}
-	 * @see {@link DbusSignals}
-	 */
 	public AccessoryBridge(AccessoryConnection connection) throws IOException {
 		this.connection = connection;
-		outputStream = this.connection.getOutputStream();
-		inputStream = this.connection.getInputStream();
-		
-		new ReceiverThread().start();
+		mFops = this.connection.getOutputStream();
+		new UsbListener(this.connection.getInputStream()).start();
+		messages = new LinkedList<AccessoryMessage>();
 		pinger.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				try {
-					ping.rewind();
-					keepalive.write(ping);
+					AccessoryBridge.this.Write("Ping".getBytes(), 0, MessageType.KEEPALIVE);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			}
-		}, 5000, 10000);
+		}, 0, 10000);
+	}
+	
+	public void Disconnect() throws IOException
+	{
+		connection.close();
 	}
 	
 	/**
-	 * Sends a request to the accessory for the requested service.
-	 * 
-	 * The accessory
-	 * 
-	 * @param serviceIdentifier
-	 * @param arguments
-	 * @param service
-	 * @return a {@link Port port} associated with requested port.
-	 * @throws IOException
-	 * @throws ServiceRequestException
+	 * Write to the Android Accessory bus
+	 * @param message
+	 * @param id
+	 * @param type
+	 * @throws Exception
 	 */
-	public synchronized Port requestService(byte serviceIdentifier, ByteBuffer arguments, Service service) throws IOException, ServiceRequestException
-	{
-		portRequest.reset();
-		portRequest.put(serviceIdentifier);
-		portRequest.putShort((short) arguments.remaining());
-		portRequest.position(0);
-		while(portRequest.hasRemaining())
-			serviceSpawner.write(portRequest);
-		while(arguments.hasRemaining())
-			serviceSpawner.write(arguments);
+	public void Write(byte[] message, int id, AccessoryMessage.MessageType type) throws Exception {
+
+		byte[] buffer = MessageHandler.encode(message, id, type); //encode message
 		
-		// TODO: Wait for response.
-		return null;
-	}
-	
-	private static final ByteBuffer emptyByteBuffer = ByteBuffer.allocate(0);
-	/**
-	 * Calls {@link #requestService(byte, ByteBuffer, Service) requestService(byte, ByteBuffer arguments, Service)} } with empty arguments.
-	 */
-	public synchronized Port requestService(byte serviceIdentifier, Service service) throws IOException, ServiceRequestException
-	{
-		return requestService(serviceIdentifier, emptyByteBuffer, service);
-	}
-	
-	/**
-	 * Thread who receive the data from Android Accessory bus, decodes it and sends the data to the relevant service.
-	 * 
-	 * @author Jurgen
-	 *
-	 */
-	public class ReceiverThread extends Thread
-	{
-		private ByteBuffer bb = ByteBuffer.allocate(4);
-		
-		public void run()
-		{
-			try {
-				while(true)
-				{
-					bb.rewind();
-					Log.d(TAG, "Reading inputStream");
-					while (bb.remaining() < 4)
-					{
-						if(inputStream.read(bb.array(),bb.arrayOffset(),bb.remaining()) == -1)
-							throw new IOException("End of file");
-						bb.position(bb.position()+1);
-					}
-					short destinationPort = bb.getShort();
-					short dataLength = bb.getShort();
-					
-					Log.d(TAG, "AAB msg: Port "+destinationPort+" dataLength: "+dataLength);
-					Service service = activeServices.get(destinationPort);
-					if(service == null)
-						Log.w(TAG, "Received a message for a port where no service is listening");
-					else
-						service.onDataReady(dataLength);
-				}
-				} catch (Exception e)
-				{
-					Log.e(TAG, "Reader thread has stopped", e);
-				} finally
-				{
-					try {
-						inputStream.close();
-					} catch (IOException e) {
-						Log.e(TAG, "", e);
-					}
-				}
+		if(buffer != null) { //if message is null, there's a segmented message. 
+			mFops.write(buffer);
+		}  else {
+			//TODO handle segmented message
 		}
 	}
 	
 	/**
-	 * Creates a Dbus object. This is the same as new {@link Dbus#Dbus(DbusHandler, AccessoryBridge)}
-	 * @throws ServiceRequestException 
-	 * 
-	 * @see Dbus
+	 * Thread who receive the data from Android Accessory bus, decodes it and sends it to the queue
+	 * @author Jurgen
+	 *
 	 */
-	public Dbus createDbus(DbusHandler dbusHandler) throws IOException, ServiceRequestException
-	{
-		return new Dbus(dbusHandler, this);
-	}
-	
-	/**
-	 * Creates a DbusSignals object. This is the same as new {@link DbusSignals#DbusSignals(DbusHandler, AccessoryBridge, String, String, String, String)}
-	 * 
-	 * @see DbusSignals
-	 */
-	public DbusSignals createDbusSignal(
-			DbusHandler dbusHandler,
-			String busname,
-			String objectpath,
-			String interfaceName,
-			String memberName) throws IOException, ServiceRequestException
-	{
-		return new DbusSignals(dbusHandler, this, busname, objectpath, interfaceName, memberName);
-	}
-	
-	/**
-	 * @TODO: Implement createBulkTransfer
-	 */
-	public void createBulkTransfer()
-	{
+	public class UsbListener extends Thread{
+		private InputStream inputStream;
 		
+		public UsbListener(InputStream inputStream) {
+			this.inputStream = inputStream;
+		} 
+		
+		public void run() {
+			byte[] buffer = new byte[Config.MESSAGEMAX];
+			int ret = 1;
+			try {
+			while(ret >= 0)
+			{
+					Log.d(TAG, "Reading mFips");
+					ret = inputStream.read(buffer);
+					
+					// The following block will crash the next "mFips.read(buffer);"
+					// IDK what is going on.
+					{
+//						StringBuilder strbuilder = new StringBuilder("Read from buffer (size "+ret+"): ");
+//						for(int i = 0; i<ret; i++)
+//						{
+//							strbuilder.append(String.format("%02x", buffer[i]));
+//						}
+//						Log.d(TAG, strbuilder.toString());
+					}
+					
+					Log.d(TAG, "Read "+ret+" from accessory");
+					MessageHandler.decode(buffer);
+					
+					final AccessoryMessage message = AccessoryBridge.messages.peek();
+					if(message != null)
+					{
+						AccessoryBridge.messages.remove();
+						Log.v(TAG, "Message received: "+message);
+						
+						if(message.getType() == MessageType.KEEPALIVE && message.toString().length() > 1)
+						{
+							handler.post(new Runnable() {
+								public void run() {
+									Log.v(TAG, "Received a KEEPALIVE");
+								}
+							});
+						} else if(message.getType() == MessageType.SIGNAL)
+						{
+							Log.i(TAG, "Received a SIGNAL");
+							try{
+								DbusMessage dbusmessage = new DbusMessage(message.getData());
+								Log.d(TAG, dbusmessage.getArguments().toString());
+							}
+							catch(RuntimeException ex)
+							{
+								Log.e(TAG, "", ex);
+							}
+						} else if(message.getType() == MessageType.DBUS)
+						{
+							Log.i(TAG, "Received a DBUS response");
+							try{
+								DbusMessage dbusmessage = new DbusMessage(message.getData());
+								Log.d(TAG, dbusmessage.getArguments().toString());
+							}
+							catch(RuntimeException ex)
+							{
+								Log.w(TAG, "Cant read this DBUS response yet.");
+							}
+						} else
+						{
+							Log.w(TAG, "Received unknown type: "+message.getType().ordinal());
+						}
+						
+					}
+			}
+			} catch (Exception e)
+			{
+				Log.e(TAG, "Reader thread has stopped", e);
+			} finally
+			{
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					Log.e(TAG, "", e);
+				}
+			}
+		}
 	}
-
-	@Override
-	public void close() throws IOException {
-		connection.close();
-	}
-
-	@Override
-	public boolean isOpen() {
-		return !connection.disconnected();
+	
+	public boolean disconnected()
+	{
+		return connection.disconnected();
 	}
 
 }

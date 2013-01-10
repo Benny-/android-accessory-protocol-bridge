@@ -1,15 +1,17 @@
 #include <stdio.h>
 #include <pthread.h> //threading
 #include <string.h> //memset
-#include "accessory.h"
+#include <stdint.h>
+#include <accessory.h>
 #include "Message/handlemessage.h"
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
 
 pthread_t receive = 0, send = 0;
 
-static volatile int work = 1;
+static volatile int work;
 volatile int connectedToAndroid = 0;
+static AapConnection* con = NULL;
 
 /**
  * Accessory receive thread
@@ -17,29 +19,28 @@ volatile int connectedToAndroid = 0;
  */
 void* receiver(void* user_data) {
 	uint8_t buffer[1024];
-	int transferred = 0;
-	int response = 0;
 	while(work==1) {
-		memset(buffer, 0, 64);
+		memset(buffer, 0, sizeof(buffer));
 
-		response = readAccessory(buffer, &transferred);
-		if(transferred > 0 && response >= 0) {
-			//try to handle the message
-			decodemessage(buffer);
-		} else {
-			printf("byte received: %i \n", transferred);
-			error(response);
+		AccessoryRead read = readAccessory(con );
+		printf("Bytes received: %i\n", read.read);
 
-			if (response == LIBUSB_ERROR_NO_DEVICE) {
-				// Our device disconnected, stop the loop
-				printf("Receiver thread is going to stop\n");
-				addreceivequeue(NULL);
-				work = 0;
-				break;
-			}
+		PrintBin(read.buffer, read.read);
+		puts("\n");
+
+		// TODO: Receive messages in parts.
+
+		decodemessage(read.buffer);
+
+		if (read.error) {
+			// Our device disconnected, stop the loop
+			fprintf(stderr,"Receiver thread is going to stop\n");
+			addreceivequeue(NULL);
+			work = 0;
+			break;
 		}
 	}
-	printf("Receiver thread has stopped\n");
+	fprintf(stderr,"Receiver thread has stopped\n");
 	return NULL;
 }
 
@@ -48,24 +49,30 @@ void* receiver(void* user_data) {
  */
 void* sender(void* user_data) {
 	int transferred=0;
-	int response;
+	int error;
 
 	connectedToAndroid = 1;
 	while(work==1) {
 		MESSAGE* buffer = pollSendQueue();
 
 		if(buffer == NULL)
+		{
+			fprintf(stderr,"Sender thread going to make a graceful exit\n");
 			break;
+		}
 
 		//decodemessage(buffer);
-		response = writeAccessory((uint8_t*)buffer, &transferred);
-		if(response) {
-			error(response);
-			if (response == LIBUSB_ERROR_NO_DEVICE) {
-				// Our device disconnected, stop the loop
-				work = 0;
-				break;
-			}
+		error = writeAccessory(buffer, sizeof(MESSAGE), con);
+
+		printf("Bytes send: %zu\n",sizeof(MESSAGE));
+		PrintBin(buffer, sizeof(MESSAGE));
+		puts("\n");
+
+		if (error) {
+			fprintf(stderr,"Error writing to accessory\n");
+			// Our device disconnected, stop the loop
+			work = 0;
+			break;
 		}
 	}
 	connectedToAndroid = 0;
@@ -77,20 +84,30 @@ void* sender(void* user_data) {
  * Creates the Android accessory two threads for reading and writing on
  * the Android Accessory bus it also initialize the send/receive queue
  */
-void initServer(){
-	pthread_create(&receive, NULL, receiver, NULL);
-	pthread_create(&send, NULL, sender, NULL);
+void initServer(AapConnection* newCon){
+	work = 1;
+	con = newCon;
 
 	//initialize the send and receive queue
 	initreceiveQueue();
 	initSendQueue();
+
+	pthread_create(&receive, NULL, receiver, NULL);
+	pthread_create(&send, NULL, sender, NULL);
+}
+
+AapConnection* getCurrentConnection()
+{
+	return con;
 }
 
 void deInitServer()
 {
-	work = 1;
 	pthread_join(receive,NULL);
 	pthread_join(send,NULL);
 	receive = 0;
 	send = 0;
+
+	deInitSendQueue();
+	deInitreceiveQueue();
 }

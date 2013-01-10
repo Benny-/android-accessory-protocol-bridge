@@ -8,10 +8,47 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <unistd.h>
-#include <fcntl.h>
 
-int initUsb() {
-	return libusb_init(NULL);
+/**
+ * libusb_error_name() function originates from the libusb-1.0 source.
+ *
+ * Old versions of libusb-1.0 do not provide this function. This function is included
+ * here so it does not break on a old version of libusb-1.0.
+ */
+const char *libusb_error_name(int error_code)
+{
+	enum libusb_error error = error_code;
+	switch (error) {
+	case LIBUSB_SUCCESS:
+		return "LIBUSB_SUCCESS";
+	case LIBUSB_ERROR_IO:
+		return "LIBUSB_ERROR_IO";
+	case LIBUSB_ERROR_INVALID_PARAM:
+		return "LIBUSB_ERROR_INVALID_PARAM";
+	case LIBUSB_ERROR_ACCESS:
+		return "LIBUSB_ERROR_ACCESS";
+	case LIBUSB_ERROR_NO_DEVICE:
+		return "LIBUSB_ERROR_NO_DEVICE";
+	case LIBUSB_ERROR_NOT_FOUND:
+		return "LIBUSB_ERROR_NOT_FOUND";
+	case LIBUSB_ERROR_BUSY:
+		return "LIBUSB_ERROR_BUSY";
+	case LIBUSB_ERROR_TIMEOUT:
+		return "LIBUSB_ERROR_TIMEOUT";
+	case LIBUSB_ERROR_OVERFLOW:
+		return "LIBUSB_ERROR_OVERFLOW";
+	case LIBUSB_ERROR_PIPE:
+		return "LIBUSB_ERROR_PIPE";
+	case LIBUSB_ERROR_INTERRUPTED:
+		return "LIBUSB_ERROR_INTERRUPTED";
+	case LIBUSB_ERROR_NO_MEM:
+		return "LIBUSB_ERROR_NO_MEM";
+	case LIBUSB_ERROR_NOT_SUPPORTED:
+		return "LIBUSB_ERROR_NOT_SUPPORTED";
+	case LIBUSB_ERROR_OTHER:
+		return "LIBUSB_ERROR_OTHER";
+	}
+	return "**UNKNOWN**";
 }
 
 /**
@@ -31,12 +68,12 @@ libusb_device_handle* openUsb(u_int16_t vid, u_int16_t pid) {
 		if (libusb_kernel_driver_active(handle, 0)) {
 			response = libusb_detach_kernel_driver(handle, 0);
 			if (response < 0) {
-				error(response);
+				fputs(libusb_error_name(response), stderr);
 			}
 		}
 		response = libusb_claim_interface(handle, 0);
 		if (response < 0) {
-			error(response);
+			fputs(libusb_error_name(response), stderr);
 		}
 
 		return handle;
@@ -52,112 +89,92 @@ void closeUsb(libusb_device_handle* handle) {
 	if(handle != NULL) {
 		response = libusb_release_interface(handle, 0);
 		if (response < 0) {
-			error(response);
+			fputs(libusb_error_name(response), stderr);
 		}
 		libusb_attach_kernel_driver(handle, 0);
 		libusb_close(handle);
 	}
 }
 
-/**
- * Exits libusb
- * @return void
- */
-void deInitUsb() {
-	libusb_exit(NULL);
-}
-
-/**
- *
- * @param code
- */
-void error(int code){
-	fprintf(stdout,"\n");
-	switch(code){
-	case LIBUSB_ERROR_IO:
-		fprintf(stdout,"Error: LIBUSB_ERROR_IO\nInput/output error.\n");
-		break;
-	case LIBUSB_ERROR_INVALID_PARAM:
-		fprintf(stdout,"Error: LIBUSB_ERROR_INVALID_PARAM\nInvalid parameter.\n");
-		break;
-	case LIBUSB_ERROR_ACCESS:
-		fprintf(stdout,"Error: LIBUSB_ERROR_ACCESS\nAccess denied (insufficient permissions).\n");
-		break;
-	case LIBUSB_ERROR_NO_DEVICE:
-		fprintf(stdout,"Error: LIBUSB_ERROR_NO_DEVICE\nNo such device (it may have been disconnected).\n");
-		break;
-	case LIBUSB_ERROR_NOT_FOUND:
-		fprintf(stdout,"Error: LIBUSB_ERROR_NOT_FOUND\nEntity not found.\n");
-		break;
-	case LIBUSB_ERROR_BUSY:
-		fprintf(stdout,"Error: LIBUSB_ERROR_BUSY\nResource busy.\n");
-		break;
-	case LIBUSB_ERROR_TIMEOUT:
-		fprintf(stdout,"Error: LIBUSB_ERROR_TIMEOUT\nOperation timed out.\n");
-		break;
-	case LIBUSB_ERROR_OVERFLOW:
-		fprintf(stdout,"Error: LIBUSB_ERROR_OVERFLOW\nOverflow.\n");
-		break;
-	case LIBUSB_ERROR_PIPE:
-		fprintf(stdout,"Error: LIBUSB_ERROR_PIPE\nPipe error.\n");
-		break;
-	case LIBUSB_ERROR_INTERRUPTED:
-		fprintf(stdout,"Error:LIBUSB_ERROR_INTERRUPTED\nSystem call interrupted (perhaps due to signal).\n");
-		break;
-	case LIBUSB_ERROR_NO_MEM:
-		fprintf(stdout,"Error: LIBUSB_ERROR_NO_MEM\nInsufficient memory.\n");
-		break;
-	case LIBUSB_ERROR_NOT_SUPPORTED:
-		fprintf(stdout,"Error: LIBUSB_ERROR_NOT_SUPPORTED\nOperation not supported or unimplemented on this platform.\n");
-		break;
-	case LIBUSB_ERROR_OTHER:
-		fprintf(stdout,"Error: LIBUSB_ERROR_OTHER\nOther error.\n");
-		break;
-	default:
-		fprintf(stdout, "Error: unkown error\n");
-		break;
-	}
-}
-
-// Blocks untill a new USB device connects to the system
-void waitForConnectedUSBDevice()
+struct udev_device* tryGetNextUSB(struct udev_monitor *udev_monitor)
 {
-	struct udev *udev;
-	struct udev_monitor *udev_monitor;
-	struct udev_device *udev_device;
-	int new_usb_device_connected = 0;
+        struct udev_device* udev_device = NULL;
 
-	/* Create the udev object */
-	udev = udev_new();
-	if (!udev) {
-		fprintf(stderr,"Can't create udev\n");
-		exit(1);
+        udev_device = udev_monitor_receive_device(udev_monitor);
+        if(udev_device == NULL)
+        {
+                fprintf(stderr,"Error in receiving next udev device (udev event)\n");
+        }
+        else
+        {
+                if(     strcmp("usb_device",udev_device_get_devtype(udev_device)) == 0 &&
+                        strcmp("add",udev_device_get_action(udev_device)) == 0 )
+                {
+                        // udev_device is a new usb device
+                }
+                else
+                {
+                        udev_device_unref(udev_device);
+                        udev_device = NULL;
+                }
+        }
+        return udev_device;
+}
+
+AccessoryRead readAccessoryUSB(AapConnection* con)
+{
+	int error = 0;
+	if(con == NULL) {
+		AccessoryRead accessoryRead;
+		accessoryRead.error = -1;
+		accessoryRead.read = 0;
+		accessoryRead.buffer = NULL;
+		return accessoryRead;
+	}
+	error = libusb_bulk_transfer(
+			con->physicalConnection.usbConnection.dev_handle,
+			con->physicalConnection.usbConnection.aoa_endpoint_in,
+			con->receiveBuffer,
+			con->length,
+			&con->read,
+			0u);
+	AccessoryRead accessoryRead;
+	accessoryRead.error = error;
+	accessoryRead.read = con->read;
+	accessoryRead.buffer = con->receiveBuffer;
+	return accessoryRead;
+}
+
+int writeAccessoryUSB(const void* buffer, int size, AapConnection* con)
+{
+	pthread_mutex_lock(&con->writeLock);
+	int error = 0;
+	int transferred = 0;
+	if(con == NULL) {
+		return -1;
 	}
 
-	udev_monitor = udev_monitor_new_from_netlink(udev,"udev");
-	int fd = udev_monitor_get_fd(udev_monitor);
-	int flags = fcntl(fd, F_GETFL, 0 );
-	fcntl(fd, F_SETFL, (~O_NONBLOCK) & flags );
-	udev_monitor_enable_receiving(udev_monitor);
-
-	while(!new_usb_device_connected)
+	/*
+	 * libusb_bulk_transfer() does not guarantee to write everything in one go.
+	 * And thus a loop is required to ensure we write everything.
+	 */
+	while(size && !error )
 	{
-		udev_device = udev_monitor_receive_device(udev_monitor);
-		if(udev_device == NULL)
-		{
-			fprintf(stderr,"Error in receiving next udev device (event)\n");
-		}
-		else
-		{
-			if(	strcmp("usb_device",udev_device_get_devtype(udev_device)) == 0 &&
-				strcmp("add",udev_device_get_action(udev_device)) == 0 )
-			{
-				new_usb_device_connected = 1;
-			}
-		}
-		udev_device_unref(udev_device);
+		error = libusb_bulk_transfer(
+				con->physicalConnection.usbConnection.dev_handle,
+				con->physicalConnection.usbConnection.aoa_endpoint_out,
+				(void*)buffer,
+				size,
+				&transferred,
+				0u);
+		buffer += transferred;
+		size -= transferred;
 	}
+	pthread_mutex_unlock(&con->writeLock);
+	return error;
+}
 
-	udev_monitor_unref(udev_monitor);
-	udev_unref(udev);
+void closeAccessoryUSB(AapConnection* con)
+{
+	closeUsb(con->physicalConnection.usbConnection.dev_handle);
 }

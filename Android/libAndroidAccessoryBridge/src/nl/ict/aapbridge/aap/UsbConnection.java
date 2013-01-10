@@ -18,7 +18,6 @@ package nl.ict.aapbridge.aap;
 
 import static nl.ict.aapbridge.TAG.TAG;
 
-import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,19 +38,7 @@ import android.util.Log;
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
-/**
- * 
- * Creates a connection to a android accessory using a usb bulk endpoint.
- * 
- * Briefly: Make sure you have the proper permissions and call {@link #easyConnect(Context)}
- * once your application is started when the android device is inserted into the accessory.
- * 
- * Manually creating UsbConnection objects using {@link UsbManager#requestPermission(UsbAccessory, PendingIntent) UsbManager.requestPermission()}
- * and the constructor is not recommended as the accessory may be in a inconsistent state. Disconnect the android deivce
- * and reconnect.
- * 
- */
-public class UsbConnection implements AccessoryConnection, Closeable
+public class UsbConnection implements AccessoryConnection
 {
 	
 	private Context mContext;

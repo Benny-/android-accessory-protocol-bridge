@@ -1,7 +1,10 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-void initServer();
+#include <accessory.h>
+
+void initServer(AapConnection* newcon);
+AapConnection* getCurrentConnection();
 void receiver();
 void sender();
 void deInitServer();

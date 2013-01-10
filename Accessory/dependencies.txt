@@ -1,10 +1,25 @@
-# Userspace usb communication
-apt-get install libusb-dev
-apt-get install libusb-1.0-0-dev
+# This file list the Ubuntu package dependencies for compilation.
+
+# General dependencies:
+sudo apt-get install libtool build-essential 
+
+# Dependency if you use eclipse ide:
+sudo apt-get install default-jdk
+
+# ----------- AndroidAccessory dependencies
 
 # New device detection
-apt-get install libudev-dev
+sudo apt-get install libudev-dev
 
-# d-bus communication
-apt-get install libdbus-1-dev
+# Userspace usb communication
+sudo apt-get install libusb-1.0-0-dev
+
+# bluetooth communication
+sudo apt-get install bluez libbluetooth-dev
+
+# ----------- AAP-Bridge dependencies
+# AAP-Bridge depends on AndroidAccessory (all of the above)
+
+# Low-level d-bus communication
+sudo apt-get install libdbus-1-dev
 
