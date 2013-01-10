@@ -46,6 +46,7 @@ Accessory* initAccessory(
 	}
 
 	struct udev_monitor *udev_monitor = udev_monitor_new_from_netlink(udev,"udev");
+	udev_monitor_filter_add_match_subsystem_devtype(udev_monitor, "usb", "usb_device");
 	udev_monitor_enable_receiving(udev_monitor);
 
 	Accessory* accessory = malloc(sizeof(Accessory));
