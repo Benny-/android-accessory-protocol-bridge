@@ -22,16 +22,15 @@ Accessory* accessory;
  * @param sig signal by the signalhandler
  */
 void stop(int sig) {
-	printf("received signal: %i \n", sig);
-
-	int transferred=0;
-	int response;
+	int error;
 	unsigned char deathmessage[] = "Im braindeath.";
+
+	printf("received signal: %i \n", sig);
 
 	MESSAGE* message = createmessage(1, 1, 1, sizeof(deathmessage), deathmessage,
 						OTHER);
-	response = writeAccessory(message, sizeof(MESSAGE), getCurrentConnection() );
-	if(response)
+	error = writeAccessory(message, sizeof(MESSAGE), getCurrentConnection() );
+	if(error)
 	{
 		printf("Could not send braindeath message to android, but thats okay. *DIES*\n");
 	}

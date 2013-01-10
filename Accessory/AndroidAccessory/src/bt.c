@@ -17,7 +17,6 @@
 struct BT_SERVICE
 {
 	sdp_session_t* sdp_session;
-	sdp_record_t* sdp_record;
 	int fd;
 };
 
@@ -85,7 +84,8 @@ static sdp_session_t* register_service(
     // connect to the local SDP server, register the service record,
     // and disconnect
     session = sdp_connect(BDADDR_ANY, BDADDR_LOCAL, SDP_RETRY_IF_BUSY);
-    sdp_record_register(session, &record, 0);
+    if(session != NULL)
+    	sdp_record_register(session, &record, 0);
 
     // cleanup
     sdp_data_free( channel );
@@ -109,7 +109,6 @@ BT_SERVICE* bt_listen(
 	struct sockaddr_rc loc_addr;
 
 	uint8_t port = 4;
-    sdp_session_t* session = register_service(service_name, svc_dsc, service_prov, svc_uuid_int, port);
 
     struct sockaddr_rc rem_addr = { 0 };
     socklen_t opt = sizeof(rem_addr);
@@ -131,6 +130,15 @@ BT_SERVICE* bt_listen(
 
     if(listen(bt_service->fd, 1) == -1)
     {
+    	close(bt_service->fd);
+    	free(bt_service);
+    	return NULL;
+    }
+
+    bt_service->sdp_session = register_service(service_name, svc_dsc, service_prov, svc_uuid_int, port);
+    if(bt_service->sdp_session == NULL)
+    {
+    	fprintf(stderr, "Could not register bluetooth service\n");
     	close(bt_service->fd);
     	free(bt_service);
     	return NULL;
