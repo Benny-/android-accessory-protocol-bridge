@@ -30,14 +30,16 @@ void* receiver(void* user_data) {
 
 		// TODO: Receive messages in parts.
 
-		decodemessage(read.buffer);
-
 		if (read.error) {
 			// Our device disconnected, stop the loop
 			fprintf(stderr,"Receiver thread is going to stop\n");
 			addreceivequeue(NULL);
 			work = 0;
 			break;
+		}
+		else
+		{
+			decodemessage(read.buffer);
 		}
 	}
 	fprintf(stderr,"Receiver thread has stopped\n");
