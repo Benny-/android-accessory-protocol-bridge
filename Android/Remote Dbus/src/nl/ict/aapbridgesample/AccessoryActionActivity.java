@@ -2,7 +2,6 @@ package nl.ict.aapbridgesample;
  
 import java.io.IOException;
 
-import nl.ict.aapbridge.SystemHolder;
 import nl.ict.aapbridge.aap.UsbConnection;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import android.app.Activity;
@@ -46,16 +45,13 @@ public class AccessoryActionActivity extends Activity {
 			}
 		});
         
-        if(aapbridge == null || aapbridge.disconnected())
+        if(aapbridge == null || !aapbridge.isOpen())
         {
 			try {
 				aapbridge = new AccessoryBridge(UsbConnection.easyConnect(getApplicationContext()));
 			} catch (IOException e) {
 				Log.e(TAG, "", e);
 			}
-	        SystemHolder.setIntent(getIntent());
-	        SystemHolder.setContext(getApplicationContext());
-	        SystemHolder.setActivity(this);
         }
     }
 }

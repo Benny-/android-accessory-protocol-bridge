@@ -1,26 +1,21 @@
 package nl.ict.aapbridgesample;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import nl.ict.aapbridge.bridge.AccessoryMessage;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
-import nl.ict.aapbridge.bridge.MessageHandler;
-import nl.ict.aapbridge.bridge.AccessoryMessage.MessageType;
+import nl.ict.aapbridge.bridge.ServiceRequestException;
 import nl.ict.aapbridge.dbus.Dbus;
-import nl.ict.aapbridge.SystemHolder;
+import nl.ict.aapbridge.dbus.DbusHandler;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.android.future.usb.UsbManager;
-
 
 public class CallRemoteFunctionActivity extends Activity
 {
@@ -36,6 +31,16 @@ public class CallRemoteFunctionActivity extends Activity
     
     private Button button_dbus_call;
     private Button button_keepalive;
+    
+    private DbusHandler dbus_handler = new DbusHandler() {
+    	@Override
+    	public void handleMessage(Message msg) {
+    		Log.v(TAG, "Received some dbus response: "+msg.toString());
+    		msg.recycle();
+    	}
+	};
+	
+	private Dbus d;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -53,9 +58,15 @@ public class CallRemoteFunctionActivity extends Activity
         
         aapbridge = AccessoryActionActivity.aapbridge;
         
+        try {
+			d = aapbridge.createDbus(dbus_handler);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+        
         button_dbus_call.setOnClickListener(new OnClickListener() {
         	public void onClick(View v) {
-        		Dbus d = new Dbus(aapbridge);
+        		
         		try {
 					d.methodCall(
 							textfield_busname.getText().toString(),
@@ -63,7 +74,7 @@ public class CallRemoteFunctionActivity extends Activity
 							textfield_interface.getText().toString(),
 							textfield_functionname.getText().toString() );
 				} catch (Exception e) {
-					Toast.makeText(SystemHolder.getContext(), "Accessory not connected", Toast.LENGTH_SHORT).show();
+					Toast.makeText(CallRemoteFunctionActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
 		        	finish();
 					Log.e(TAG, "", e);
 				}
@@ -73,13 +84,23 @@ public class CallRemoteFunctionActivity extends Activity
         button_keepalive.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				try {
-					aapbridge.Write("Ping".getBytes(), 0, MessageType.KEEPALIVE);
+					aapbridge.sendKeepalive();
 				} catch (Exception e) {
-					Toast.makeText(SystemHolder.getContext(), "Accessory not connected", Toast.LENGTH_SHORT).show();
+					Toast.makeText(CallRemoteFunctionActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
 		        	finish();
 					Log.e(TAG, "", e);
 				}
 			}
 		});
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	try {
+			d.close();
+		} catch (IOException e) {
+			Log.e(TAG, "", e);
+		}
+    	super.onDestroy();
     }
 }

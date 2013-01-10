@@ -6,7 +6,7 @@
 
     <uses-feature
         android:name="com.android.future.usb.accessory"
-        android:required="true" />
+        android:required="false" />
 
     <uses-sdk android:minSdkVersion="10" />
     

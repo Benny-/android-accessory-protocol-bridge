@@ -1,11 +1,16 @@
 package nl.ict.aapbridgesample;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
+import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.DbusSignals;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,6 +32,16 @@ public class SignalFilterActivity extends Activity {
     private Button button_addwatch;
     private Button button_removewatch;
     
+    private DbusHandler dbus_handler = new DbusHandler() {
+    	@Override
+    	public void handleMessage(Message msg) {
+    		Log.v(TAG, "Received some signal response: "+msg.toString());
+    		msg.recycle();
+    	}
+	};
+	
+	private List<DbusSignals> signalListeners = new ArrayList<DbusSignals>();
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,31 +60,46 @@ public class SignalFilterActivity extends Activity {
         button_addwatch.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				try {
-					DbusSignals dbusSignals = new DbusSignals(aapbridge);
-					dbusSignals.addWatch(
+					DbusSignals signalListener = aapbridge.createDbusSignal(
+							dbus_handler,
 							textfield_busname.getText().toString(),
 							textfield_objectpath.getText().toString(),
 							textfield_interface.getText().toString(),
 							textfield_membername.getText().toString());
+					signalListeners.add(signalListener);
 				} catch (Exception e) {
 					Log.e(TAG, "", e);
 				}
 			}
 		});
         
+        button_removewatch.setEnabled(false);
         button_removewatch.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				try {
-					DbusSignals dbusSignals = new DbusSignals(aapbridge);
-					dbusSignals.removeWatch(
-							textfield_busname.getText().toString(),
-							textfield_objectpath.getText().toString(),
-							textfield_interface.getText().toString(),
-							textfield_membername.getText().toString());
-				} catch (Exception e) {
-					Log.e(TAG, "", e);
-				}
+//				try {
+//					DbusSignals dbusSignals = new DbusSignals(aapbridge);
+//					dbusSignals.removeWatch(
+//							textfield_busname.getText().toString(),
+//							textfield_objectpath.getText().toString(),
+//							textfield_interface.getText().toString(),
+//							textfield_membername.getText().toString());
+//				} catch (Exception e) {
+//					Log.e(TAG, "", e);
+//				}
 			}
 		});
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	for(DbusSignals listener : signalListeners)
+    	{
+    		try {
+				listener.close();
+			} catch (IOException e) {
+				Log.e(TAG, "", e);
+			}
+    	}
+    	super.onDestroy();
     }
 }

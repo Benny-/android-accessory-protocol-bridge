@@ -123,6 +123,17 @@ public class AccessoryBridge implements Channel
 	private static final ByteBuffer ping = ByteBuffer.allocate(4);
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
 	
+	/**
+	 * This method exist for testing purposes only and should never be called.
+	 * @throws IOException 
+	 * 
+	 */
+	public void sendKeepalive() throws IOException
+	{
+		ping.rewind();
+		keepalive.write(ping);
+	}
+	
 	static {
 		ping.order(ByteOrder.LITTLE_ENDIAN);
 		ping.put("ping".getBytes(Charset.forName("utf-8")));
@@ -150,8 +161,7 @@ public class AccessoryBridge implements Channel
 			@Override
 			public void run() {
 				try {
-					ping.rewind();
-					keepalive.write(ping);
+					sendKeepalive();
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -207,7 +217,8 @@ public class AccessoryBridge implements Channel
 		
 		public void run()
 		{
-			try {
+			try
+			{
 				while(true)
 				{
 					bb.rewind();
@@ -228,21 +239,12 @@ public class AccessoryBridge implements Channel
 					else
 						service.onDataReady(dataLength);
 				}
-				} catch (Exception e)
-				{
-					Log.e(TAG, "Reader thread has stopped", e);
-				} finally
-				{
-					try {
-						inputStream.close();
-					} catch (IOException e) {
-						Log.e(TAG, "", e);
-					}
 			}
-			} catch (Exception e)
+			catch (Exception e)
 			{
 				Log.e(TAG, "Reader thread has stopped", e);
-			} finally
+			}
+			finally
 			{
 				try {
 					inputStream.close();
