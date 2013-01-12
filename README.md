@@ -6,11 +6,11 @@ The project consist of two parts. A Android library and a accessory application 
 
 ## Accessory
 
-The Accessory map contains two eclipse/autotool project. Both contain a INSTALL file detailing installing instructions. The payloads map contains applications who have a d-bus interface, these applications are used for testing and demonstration purposes.
+The Accessory map contains two eclipse/autotool project. Run `./autogen.sh` to bootstrap the autotools projects. Both projects contain a genertic INSTALL file detailing further installing instructions. The payloads map contains applications who have a d-bus interface, these applications are used for testing and demonstration purposes.
 
 - /Accessory/AndroidAccessory
 - /Accessory/AAP-Bridge
-- /Accessory/Payloads/
+- /Accessory/Payloads
 
 AAP-Bridge managed the communication from android and the d-bus on the local system. It uses AndroidAccessory for the communication between the Android system. AndroidAccessory is a Library which implements the android accessory protocol on Linux.
 
