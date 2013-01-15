@@ -8,14 +8,39 @@
 #include "usb.h"
 #include "config.h"
 
-int writeAccessory(const void* buffer, int size, AapConnection* con)
+int readAccessory(AapConnection* con, void* buffer, int size_max)
 {
-	return con->writeAccessory(buffer, size, con);
+	return con->readAccessory(con, buffer, size_max);
 }
 
-AccessoryRead readAccessory(AapConnection* con)
+int readAllAccessory(AapConnection* con, void* buffer, int size)
 {
-	return con->readAccessory(con);
+	int response = 0;
+	while(size > 1 && response >= 0)
+	{
+		response = readAccessory(con, buffer, size);
+		size -= response;
+	}
+	return response < 0 ? response : 0;
+}
+
+int writeAccessory(AapConnection* con, const void* buffer, int size_max)
+{
+	return con->writeAccessory(con, buffer, size_max);
+}
+
+int writeAllAccessory(AapConnection* con, const void* buffer, int size)
+{
+	pthread_mutex_lock(&con->writeLock);
+	int response = 0;
+	while(size > 1 && response >= 0)
+	{
+		response = writeAccessory(con, buffer, size);
+		size -= response;
+	}
+
+	pthread_mutex_unlock(&con->writeLock);
+	return response < 0 ? response : 0;
 }
 
 Accessory* initAccessory(
@@ -131,8 +156,10 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 					 *
 					 * http://libusb.sourceforge.net/api-1.0/packetoverflow.html
 					 */
-					aapconnection->receiveBuffer = malloc(16384);
-					aapconnection->length = 16384;
+					aapconnection->physicalConnection.usbConnection.receiveBuffer = malloc(16384);
+					aapconnection->physicalConnection.usbConnection.length = 16384;
+					aapconnection->physicalConnection.usbConnection.startValidData = aapconnection->physicalConnection.usbConnection.receiveBuffer;
+					aapconnection->physicalConnection.usbConnection.read = 0;
 					aapconnection->writeAccessory = &writeAccessoryUSB;
 					aapconnection->readAccessory = &readAccessoryUSB;
 					aapconnection->closeAccessory = &closeAccessoryUSB;
@@ -149,8 +176,6 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 			int fd = accept(bt_getFD(accessory->bt_service),NULL,NULL);
 			aapconnection = mallocAapConnection();
 			aapconnection->physicalConnection.btConnection.fd = fd;
-			aapconnection->receiveBuffer = malloc(1024); // Arbitrary buffer size.
-			aapconnection->length = 1024;
 			aapconnection->writeAccessory = &writeAccessoryBT;
 			aapconnection->readAccessory = &readAccessoryBT;
 			aapconnection->closeAccessory = &closeAccessoryBT;

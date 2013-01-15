@@ -163,36 +163,14 @@ void bt_close(BT_SERVICE* service)
     free(service);
 }
 
-AccessoryRead readAccessoryBT(AapConnection* con)
+int readAccessoryBT(AapConnection* con, void* buffer, int size)
 {
-	AccessoryRead rd;
-	rd.buffer = con->receiveBuffer;
-
-	rd.read = read(con->physicalConnection.btConnection.fd, rd.buffer, con->length);
-	if(rd.read < 1)
-		rd.error = 1;
-	else
-		rd.error = 0;
-
-	return rd;
+	return read(con->physicalConnection.btConnection.fd, buffer, size);
 }
 
-int writeAccessoryBT(const void* buffer, int size, AapConnection* con)
+int writeAccessoryBT(AapConnection* con, const void* buffer, int size)
 {
-	int error = 0;
-	pthread_mutex_lock(&con->writeLock);
-	while(size > 0 && !error )
-	{
-		int wrote = write(con->physicalConnection.btConnection.fd, buffer, size);
-		buffer += wrote;
-		size -= wrote;
-		if(wrote < 1)
-		{
-			error = 1;
-		}
-	}
-	pthread_mutex_unlock(&con->writeLock);
-	return error;
+	return write(con->physicalConnection.btConnection.fd, buffer, size);
 }
 
 void closeAccessoryBT(AapConnection* con)

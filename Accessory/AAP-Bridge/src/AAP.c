@@ -29,7 +29,7 @@ void stop(int sig) {
 
 	MESSAGE* message = createmessage(1, 1, 1, sizeof(deathmessage), deathmessage,
 						OTHER);
-	error = writeAccessory(message, sizeof(MESSAGE), getCurrentConnection() );
+	error = writeAccessory(getCurrentConnection(), message, sizeof(MESSAGE) );
 	if(error)
 	{
 		printf("Could not send braindeath message to android, but thats okay. *DIES*\n");

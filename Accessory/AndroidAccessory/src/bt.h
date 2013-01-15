@@ -19,8 +19,8 @@ Close must never be called on this socket. Use close(BT_SERVICE* service) if you
 int bt_getFD(BT_SERVICE* service);
 void bt_close(BT_SERVICE* service);
 
-AccessoryRead readAccessoryBT(AapConnection* con);
-int writeAccessoryBT(const void* buffer, int size, AapConnection* con);
-void closeAccessoryBT(AapConnection* con);
+int readAccessoryBT   (AapConnection* con,       void* buffer, int size_max);
+int writeAccessoryBT  (AapConnection* con, const void* buffer, int size_max);
+void closeAccessoryBT (AapConnection* con);
 
 #endif

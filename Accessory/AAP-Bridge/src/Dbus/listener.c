@@ -199,6 +199,3 @@ void removeSignalWatch(
 	bcstrfree(cstr_rule);
 	bdestroy(rule);
 }
-
-
-

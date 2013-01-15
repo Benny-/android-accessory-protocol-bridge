@@ -12,8 +12,8 @@ void closeUsb(libusb_device_handle* handle);
 
 struct udev_device* tryGetNextUSB(struct udev_monitor *udev_monitor);
 
-AccessoryRead readAccessoryUSB(AapConnection* con);
-int writeAccessoryUSB(const void* buffer, int size, AapConnection* con);
-void closeAccessoryUSB(AapConnection* con);
+int readAccessoryUSB   (AapConnection* con,       void* buffer, int size_max);
+int writeAccessoryUSB  (AapConnection* con, const void* buffer, int size_max);
+void closeAccessoryUSB (AapConnection* con);
 
 #endif

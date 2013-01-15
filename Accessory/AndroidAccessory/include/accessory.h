@@ -4,23 +4,6 @@
 typedef struct Accessory Accessory;
 typedef struct AapConnection AapConnection;
 
-typedef struct AccessoryRead
-{
-	int error;
-	int read;
-	/**
-	 * AccessoryRead.buffer points to a shared buffer (managed by struct AapConnection)
-	 * and will change between calls to readAccessory(AapConnection* con)
-	 *
-	 * As a result, you will not have to deallocate it.
-	 *
-	 * The reason why it should be this way is related to usb buffer overflows.
-	 * See http://libusb.sourceforge.net/api-1.0/packetoverflow.html
-	 *
-	 */
-	void* buffer;
-} AccessoryRead;
-
 Accessory* initAccessory(
 		const char* manufacturer,	// Used for usb accessory protocol
 		const char* modelName,		// Used for bt & usb accessory protocol
@@ -33,9 +16,36 @@ void deInitaccessory(Accessory* accessory);
 AapConnection* getNextAndroidConnection(Accessory* accessory);
 void closeAndroidConnection(AapConnection* con);
 
-int writeAccessory(const void* buffer, int size, AapConnection* con);
-AccessoryRead readAccessory(AapConnection* con);
+/**
+ * Read a number of bytes from the Android application.
+ *
+ * Returns bytes read or a non-positive value in case of error.
+ */
+int readAccessory		(AapConnection* con, void* buffer, int size_max);
 
-const char* AccessoryError(int errorcode);
+/**
+ * Repeatebly read from the Android application untill 'size' bytes have been read.
+ *
+ * Return zero on success (if all bytes have been writen) or a non-zero value in case of error.
+ */
+int readAllAccessory	(AapConnection* con, void* buffer, int size);
+
+/**
+ * Write a number of bytes to the Android application.
+ *
+ * This function is NOT protected by a mutex and is not thread-safe.
+ *
+ * Returns bytes read or a non-positive value in case of error.
+ */
+int writeAccessory		(AapConnection* con, const void* buffer, int size_max);
+
+/**
+ * Repeatebly write untill all the bytes have been send to the Android application.
+ *
+ * This function is protected by a mutex and may be called from multiple threads.
+ *
+ * Return zero on success (if requested numbers of bytes have been read) or a non-zero value in case of error.
+ */
+int writeAllAccessory	(AapConnection* con, const void* buffer, int size);
 
 #endif

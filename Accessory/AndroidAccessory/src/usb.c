@@ -121,60 +121,55 @@ struct udev_device* tryGetNextUSB(struct udev_monitor *udev_monitor)
         return udev_device;
 }
 
-AccessoryRead readAccessoryUSB(AapConnection* con)
+int readAccessoryUSB(AapConnection* con, void* buffer, int size)
 {
-	int error = 0;
-	if(con == NULL) {
-		AccessoryRead accessoryRead;
-		accessoryRead.error = -1;
-		accessoryRead.read = 0;
-		accessoryRead.buffer = NULL;
-		return accessoryRead;
+	int read;
+	if(con->physicalConnection.usbConnection.read)
+	{
+		read = size > con->physicalConnection.usbConnection.read ? con->physicalConnection.usbConnection.read : size;
+		memcpy(buffer, con->physicalConnection.usbConnection.startValidData, read);
+		con->physicalConnection.usbConnection.read -= read;
+		con->physicalConnection.usbConnection.startValidData += read;
 	}
-	error = libusb_bulk_transfer(
-			con->physicalConnection.usbConnection.dev_handle,
-			con->physicalConnection.usbConnection.aoa_endpoint_in,
-			con->receiveBuffer,
-			con->length,
-			&con->read,
-			0u);
-	AccessoryRead accessoryRead;
-	accessoryRead.error = error;
-	accessoryRead.read = con->read;
-	accessoryRead.buffer = con->receiveBuffer;
-	return accessoryRead;
+	else
+	{
+		con->physicalConnection.usbConnection.startValidData = con->physicalConnection.usbConnection.receiveBuffer;
+		int error = libusb_bulk_transfer(
+				con->physicalConnection.usbConnection.dev_handle,
+				con->physicalConnection.usbConnection.aoa_endpoint_in,
+				con->physicalConnection.usbConnection.receiveBuffer,
+				con->physicalConnection.usbConnection.length,
+				&con->physicalConnection.usbConnection.read,
+				0u);
+		if(error)
+		{
+			read = error;
+		}
+		else
+		{
+			read = readAccessoryUSB(con, buffer, size);
+		}
+	}
+	return read;
 }
 
-int writeAccessoryUSB(const void* buffer, int size, AapConnection* con)
+int writeAccessoryUSB(AapConnection* con, const void* buffer, int size)
 {
-	pthread_mutex_lock(&con->writeLock);
-	int error = 0;
-	int transferred = 0;
-	if(con == NULL) {
-		return -1;
-	}
+	int written;
+	int error;
 
-	/*
-	 * libusb_bulk_transfer() does not guarantee to write everything in one go.
-	 * And thus a loop is required to ensure we write everything.
-	 */
-	while(size && !error )
-	{
-		error = libusb_bulk_transfer(
-				con->physicalConnection.usbConnection.dev_handle,
-				con->physicalConnection.usbConnection.aoa_endpoint_out,
-				(void*)buffer,
-				size,
-				&transferred,
-				0u);
-		buffer += transferred;
-		size -= transferred;
-	}
-	pthread_mutex_unlock(&con->writeLock);
-	return error;
+	error = libusb_bulk_transfer(
+			con->physicalConnection.usbConnection.dev_handle,
+			con->physicalConnection.usbConnection.aoa_endpoint_out,
+			(void*)buffer,
+			size,
+			&written,
+			0u);
+	return error ? error : written;
 }
 
 void closeAccessoryUSB(AapConnection* con)
 {
 	closeUsb(con->physicalConnection.usbConnection.dev_handle);
+	free(con->physicalConnection.usbConnection.receiveBuffer);
 }

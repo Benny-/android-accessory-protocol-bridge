@@ -13,35 +13,39 @@ static volatile int work;
 volatile int connectedToAndroid = 0;
 static AapConnection* con = NULL;
 
+static
+
 /**
  * Accessory receive thread
  * called by "starthandeling"
  */
 void* receiver(void* user_data) {
+	int error =0;
 	uint8_t buffer[1024];
-	while(work==1) {
+	while(work==1 && !error)
+	{
 		memset(buffer, 0, sizeof(buffer));
+		short port;
+		short length;
 
-		AccessoryRead read = readAccessory(con );
-		printf("Bytes received: %i\n", read.read);
+		error = readAllAccessory(con,buffer,4);
 
-		PrintBin(read.buffer, read.read);
-		puts("\n");
-
-		// TODO: Receive messages in parts.
-
-		if (read.error) {
-			// Our device disconnected, stop the loop
-			fprintf(stderr,"Receiver thread is going to stop\n");
-			addreceivequeue(NULL);
-			work = 0;
-			break;
-		}
-		else
+		if(!error)
 		{
-			decodemessage(read.buffer);
+			port   = buffer[0] + (buffer[1] << 8);
+			length = buffer[2] + (buffer[3] << 8);
+			printf("Received multiplexed msg for port %hu length %hu\n",port, length);
+			error = readAllAccessory(con, buffer, length);
+			if (!error)
+			{
+				PrintBin(buffer, length);
+				puts("");
+			}
+			//decodemessage(buffer);
 		}
 	}
+	addreceivequeue(NULL);
+	work = 0;
 	fprintf(stderr,"Receiver thread has stopped\n");
 	return NULL;
 }
@@ -64,7 +68,7 @@ void* sender(void* user_data) {
 		}
 
 		//decodemessage(buffer);
-		error = writeAccessory(buffer, sizeof(MESSAGE), con);
+		error = writeAllAccessory(con, buffer, sizeof(MESSAGE) );
 
 		printf("Bytes send: %zu\n",sizeof(MESSAGE));
 		PrintBin(buffer, sizeof(MESSAGE));
