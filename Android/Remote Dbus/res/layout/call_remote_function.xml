@@ -45,15 +45,9 @@
         <Button
             android:id="@+id/button_dbus_call"
             android:text="Dbus method Call" >
-
             <requestFocus />
         </Button>
-
-        <Button
-            android:id="@+id/button_keepalive"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Keep alive" />
+        
     </TableLayout>
 
 </ScrollView>

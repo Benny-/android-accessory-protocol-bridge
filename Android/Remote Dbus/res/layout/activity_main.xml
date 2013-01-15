@@ -24,6 +24,16 @@
             android:layout_alignParentRight="true"
             android:layout_below="@+id/button_rpc"
             android:text="Signals receive filter" />
+        
+        <Button
+            android:id="@+id/button_keepalive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/button_signals"
+            android:text="Keep alive" />
+        
     </RelativeLayout>
 
 </ScrollView>

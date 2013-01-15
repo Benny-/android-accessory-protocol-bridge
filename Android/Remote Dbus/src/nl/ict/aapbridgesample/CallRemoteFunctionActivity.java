@@ -30,7 +30,6 @@ public class CallRemoteFunctionActivity extends Activity
     private EditText textfield_functionname;
     
     private Button button_dbus_call;
-    private Button button_keepalive;
     
     private DbusHandler dbus_handler = new DbusHandler() {
     	@Override
@@ -54,7 +53,6 @@ public class CallRemoteFunctionActivity extends Activity
         textfield_functionname = (EditText) findViewById(R.id.Functionname);
         
         button_dbus_call = (Button)findViewById(R.id.button_dbus_call);
-        button_keepalive = (Button)findViewById(R.id.button_keepalive);
         
         aapbridge = AccessoryActionActivity.aapbridge;
         
@@ -79,18 +77,6 @@ public class CallRemoteFunctionActivity extends Activity
 					Log.e(TAG, "", e);
 				}
         	}
-		});
-        
-        button_keepalive.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				try {
-					aapbridge.sendKeepalive();
-				} catch (Exception e) {
-					Toast.makeText(CallRemoteFunctionActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
-		        	finish();
-					Log.e(TAG, "", e);
-				}
-			}
 		});
     }
     

@@ -32,14 +32,14 @@ public class AccessoryBridge implements Channel
 {
 	public class Port implements ByteChannel, ReadableByteChannel {
 		
-		ByteBuffer header = ByteBuffer.allocate(4);
+		private final ByteBuffer header = ByteBuffer.allocate(4);
 		
 		private boolean inputOpen = true;
 		private boolean outputOpen = true;
 		
-		private Port(int portNr) {
+		private Port(short portNr) {
 			header.order(ByteOrder.LITTLE_ENDIAN);
-			header.putShort((short) portNr);
+			header.putShort(portNr);
 			header.mark();
 		}
 		
@@ -70,13 +70,12 @@ public class AccessoryBridge implements Channel
 		}
 
 		@Override
-		public int write(ByteBuffer buffer) throws IOException {
+		public synchronized int write(ByteBuffer buffer) throws IOException {
 			header.reset();
 			short writeAmount = (short) (buffer.remaining() > 4000 ? 4000 : buffer.remaining());
 			header.putShort(writeAmount);
-			header.position(0);
-			synchronized (this) {
-				outputStream.write(header.array(), 0, header.remaining());
+			synchronized (AccessoryBridge.this) {
+				outputStream.write(header.array(), header.arrayOffset(), header.capacity());
 				outputStream.write(buffer.array(), buffer.arrayOffset(), writeAmount);
 			}
 			return writeAmount;
@@ -90,10 +89,22 @@ public class AccessoryBridge implements Channel
 		 * 
 		 * {@link #read(ByteBuffer)} might not read all bytes in one go. You must keep calling this function until
 		 * all you have read all bytes as specified by Service#onDataReady(int).
+		 * 
+		 * @see #readAll
 		 */
 		@Override
 		public int read(ByteBuffer buffer) throws IOException {
 			return inputStream.read(buffer.array(), buffer.arrayOffset(), buffer.remaining());
+		}
+		
+		/**
+		 * Same as {@link #read}, but guarantees to fill the whole buffer or throw a IOException
+		 * 
+		 * @throws IOException 
+		 */
+		public void readAll(ByteBuffer buffer) throws IOException {
+			while(buffer.hasRemaining())
+				read(buffer);
 		}
 	}
 	
@@ -116,9 +127,9 @@ public class AccessoryBridge implements Channel
 	private OutputStream outputStream;
 	private InputStream inputStream;
 	private Map<Short, Service> activeServices = new HashMap<Short, Service>();
-	private Port serviceSpawner = new Port(0);
-	private Port keepalive = new Port(1);
-	private Timer pinger = new Timer("Pinger", true);
+	private Port serviceSpawner = new Port( (short) 0 );
+	private Port keepalive		= new Port( (short) 1 );
+	private Timer pinger		= new Timer("Pinger", true);
 	
 	private static final ByteBuffer ping = ByteBuffer.allocate(4);
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
@@ -223,7 +234,7 @@ public class AccessoryBridge implements Channel
 				{
 					bb.rewind();
 					Log.d(TAG, "Reading inputStream");
-					while (bb.remaining() < 4)
+					while (bb.remaining() <= 4)
 					{
 						if(inputStream.read(bb.array(),bb.arrayOffset(),bb.remaining()) == -1)
 							throw new IOException("End of file");
@@ -235,7 +246,12 @@ public class AccessoryBridge implements Channel
 					Log.d(TAG, "AAB msg: Port "+destinationPort+" dataLength: "+dataLength);
 					Service service = activeServices.get(destinationPort);
 					if(service == null)
+					{
+						int mustSkip = dataLength;
 						Log.w(TAG, "Received a message for a port where no service is listening");
+						while(mustSkip > 0)
+							mustSkip += inputStream.skip(mustSkip);
+					}
 					else
 						service.onDataReady(dataLength);
 				}

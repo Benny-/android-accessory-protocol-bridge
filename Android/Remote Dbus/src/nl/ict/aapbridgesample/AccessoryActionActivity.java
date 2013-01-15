@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class AccessoryActionActivity extends Activity {
 	
@@ -20,6 +21,7 @@ public class AccessoryActionActivity extends Activity {
 	
 	private Button button_rpc;
 	private Button button_signals;
+	private Button button_keepalive;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,6 +30,7 @@ public class AccessoryActionActivity extends Activity {
         
         button_rpc = (Button) findViewById(R.id.button_rpc);
         button_signals = (Button) findViewById(R.id.button_signals);
+        button_keepalive = (Button)findViewById(R.id.button_keepalive);
         
         button_rpc.setOnClickListener(new OnClickListener() {
 			
@@ -53,5 +56,18 @@ public class AccessoryActionActivity extends Activity {
 				Log.e(TAG, "", e);
 			}
         }
+        
+        button_keepalive.setOnClickListener(new OnClickListener() {
+    		public void onClick(View v) {
+    			try {
+    				aapbridge.sendKeepalive();
+    			} catch (Exception e) {
+    				Toast.makeText(AccessoryActionActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
+    	        	finish();
+    				Log.e(TAG, "", e);
+    			}
+    		}
+    	});
+        
     }
 }
