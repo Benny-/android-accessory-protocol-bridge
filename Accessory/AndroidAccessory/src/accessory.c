@@ -31,15 +31,12 @@ int writeAccessory(AapConnection* con, const void* buffer, int size_max)
 
 int writeAllAccessory(AapConnection* con, const void* buffer, int size)
 {
-	pthread_mutex_lock(&con->writeLock);
 	int response = 0;
 	while(size > 1 && response >= 0)
 	{
 		response = writeAccessory(con, buffer, size);
 		size -= response;
 	}
-
-	pthread_mutex_unlock(&con->writeLock);
 	return response < 0 ? response : 0;
 }
 
@@ -111,7 +108,6 @@ Accessory* initAccessory(
 static AapConnection* mallocAapConnection()
 {
 	AapConnection* aapconnection = malloc(sizeof(AapConnection));
-	pthread_mutex_init(&aapconnection->writeLock, NULL);
 	return aapconnection;
 }
 
@@ -187,7 +183,6 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 
 void closeAndroidConnection(AapConnection* con)
 {
-	pthread_mutex_destroy(&con->writeLock);
 	con->closeAccessory(con);
 	free(con);
 }

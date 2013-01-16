@@ -33,16 +33,12 @@ int readAllAccessory	(AapConnection* con, void* buffer, int size);
 /**
  * Write a number of bytes to the Android application.
  *
- * This function is NOT protected by a mutex and is not thread-safe.
- *
  * Returns bytes read or a non-positive value in case of error.
  */
 int writeAccessory		(AapConnection* con, const void* buffer, int size_max);
 
 /**
  * Repeatebly write untill all the bytes have been send to the Android application.
- *
- * This function is protected by a mutex and may be called from multiple threads.
  *
  * Return zero on success (if requested numbers of bytes have been read) or a non-zero value in case of error.
  */
