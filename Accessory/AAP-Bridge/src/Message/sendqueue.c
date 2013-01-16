@@ -7,7 +7,7 @@
 
 #define MESSAGEQUEMAX 64
 
-static MESSAGE* sendQueue[MESSAGEQUEMAX];
+static MultiplexedMessage* sendQueue[MESSAGEQUEMAX];
 
 static pthread_mutex_t queueSendMutex;
 static sem_t inSendQueue;
@@ -26,7 +26,7 @@ void deInitSendQueue(){
 	pthread_mutex_destroy(&queueSendMutex);
 }
 
-void addSendQueue(MESSAGE* message) {
+void addSendQueue(MultiplexedMessage* message) {
 	//lock the message queue
 	pthread_mutex_lock(&queueSendMutex);
 
@@ -42,7 +42,7 @@ void addSendQueue(MESSAGE* message) {
 	pthread_mutex_unlock(&queueSendMutex);
 }
 
-void addBulkSendQueue(MESSAGE* message[], int count) {
+void addBulkSendQueue(MultiplexedMessage* message[], int count) {
 	pthread_mutex_lock(&queueSendMutex);
 	int i=0;
 	for(i=0;i<count;i++) {
@@ -51,7 +51,7 @@ void addBulkSendQueue(MESSAGE* message[], int count) {
 	pthread_mutex_unlock(&queueSendMutex);
 }
 
-MESSAGE* pollSendQueue() {
+MultiplexedMessage* pollSendQueue() {
 	sem_wait(&inSendQueue);
 	pthread_mutex_lock(&queueSendMutex);
 	int pollpos = 0;

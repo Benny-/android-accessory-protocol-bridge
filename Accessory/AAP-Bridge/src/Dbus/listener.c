@@ -10,7 +10,6 @@
 #include "bstrlib.h"
 #include "../Message/AccessoryMessage.h"
 #include "../server.h"
-#include "../Message/handlemessage.h"
 
 static DBusConnection* con;
 static pthread_t dbusSignalWatcher;
@@ -43,12 +42,12 @@ static void* signalWatch(void* user_data) {
 		if(m != NULL)
 		{
 			char* str = PrintDBusMessage(m);
-			if(connectedToAndroid)
+			//if(connectedToAndroid)
 			{
 				char* marshalled;
 				int size;
 				dbus_message_marshal(m, &marshalled, &size);
-				encodemessage(marshalled, size, SIGNAL);
+				// TODO: Send dbus signal to android.
 				free(marshalled);
 			}
 

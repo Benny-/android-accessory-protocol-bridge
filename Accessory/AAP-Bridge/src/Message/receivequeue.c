@@ -8,7 +8,7 @@
 
 #define MESSAGEQUEMAX 64
 
-static MESSAGE* receiveequeue[MESSAGEQUEMAX];
+static MultiplexedMessage* receiveequeue[MESSAGEQUEMAX];
 
 static pthread_mutex_t queueReceiveMutex;
 static int currentposistion;
@@ -25,7 +25,7 @@ void deInitreceiveQueue() {
 	pthread_mutex_destroy(&queueReceiveMutex);
 }
 
-void addreceivequeue(MESSAGE *buffer) {
+void addreceivequeue(MultiplexedMessage *buffer) {
 	//lock the message queue
 	pthread_mutex_lock(&queueReceiveMutex);
 	currentposistion++;
@@ -38,7 +38,7 @@ void addreceivequeue(MESSAGE *buffer) {
 	pthread_mutex_unlock(&queueReceiveMutex);
 }
 
-void pollReceiveQueue(MESSAGE **tmp) {
+void pollReceiveQueue(MultiplexedMessage **tmp) {
 	sem_wait(&inReceiveQueue);
 	pthread_mutex_lock(&queueReceiveMutex);
 	int itemsinrecievequeue = 0;

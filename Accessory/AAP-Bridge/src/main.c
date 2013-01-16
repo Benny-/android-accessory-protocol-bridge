@@ -10,12 +10,12 @@
 #include "Dbus/method.h"
 #include "Dbus/listener.h"
 #include "Message/AccessoryMessage.h"
-#include "Message/handlemessage.h"
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
 #include "accessory.h"
 
 Accessory* accessory;
+BridgeConnection* bridge;
 
 /**
  * Signalhandler
@@ -27,14 +27,15 @@ void stop(int sig) {
 
 	printf("received signal: %i \n", sig);
 
-	MESSAGE* message = createmessage(1, 1, 1, sizeof(deathmessage), deathmessage,
+	/*
+	MultiplexedMessage* message = createmessage(1, 1, 1, sizeof(deathmessage), deathmessage,
 						OTHER);
 	error = writeAccessory(getCurrentConnection(), message, sizeof(MESSAGE) );
 	if(error)
 	{
 		printf("Could not send braindeath message to android, but thats okay. *DIES*\n");
 	}
-
+	*/
     exit(sig);
 }
 
@@ -78,48 +79,22 @@ int main (int argc, char *argv[])
 	{
 		printf("Waiting for next connection\n");
 		AapConnection* con = getNextAndroidConnection(accessory);
+		bridge = initServer(con);
 
-		initServer(con);
-
-		MESSAGE *message = NULL;
+		MultiplexedMessage *msg = NULL;
 		do {
-			pollReceiveQueue(&message);
-
-			printf("Message received!\n");
-			if(message == NULL)
+			pollReceiveQueue(&msg);
+			if(msg != NULL)
 			{
-				printf("Tearing down android accessory connection\n");
-				addSendQueue(NULL);
-			} else if(message->type == KEEPALIVE)
-			{
-				printf("Received a KEEPALIVE request\n");
-				char reply[] = "Pong";
-				encodemessage((uint8_t*)reply, sizeof(reply), KEEPALIVE);
-			} else if(message->type == DBUS) {
-				callmethod(message);
-			} else if (message->type == SIGNAL) {
-				printf("Received a SIGNAL message\n");
-				char* busname = message->data + 1;
-				char* objectpath = busname + strlen(busname) + 1;
-				char* interfacename = objectpath + strlen(objectpath) + 1;
-				char* signalname = interfacename + strlen(interfacename) + 1;
-
-				if(*message->data) // The first byte indicates if we must add or remove a signal.
-					addSignalWatch(busname,objectpath,interfacename,signalname);
-				else
-					removeSignalWatch(busname,objectpath,interfacename,signalname);
-			} else {
-				fprintf(stderr,"can\'t handle received message type: 0x%02hhx\n",*message->data);
+				sendToCorrectService(bridge, msg->port, msg->data, msg->size);
+				free(msg->data);
+				free(msg);
 			}
+		} while(msg != NULL);
 
-			if(message != NULL)
-				free(message);
-		} while(message != NULL);
-
-		deInitServer();
+		deInitServer(bridge);
 		printf("Read and write threads have stopped\n");
 	}
-
 	deInitaccessory(accessory);
 
 	return 0;

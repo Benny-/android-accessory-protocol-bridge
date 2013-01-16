@@ -2,50 +2,121 @@
 #include <pthread.h> //threading
 #include <string.h> //memset
 #include <stdint.h>
-#include <accessory.h>
-#include "Message/handlemessage.h"
+
+#include "server.h"
+
+#include "keepalive.h"
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
 
-pthread_t receive = 0, send = 0;
+struct BridgeService
+{
+	/**
+	 * The port this service is located on. It is negative if the service is down.
+	 */
+	short port;
+	BridgeConnection* bridge;
+	void* service_data;
 
-static volatile int work;
-volatile int connectedToAndroid = 0;
-static AapConnection* con = NULL;
+	/**
+	 * Called when the service receives some bytes from the android application.
+	 */
+	void (*onBytesReceived)	(void* service_data, BridgeService* service, const void* buffer, int size);
 
-static
+	/**
+	 * Called when the service receives a eof from the android application. The onCloseService() function will not longer be called.
+	 */
+	void (*onEof)			(void* service_data, BridgeService* service);
+
+	/**
+	 * Called when the service should cleanup all service data. Service should not use the write function once this is called.
+	 */
+	void (*onCloseService)	(void* service_data, BridgeService* service);
+};
+
+struct BridgeConnection
+{
+	AapConnection* con;
+	BridgeService ports[400];
+	pthread_t receive, send;
+	volatile int work;
+	volatile int connectedToAndroid;
+};
+
+void sendToCorrectService(BridgeConnection* bridge, short port, const void* data, short size)
+{
+	if(bridge->ports[port].port == -1)
+	{
+		fprintf(stderr, "Received data on port %i, but port is closed\n",port);
+	}
+	else
+	{
+		BridgeService* service = &bridge->ports[port];
+		service->onBytesReceived(service->service_data, service, data, size);
+	}
+}
+
+void writeAllPort	(BridgeService* service, const void* buffer, int size)
+{
+
+}
+
+void sendEof		(BridgeService* bridge)
+{
+
+}
+
+void closeService	(BridgeService* service)
+{
+	if(service->port < 0)
+	{
+		fputs("closeService() Service not active",stderr);
+	}
+	else
+	{
+		service->onCloseService(service->service_data, service);
+		service->port = -1;
+		service->onBytesReceived = NULL;
+		service->onCloseService = NULL;
+		service->onEof = NULL;
+	}
+}
 
 /**
  * Accessory receive thread
  * called by "starthandeling"
  */
 void* receiver(void* user_data) {
+	BridgeConnection* bridge = user_data;
 	int error =0;
 	uint8_t buffer[1024];
-	while(work==1 && !error)
+	while(bridge->work==1 && !error)
 	{
 		memset(buffer, 0, sizeof(buffer));
 		short port;
-		short length;
+		short size;
 
-		error = readAllAccessory(con,buffer,4);
+		error = readAllAccessory(bridge->con,buffer,4);
 
 		if(!error)
 		{
 			port   = buffer[0] + (buffer[1] << 8);
-			length = buffer[2] + (buffer[3] << 8);
-			printf("Received multiplexed msg for port %hu length %hu\n",port, length);
-			error = readAllAccessory(con, buffer, length);
+			size = buffer[2] + (buffer[3] << 8);
+			printf("Received multiplexed msg for port %hu length %hu\n",port, size);
+			error = readAllAccessory(bridge->con, buffer, size);
 			if (!error)
 			{
-				PrintBin(buffer, length);
-				puts("");
+				MultiplexedMessage* msg = malloc(sizeof(MultiplexedMessage));
+				msg->port = port;
+				msg->size = size;
+				msg->data = malloc(size);
+				memcpy(msg->data, buffer, size);
+				addSendQueue(msg);
 			}
-			//decodemessage(buffer);
 		}
 	}
 	addreceivequeue(NULL);
-	work = 0;
+	bridge->work = 0;
 	fprintf(stderr,"Receiver thread has stopped\n");
 	return NULL;
 }
@@ -54,34 +125,37 @@ void* receiver(void* user_data) {
  * Accessory send thread called by "starthandeling"
  */
 void* sender(void* user_data) {
+	BridgeConnection* bridge = user_data;
 	int transferred=0;
 	int error;
 
-	connectedToAndroid = 1;
-	while(work==1) {
-		MESSAGE* buffer = pollSendQueue();
+	bridge->connectedToAndroid = 1;
+	while(bridge->work==1) {
+		MultiplexedMessage* msg = pollSendQueue();
 
-		if(buffer == NULL)
+		if(msg == NULL)
 		{
 			fprintf(stderr,"Sender thread going to make a graceful exit\n");
 			break;
 		}
 
 		//decodemessage(buffer);
-		error = writeAllAccessory(con, buffer, sizeof(MESSAGE) );
+		error = writeAllAccessory(bridge->con, msg->data, msg->size );
+		free(msg->data);
+		free(msg);
 
-		printf("Bytes send: %zu\n",sizeof(MESSAGE));
-		PrintBin(buffer, sizeof(MESSAGE));
-		puts("\n");
+		printf("Bytes send: %zu\n",msg->size);
+		PrintBin(msg, msg->data);
+		puts("");
 
 		if (error) {
 			fprintf(stderr,"Error writing to accessory\n");
 			// Our device disconnected, stop the loop
-			work = 0;
+			bridge->work = 0;
 			break;
 		}
 	}
-	connectedToAndroid = 0;
+	bridge->connectedToAndroid = 0;
 	fprintf(stderr, "Sender thread has stopped\n");
 	return NULL;
 }
@@ -90,29 +164,40 @@ void* sender(void* user_data) {
  * Creates the Android accessory two threads for reading and writing on
  * the Android Accessory bus it also initialize the send/receive queue
  */
-void initServer(AapConnection* newCon){
-	work = 1;
-	con = newCon;
+BridgeConnection* initServer(AapConnection* con){
+	BridgeConnection* bridge = malloc(sizeof(BridgeConnection));
+	bridge->work = 1;
+	bridge->connectedToAndroid = 0;
+	bridge->con = con;
+
+	for(int i = 0; i < (sizeof(bridge->ports) / sizeof(bridge->ports[0])); i++)
+	{
+		bridge->ports[i].port = -1;
+	}
+
+	{	BridgeService* keepalive = &bridge->ports[1];
+		keepalive->port = 1;
+		keepalive->bridge = bridge;
+		keepalive->service_data = NULL;
+		keepalive->onBytesReceived = &KeepaliveOnBytesReceived;
+		keepalive->onCloseService = NULL;
+	}
 
 	//initialize the send and receive queue
 	initreceiveQueue();
 	initSendQueue();
 
-	pthread_create(&receive, NULL, receiver, NULL);
-	pthread_create(&send, NULL, sender, NULL);
+	pthread_create(&bridge->receive, NULL, receiver, bridge);
+	pthread_create(&bridge->send, NULL, sender, bridge);
+	return bridge;
 }
 
-AapConnection* getCurrentConnection()
+void deInitServer(BridgeConnection* bridge)
 {
-	return con;
-}
-
-void deInitServer()
-{
-	pthread_join(receive,NULL);
-	pthread_join(send,NULL);
-	receive = 0;
-	send = 0;
+	pthread_join(bridge->receive,NULL);
+	pthread_join(bridge->send,NULL);
+	bridge->receive = 0;
+	bridge->send = 0;
 
 	deInitSendQueue();
 	deInitreceiveQueue();

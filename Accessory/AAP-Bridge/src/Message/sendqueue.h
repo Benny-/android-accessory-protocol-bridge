@@ -5,8 +5,8 @@
 
 void initSendQueue();
 void deInitSendQueue();
-void addSendQueue(MESSAGE* message);
-void addBulkSendQueue(MESSAGE* message[], int count);
-MESSAGE* pollSendQueue();
+void addSendQueue(MultiplexedMessage* message);
+void addBulkSendQueue(MultiplexedMessage* message[], int count);
+MultiplexedMessage* pollSendQueue();
 
 #endif // MESSAGEQUEUE_H

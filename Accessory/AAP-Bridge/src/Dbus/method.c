@@ -6,7 +6,6 @@
 #include <endian.h>
 #include "dbuslib.h"
 #include "../Message/AccessoryMessage.h"
-#include "../Message/handlemessage.h"
 
 extern DBusConnection *con;
 extern DBusError dbusError;
@@ -56,7 +55,7 @@ static unsigned int bytesToDbus(char type, char* bytes, DBusBasicValue* dbusValu
 /**
  * This call blocks until it receives a reply from dbus.
  */
-void callmethod(MESSAGE* accessoryMessage) {
+void callmethod(MultiplexedMessage* accessoryMessage) {
 
 	void* dbusMessage = accessoryMessage->data;
 	char* busname = dbusMessage;
@@ -143,7 +142,7 @@ void callmethod(MESSAGE* accessoryMessage) {
 		// free reply
 		dbus_message_unref(message);
 
-		encodemessage(marshalled, marshalled_size, DBUS);
+		// TODO: Send dbus response to Android.
 	}
 }
 

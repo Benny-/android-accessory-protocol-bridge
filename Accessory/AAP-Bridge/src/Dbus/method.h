@@ -3,6 +3,6 @@
 #ifndef METHOD_H
 #define METHOD_H
 
-void callmethod(MESSAGE* accessoryMessage);
+void callmethod(MultiplexedMessage* accessoryMessage);
 
 #endif

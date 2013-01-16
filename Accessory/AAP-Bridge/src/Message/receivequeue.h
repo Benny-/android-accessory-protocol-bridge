@@ -5,7 +5,7 @@
 
 void initreceiveQueue();
 void deInitreceiveQueue();
-void addreceivequeue(MESSAGE *buffer);
-void pollReceiveQueue(MESSAGE **tmp);
+void addreceivequeue(MultiplexedMessage *buffer);
+void pollReceiveQueue(MultiplexedMessage **tmp);
 
 #endif
