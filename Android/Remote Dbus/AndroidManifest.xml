@@ -4,10 +4,6 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-feature
-        android:name="com.android.future.usb.accessory"
-        android:required="false" />
-
     <uses-sdk android:minSdkVersion="10" />
     
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -40,10 +36,6 @@
         </activity>
         <activity android:name=".SignalFilterActivity" >
         </activity>
-
-        <uses-library
-            android:name="com.android.future.usb.accessory"
-            android:required="true" />
     </application>
 
 </manifest>
