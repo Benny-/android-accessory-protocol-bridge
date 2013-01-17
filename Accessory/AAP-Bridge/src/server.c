@@ -2,6 +2,7 @@
 #include <pthread.h> //threading
 #include <string.h> //memset
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "server.h"
 
@@ -58,7 +59,12 @@ void sendToCorrectService(BridgeConnection* bridge, short port, const void* data
 
 void writeAllPort	(BridgeService* service, const void* buffer, int size)
 {
-
+	MultiplexedMessage* msg = malloc(sizeof(MultiplexedMessage));
+	msg->port = service->port;
+	msg->size = size;
+	msg->data = malloc(size);
+	memcpy(msg->data, buffer, size);
+	addSendQueue(msg);
 }
 
 void sendEof		(BridgeService* bridge)
@@ -111,7 +117,7 @@ void* receiver(void* user_data) {
 				msg->size = size;
 				msg->data = malloc(size);
 				memcpy(msg->data, buffer, size);
-				addSendQueue(msg);
+				addreceivequeue(msg);
 			}
 		}
 	}
@@ -139,20 +145,27 @@ void* sender(void* user_data) {
 			break;
 		}
 
-		//decodemessage(buffer);
-		error = writeAllAccessory(bridge->con, msg->data, msg->size );
-		free(msg->data);
-		free(msg);
+		char header[4];
+		header[0] = msg->port;
+		header[1] = msg->port >> 8;
+		header[2] = msg->size;
+		header[3] = msg->size >> 8;
 
-		printf("Bytes send: %zu\n",msg->size);
-		PrintBin(msg, msg->data);
-		puts("");
+		error = writeAllAccessory(bridge->con, header, sizeof(header) );
+		if(!error)
+			error = writeAllAccessory(bridge->con, msg->data, msg->size );
 
 		if (error) {
 			fprintf(stderr,"Error writing to accessory\n");
 			// Our device disconnected, stop the loop
 			bridge->work = 0;
 			break;
+		}
+		else
+		{
+			printf("Bytes send: %zu\n",msg->size);
+			PrintBin(msg->data, msg->size);
+			puts("");
 		}
 	}
 	bridge->connectedToAndroid = 0;
@@ -194,6 +207,9 @@ BridgeConnection* initServer(AapConnection* con){
 
 void deInitServer(BridgeConnection* bridge)
 {
+	addSendQueue(NULL); // Signal for the send thread to stop.
+	// We assume the receive thread already stopped due to a read error.
+
 	pthread_join(bridge->receive,NULL);
 	pthread_join(bridge->send,NULL);
 	bridge->receive = 0;

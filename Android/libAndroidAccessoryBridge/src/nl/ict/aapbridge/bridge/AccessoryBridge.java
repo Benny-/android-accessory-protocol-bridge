@@ -226,6 +226,10 @@ public class AccessoryBridge implements Channel
 	{
 		private ByteBuffer bb = ByteBuffer.allocate(4);
 		
+		public ReceiverThread() {
+			bb.order(ByteOrder.LITTLE_ENDIAN);
+		}
+		
 		public void run()
 		{
 			try
@@ -234,12 +238,15 @@ public class AccessoryBridge implements Channel
 				{
 					bb.rewind();
 					Log.d(TAG, "Reading inputStream");
-					while (bb.remaining() <= 4)
+					while (bb.hasRemaining())
 					{
-						if(inputStream.read(bb.array(),bb.arrayOffset(),bb.remaining()) == -1)
+						int read = inputStream.read(bb.array(),bb.arrayOffset() + bb.position(),bb.remaining());
+						if(read == -1)
 							throw new IOException("End of file");
-						bb.position(bb.position()+1);
+						bb.position(bb.position() + read);
 					}
+					bb.rewind();
+					
 					short destinationPort = bb.getShort();
 					short dataLength = bb.getShort();
 					
@@ -250,7 +257,7 @@ public class AccessoryBridge implements Channel
 						int mustSkip = dataLength;
 						Log.w(TAG, "Received a message for a port where no service is listening");
 						while(mustSkip > 0)
-							mustSkip += inputStream.skip(mustSkip);
+							mustSkip -= inputStream.skip(mustSkip);
 					}
 					else
 						service.onDataReady(dataLength);
