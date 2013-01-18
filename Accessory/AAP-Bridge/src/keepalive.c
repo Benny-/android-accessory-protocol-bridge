@@ -12,7 +12,6 @@ void* KeepaliveInit(void)
 
 #ifdef DEBUG
 #define ONLY_SEND_TEN_KEEPALIVES
-#error "Shit man, I errored out."
 #endif
 
 #ifdef ONLY_SEND_TEN_KEEPALIVES
@@ -25,7 +24,7 @@ void KeepaliveOnBytesReceived(void* service_data, BridgeService* service, const 
 #ifdef ONLY_SEND_TEN_KEEPALIVES
 	if(counter < 10)
 		writeAllPort(service, pong, 4);
-#elif
+#else
 	writeAllPort(service, pong, 4);
 #endif
 }

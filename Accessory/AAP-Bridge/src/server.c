@@ -163,7 +163,7 @@ void* sender(void* user_data) {
 		}
 		else
 		{
-			printf("Bytes send: %zu\n",msg->size);
+			printf("Bytes send: %i\n",msg->size);
 			PrintBin(msg->data, msg->size);
 			puts("");
 		}

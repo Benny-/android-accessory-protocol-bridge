@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT([AAP-Bridge],[1.0],[benny.jacobs@ict.nl])
-AC_CONFIG_SRCDIR([src/AAP.c])
+AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([subdir-objects])
