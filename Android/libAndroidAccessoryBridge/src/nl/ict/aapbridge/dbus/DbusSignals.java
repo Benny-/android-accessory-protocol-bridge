@@ -13,7 +13,7 @@ import android.os.RemoteException;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.ServiceRequestException;
 import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
-import nl.ict.aapbridge.bridge.AccessoryBridge.Service;
+import nl.ict.aapbridge.bridge.AccessoryBridge.BridgeService;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
 
 /**
@@ -26,7 +26,7 @@ import nl.ict.aapbridge.dbus.message.DbusMessage;
  * 
  * @see Dbus
  */
-public class DbusSignals implements Service, Closeable {
+public class DbusSignals implements BridgeService, Closeable {
 	public static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private short receiveLength = 0;

@@ -84,7 +84,7 @@ public class AccessoryBridge implements Channel
 		/**
 		 * Read a number of bytes and put them in the buffer. This call be only be done if bytes are ready.
 		 * 
-		 * {@link nl.ict.aapbridge.bridge.AccessoryBridge.Service#onDataReady(int) onDataReady} will be called if bytes are ready. All byte MUST be read before returning
+		 * {@link nl.ict.aapbridge.bridge.AccessoryBridge.BridgeService#onDataReady(int) onDataReady} will be called if bytes are ready. All byte MUST be read before returning
 		 * from that function.
 		 * 
 		 * {@link #read(ByteBuffer)} might not read all bytes in one go. You must keep calling this function until
@@ -95,6 +95,14 @@ public class AccessoryBridge implements Channel
 		@Override
 		public int read(ByteBuffer buffer) throws IOException {
 			return inputStream.read(buffer.array(), buffer.arrayOffset(), buffer.remaining());
+		}
+		
+		public void skipRead(int i) throws IOException
+		{
+			while(i > 0)
+			{
+				i -= inputStream.skip(i);
+			}
 		}
 		
 		/**
@@ -108,7 +116,7 @@ public class AccessoryBridge implements Channel
 		}
 	}
 	
-	public interface Service {
+	public interface BridgeService {
 		/**
 		 * Called from the ReceiverThread if bytes must be read.
 		 * 
@@ -126,12 +134,10 @@ public class AccessoryBridge implements Channel
 	private AccessoryConnection connection;
 	private OutputStream outputStream;
 	private InputStream inputStream;
-	private Map<Short, Service> activeServices = new HashMap<Short, Service>();
+	private BridgeService activeServices[] = new BridgeService[400];
 	private Port serviceSpawner = new Port( (short) 0 );
-	private Port keepalive		= new Port( (short) 1 );
-	private Timer pinger		= new Timer("Pinger", true);
+	private Keepalive keepalive;
 	
-	private static final ByteBuffer ping = ByteBuffer.allocate(4);
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
 	
 	/**
@@ -141,14 +147,10 @@ public class AccessoryBridge implements Channel
 	 */
 	public void sendKeepalive() throws IOException
 	{
-		ping.rewind();
-		keepalive.write(ping);
+		keepalive.sendKeepalive();
 	}
 	
 	static {
-		ping.order(ByteOrder.LITTLE_ENDIAN);
-		ping.put("ping".getBytes(Charset.forName("utf-8")));
-		
 		portRequest.order(ByteOrder.LITTLE_ENDIAN);
 		portRequest.put((byte)'o');
 		portRequest.mark();
@@ -167,17 +169,9 @@ public class AccessoryBridge implements Channel
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
 		
+		this.activeServices[1] = new Keepalive(new Port( (short) 1 ));
+		
 		new ReceiverThread().start();
-		pinger.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					sendKeepalive();
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}, 0, 10000);
 	}
 	
 	/**
@@ -192,7 +186,7 @@ public class AccessoryBridge implements Channel
 	 * @throws IOException
 	 * @throws ServiceRequestException
 	 */
-	public synchronized Port requestService(byte serviceIdentifier, ByteBuffer arguments, Service service) throws IOException, ServiceRequestException
+	public synchronized Port requestService(byte serviceIdentifier, ByteBuffer arguments, BridgeService service) throws IOException, ServiceRequestException
 	{
 		portRequest.reset();
 		portRequest.put(serviceIdentifier);
@@ -208,12 +202,18 @@ public class AccessoryBridge implements Channel
 	}
 	
 	private static final ByteBuffer emptyByteBuffer = ByteBuffer.allocate(0);
+	
 	/**
-	 * Calls {@link #requestService(byte, ByteBuffer, Service) requestService(byte, ByteBuffer arguments, Service)} } with empty arguments.
+	 * Calls {@link #requestService(byte, ByteBuffer, BridgeService) requestService(byte, ByteBuffer arguments, Service)} } with empty arguments.
 	 */
-	public synchronized Port requestService(byte serviceIdentifier, Service service) throws IOException, ServiceRequestException
+	public synchronized Port requestService(byte serviceIdentifier, BridgeService service) throws IOException, ServiceRequestException
 	{
 		return requestService(serviceIdentifier, emptyByteBuffer, service);
+	}
+	
+	public Port requestAlwaysOpenService(short portNr)
+	{
+		return new Port(portNr);
 	}
 	
 	/**
@@ -251,7 +251,7 @@ public class AccessoryBridge implements Channel
 					short dataLength = bb.getShort();
 					
 					Log.d(TAG, "AAB msg: Port "+destinationPort+" dataLength: "+dataLength);
-					Service service = activeServices.get(destinationPort);
+					BridgeService service = activeServices[destinationPort];
 					if(service == null)
 					{
 						int mustSkip = dataLength;
