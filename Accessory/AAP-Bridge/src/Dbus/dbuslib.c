@@ -8,7 +8,7 @@ DBusConnection *methodCallsCon;
 DBusError dbusError;
 
 /**
- * Print a binair data as hexidecimal characters to stdout
+ * Print binary data as hexidecimal characters to stdout
  */
 void PrintBin(const char* data, int len)
 {

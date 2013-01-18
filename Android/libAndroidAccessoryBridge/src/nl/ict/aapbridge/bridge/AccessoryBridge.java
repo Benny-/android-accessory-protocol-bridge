@@ -169,7 +169,8 @@ public class AccessoryBridge implements Channel
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
 		
-		this.activeServices[1] = new Keepalive(new Port( (short) 1 ));
+		keepalive = new Keepalive(new Port( (short) 1 ));
+		this.activeServices[1] = keepalive;
 		
 		new ReceiverThread().start();
 	}
