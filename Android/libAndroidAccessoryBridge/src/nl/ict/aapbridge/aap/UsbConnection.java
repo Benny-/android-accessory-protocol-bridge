@@ -18,6 +18,8 @@ package nl.ict.aapbridge.aap;
 
 import static nl.ict.aapbridge.TAG.TAG;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -55,8 +57,8 @@ public class UsbConnection implements AccessoryConnection, Closeable
 {
 	
 	private Context mContext;
-	private FileInputStream mInputStream;
-	private FileOutputStream mOutputStream;
+	private InputStream mInputStream;
+	private OutputStream mOutputStream;
 	private ParcelFileDescriptor mFileDescriptor;
 	private UsbAccessory mAccessory;
 	private boolean disconnected = false;
@@ -85,8 +87,8 @@ public class UsbConnection implements AccessoryConnection, Closeable
 		if (mFileDescriptor != null) {
 			mAccessory = accessory;
 			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
-			mInputStream = new FileInputStream(fd);
-			mOutputStream = new FileOutputStream(fd);
+			mInputStream = new BufferedInputStream(new FileInputStream(fd));
+			mOutputStream = new BufferedOutputStream(new FileOutputStream(fd));
 		}
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
 		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
@@ -102,9 +104,11 @@ public class UsbConnection implements AccessoryConnection, Closeable
 	}
 
 	public void close() throws IOException {
-		disconnected = true;
 		//mActivity.unregisterReceiver(mUsbReceiver);
-		if (mFileDescriptor != null) {
+		if (!disconnected) {
+			disconnected = true;
+			mInputStream.close();
+			mOutputStream.close();
 			mFileDescriptor.close();
 		}
 	}

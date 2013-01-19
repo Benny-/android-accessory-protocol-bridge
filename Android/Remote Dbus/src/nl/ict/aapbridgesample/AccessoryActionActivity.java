@@ -53,7 +53,9 @@ public class AccessoryActionActivity extends Activity {
 			try {
 				aapbridge = new AccessoryBridge(UsbConnection.easyConnect(getApplicationContext()));
 			} catch (IOException e) {
-				Log.e(TAG, "", e);
+				Log.e(TAG, "Could not setup aapbridge", e);
+				Toast.makeText(AccessoryActionActivity.this, "Could not setup aapbridge: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+				finish();
 			}
         }
         
@@ -61,10 +63,10 @@ public class AccessoryActionActivity extends Activity {
     		public void onClick(View v) {
     			try {
     				aapbridge.sendKeepalive();
-    			} catch (Exception e) {
-    				Toast.makeText(AccessoryActionActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
+    			} catch (IOException e) {
+    				Log.e(TAG, "Could not send keepalive", e);
+    				Toast.makeText(AccessoryActionActivity.this, "Failed to send keepalive: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
     	        	finish();
-    				Log.e(TAG, "", e);
     			}
     		}
     	});

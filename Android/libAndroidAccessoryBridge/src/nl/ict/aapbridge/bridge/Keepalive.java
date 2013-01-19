@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.os.Handler;
 import android.util.Log;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge.BridgeService;
@@ -19,6 +20,7 @@ public class Keepalive implements BridgeService{
 	private static final ByteBuffer ping = ByteBuffer.allocate(4);
 	private final Port port;
 	private boolean keepAliveReceived;
+	private final Handler handler;
 	
 	static {
 		ping.order(ByteOrder.LITTLE_ENDIAN);
@@ -31,8 +33,9 @@ public class Keepalive implements BridgeService{
 		port.write(ping);
 	}
 	
-	public Keepalive(Port port) {
+	public Keepalive(Port port, Handler disconnectHandler) {
 		keepAliveReceived = true;
+		this.handler = disconnectHandler;
 		this.port = port;
 		pinger.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -42,6 +45,7 @@ public class Keepalive implements BridgeService{
 					{
 						Log.w(TAG, "Diddent receive keepalive in time");
 						pinger.cancel();
+						handler.sendEmptyMessage(0);
 					}
 					else
 					{
@@ -50,7 +54,7 @@ public class Keepalive implements BridgeService{
 					}
 					sendKeepalive();
 				} catch (Exception e) {
-					throw new RuntimeException(e);
+					handler.sendEmptyMessage(1);
 				}
 			}
 		}, 0, 10000);

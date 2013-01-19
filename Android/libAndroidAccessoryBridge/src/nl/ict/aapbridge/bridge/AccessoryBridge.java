@@ -20,8 +20,11 @@ import nl.ict.aapbridge.aap.AccessoryConnection;
 import nl.ict.aapbridge.dbus.Dbus;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.DbusSignals;
+import android.os.Handler;
+import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Handles the communication with the android accessory bridge.
@@ -77,6 +80,7 @@ public class AccessoryBridge implements Channel
 			synchronized (AccessoryBridge.this) {
 				outputStream.write(header.array(), header.arrayOffset(), header.capacity());
 				outputStream.write(buffer.array(), buffer.arrayOffset(), writeAmount);
+				outputStream.flush();
 			}
 			return writeAmount;
 		}
@@ -101,7 +105,18 @@ public class AccessoryBridge implements Channel
 		{
 			while(i > 0)
 			{
-				i -= inputStream.skip(i);
+				// XXX: This is a bug workaround.
+				// i -= inputStream.skip(i); // <- This code seems to break if connected to a usb accessory.
+				
+				// The skip() function call seems to be broken for usb file descriptors. Skip works fine for bluetooth sockets however.
+				// See FileInputStream's skip implementation for more details.
+				// Consider to move this workaround code to the underlying implementation.
+				// This bug has been seen on a HTC wildfire. Android version 2.3.7. CyanogenMod-7-11162011-NIGHTLY-buzz
+				// The following block of code is the workaround.
+				{
+					inputStream.read();
+					i--;
+				}
 			}
 		}
 		
@@ -137,6 +152,19 @@ public class AccessoryBridge implements Channel
 	private BridgeService activeServices[] = new BridgeService[400];
 	private Port serviceSpawner = new Port( (short) 0 );
 	private Keepalive keepalive;
+	private Handler keepAliveFailureHandler = new Handler(){
+		@Override
+		public void handleMessage(final Message msg) {
+			try {
+				connection.close();
+			} catch (IOException e) {
+				Log.e(TAG, "", e);
+			}
+			finally{
+				//msg.recycle(); // XXX: Recycling should not cause a issue here. It however threw a exception some time about message already in use.
+			}
+		}
+	};
 	
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
 	
@@ -169,7 +197,7 @@ public class AccessoryBridge implements Channel
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
 		
-		keepalive = new Keepalive(new Port( (short) 1 ));
+		keepalive = new Keepalive(new Port( (short) 1 ), keepAliveFailureHandler);
 		this.activeServices[1] = keepalive;
 		
 		new ReceiverThread().start();
@@ -271,7 +299,7 @@ public class AccessoryBridge implements Channel
 			finally
 			{
 				try {
-					inputStream.close();
+					close();
 				} catch (IOException e) {
 					Log.e(TAG, "", e);
 				}

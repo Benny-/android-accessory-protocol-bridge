@@ -59,7 +59,9 @@ public class CallRemoteFunctionActivity extends Activity
         try {
 			d = aapbridge.createDbus(dbus_handler);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			Log.e(TAG, "Could not create remote dbus service", e);
+			Toast.makeText(this, "Could not start dbus service", Toast.LENGTH_SHORT).show();
+			finish();
 		}
         
         button_dbus_call.setOnClickListener(new OnClickListener() {
@@ -84,7 +86,7 @@ public class CallRemoteFunctionActivity extends Activity
     protected void onDestroy() {
     	try {
 			d.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Log.e(TAG, "", e);
 		}
     	super.onDestroy();

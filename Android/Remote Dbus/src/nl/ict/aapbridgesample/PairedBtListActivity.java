@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class PairedBtListActivity extends ListActivity{
 	
@@ -73,6 +74,7 @@ public class PairedBtListActivity extends ListActivity{
 			startActivity(intent);
 		} catch (IOException e) {
 			Log.e(TAG, "", e);
+			Toast.makeText(this, "Connection failed: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 		}
 	}
 }
