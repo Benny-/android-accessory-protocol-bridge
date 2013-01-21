@@ -49,11 +49,11 @@ int main (int argc, char *argv[])
 {
 	printf("Program started\n");
 
-	signal(SIGHUP, &stop);
+	signal(SIGHUP,  &stop);
 	signal(SIGTERM, &stop);
 	signal(SIGABRT, &stop);
 	signal(SIGSEGV, &stop);
-	signal(SIGINT, &stop);
+	signal(SIGINT,  &stop);
 
 	if(--argc) // Connect to sysBus if we have no arguments.
 	{
