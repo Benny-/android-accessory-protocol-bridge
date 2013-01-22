@@ -7,6 +7,7 @@ bin_PROGRAMS=AAP-bridge
 AAP_bridge_SOURCES= \
     bStrLib/bstraux.c \
     bStrLib/bstrlib.c \
+    src/servicespawner.c \
     src/keepalive.c \
     src/main.c \
     src/server.c \

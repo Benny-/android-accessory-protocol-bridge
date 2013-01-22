@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import nl.ict.aapbridge.aap.AccessoryConnection;
 import nl.ict.aapbridge.dbus.Dbus;
@@ -150,8 +151,6 @@ public class AccessoryBridge implements Channel
 	private OutputStream outputStream;
 	private InputStream inputStream;
 	private BridgeService activeServices[] = new BridgeService[400];
-	private Port serviceSpawner = new Port( (short) 0 );
-	private Keepalive keepalive;
 	private Handler keepAliveFailureHandler = new Handler(){
 		@Override
 		public void handleMessage(final Message msg) {
@@ -165,6 +164,8 @@ public class AccessoryBridge implements Channel
 			}
 		}
 	};
+	private ServiceSpawner serviceSpawner = new ServiceSpawner(new Port( (short) 0 ));
+	private Keepalive keepAlive = new Keepalive(new Port( (short) 1 ), keepAliveFailureHandler);
 	
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
 	
@@ -175,7 +176,7 @@ public class AccessoryBridge implements Channel
 	 */
 	public void sendKeepalive() throws IOException
 	{
-		keepalive.sendKeepalive();
+		keepAlive.sendKeepalive();
 	}
 	
 	static {
@@ -197,8 +198,7 @@ public class AccessoryBridge implements Channel
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
 		
-		keepalive = new Keepalive(new Port( (short) 1 ), keepAliveFailureHandler);
-		this.activeServices[1] = keepalive;
+		this.activeServices[1] = keepAlive;
 		
 		new ReceiverThread().start();
 	}
@@ -217,17 +217,7 @@ public class AccessoryBridge implements Channel
 	 */
 	public synchronized Port requestService(byte serviceIdentifier, ByteBuffer arguments, BridgeService service) throws IOException, ServiceRequestException
 	{
-		portRequest.reset();
-		portRequest.put(serviceIdentifier);
-		portRequest.putShort((short) arguments.remaining());
-		portRequest.position(0);
-		while(portRequest.hasRemaining())
-			serviceSpawner.write(portRequest);
-		while(arguments.hasRemaining())
-			serviceSpawner.write(arguments);
-		
-		// TODO: Wait for response.
-		return null;
+		return new Port(serviceSpawner.requestService(serviceIdentifier, arguments));
 	}
 	
 	private static final ByteBuffer emptyByteBuffer = ByteBuffer.allocate(0);

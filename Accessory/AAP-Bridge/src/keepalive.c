@@ -5,11 +5,6 @@
 
 const static char* const pong = "pong";
 
-void* KeepaliveInit(void)
-{
-	return NULL;
-}
-
 #ifdef DEBUG
 #define BUGGY_KEEPALIVE_SERVICE
 #endif

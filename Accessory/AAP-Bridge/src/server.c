@@ -6,6 +6,7 @@
 
 #include "server.h"
 
+#include "servicespawner.h"
 #include "keepalive.h"
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
@@ -186,6 +187,14 @@ BridgeConnection* initServer(AapConnection* con){
 	for(int i = 0; i < (sizeof(bridge->ports) / sizeof(bridge->ports[0])); i++)
 	{
 		bridge->ports[i].port = -1;
+	}
+
+	{	BridgeService* servicespawner = &bridge->ports[0];
+		servicespawner->port = 0;
+		servicespawner->bridge = bridge;
+		servicespawner->service_data = ServiceSpawnerInit();
+		servicespawner->onBytesReceived = &ServiceSpawnerOnBytesReceived;
+		servicespawner->onCloseService = NULL;
 	}
 
 	{	BridgeService* keepalive = &bridge->ports[1];
