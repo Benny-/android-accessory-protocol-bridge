@@ -23,22 +23,24 @@ import java.io.OutputStream;
 /**
  * 
  * Provides an abstraction layer to a android accessory.
- *
+ * 
+ * @see BTConnection
+ * @see UsbConnection
  */
 public interface AccessoryConnection {
 	
 	/**
-	 * Retrieves a inputstream to read data from the accessory.
+	 * Retrieves a inputstream to read data from the accessory. This inputsteam is buffered.
 	 * 
-	 * @return
+	 * @return A buffered inputstream
 	 * @throws IOException
 	 */
 	public abstract InputStream getInputStream() throws IOException;
 	
 	/**
-	 * Retrieves a outputstream to write data to the accessory.
+	 * Retrieves a outputstream to write data to the accessory. This outputstream is buffered.
 	 * 
-	 * @return
+	 * @return A buffered outputstream
 	 * @throws IOException
 	 */
 	public abstract OutputStream getOutputStream() throws IOException;

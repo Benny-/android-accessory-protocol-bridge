@@ -13,7 +13,7 @@ import android.util.Log;
 import nl.ict.aapbridge.bridge.AccessoryBridge.BridgeService;
 import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
 
-public class Keepalive implements BridgeService{
+class Keepalive implements BridgeService{
 	
 	private static final String TAG = "Keepalive";
 	private Timer pinger = new Timer("Pinger", true);

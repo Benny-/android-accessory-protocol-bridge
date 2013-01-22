@@ -34,6 +34,15 @@ import android.widget.Toast;
  */
 public class AccessoryBridge implements Channel
 {
+	/**
+	 * NOT part of the public API.
+	 * 
+	 * The Port class multiplexes all data over the underlying connection by prepending all data with the port number and length of data.
+	 * 
+	 * Writing to the port is thread-safe and can be done at any time.
+	 * 
+	 * Reading from the port works different. A service will be notified if data is ready to be received. The service MUST call {@link #readAll(ByteBuffer)} or {@link #skipRead(int)}.
+	 */
 	public class Port implements ByteChannel, ReadableByteChannel {
 		
 		private final ByteBuffer header = ByteBuffer.allocate(4);
@@ -102,6 +111,12 @@ public class AccessoryBridge implements Channel
 			return inputStream.read(buffer.array(), buffer.arrayOffset(), buffer.remaining());
 		}
 		
+		/**
+		 * 
+		 * @param i The amount of bytes to skip.
+		 * @throws IOException
+		 * @see #readAll(ByteBuffer)
+		 */
 		public void skipRead(int i) throws IOException
 		{
 			while(i > 0)
@@ -132,11 +147,17 @@ public class AccessoryBridge implements Channel
 		}
 	}
 	
+	/**
+	 * NOT part of the public API.
+	 */
 	public interface BridgeService {
+		
 		/**
+		 * NOT part of the public API.
+		 * 
 		 * Called from the ReceiverThread if bytes must be read.
 		 * 
-		 * The bytes must be read from the port before this function call returns.
+		 * The bytes MUST be read from the port before this function call returns. Use the read or skip functions on the {@link Port}
 		 * 
 		 * @param length
 		 * @throws IOException
@@ -144,6 +165,12 @@ public class AccessoryBridge implements Channel
 		 * @see ReceiverThread
 		 */
 		void onDataReady(int length) throws IOException;
+		
+		/**
+		 * NOT part of public API.
+		 * 
+		 * @return The Port object associated with this service.
+		 */
 		Port getPort();
 	}
 	
@@ -160,17 +187,17 @@ public class AccessoryBridge implements Channel
 				Log.e(TAG, "", e);
 			}
 			finally{
-				//msg.recycle(); // XXX: Recycling should not cause a issue here. It however threw a exception some time about message already in use.
+				//msg.recycle(); // XXX: Recycling should not cause a issue here. It however threw a exception some time later: "message already in use".
 			}
 		}
 	};
-	private ServiceSpawner serviceSpawner = new ServiceSpawner(new Port( (short) 0 ));
-	private Keepalive keepAlive = new Keepalive(new Port( (short) 1 ), keepAliveFailureHandler);
+	private ServiceSpawner serviceSpawner	= new ServiceSpawner(new Port( (short) 0 ));
+	private Keepalive keepAlive				= new Keepalive(new Port( (short) 1 ), keepAliveFailureHandler);
 	
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
 	
 	/**
-	 * This method exist for testing purposes only and should never be called.
+	 * NOT part of public API. This method exist for testing purposes only and should never be called.
 	 * @throws IOException 
 	 * 
 	 */
@@ -204,9 +231,9 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * Sends a request to the accessory for the requested service.
+	 * NOT part of the public API.
 	 * 
-	 * The accessory
+	 * Sends a request to the accessory for the requested service.
 	 * 
 	 * @param serviceIdentifier
 	 * @param arguments
@@ -215,7 +242,7 @@ public class AccessoryBridge implements Channel
 	 * @throws IOException
 	 * @throws ServiceRequestException
 	 */
-	public synchronized Port requestService(byte serviceIdentifier, ByteBuffer arguments, BridgeService service) throws IOException, ServiceRequestException
+	public Port requestService(byte serviceIdentifier, ByteBuffer arguments, BridgeService service) throws IOException, ServiceRequestException
 	{
 		return new Port(serviceSpawner.requestService(serviceIdentifier, arguments));
 	}
@@ -223,16 +250,13 @@ public class AccessoryBridge implements Channel
 	private static final ByteBuffer emptyByteBuffer = ByteBuffer.allocate(0);
 	
 	/**
+	 * NOT part of public API.
+	 * 
 	 * Calls {@link #requestService(byte, ByteBuffer, BridgeService) requestService(byte, ByteBuffer arguments, Service)} } with empty arguments.
 	 */
-	public synchronized Port requestService(byte serviceIdentifier, BridgeService service) throws IOException, ServiceRequestException
+	public Port requestService(byte serviceIdentifier, BridgeService service) throws IOException, ServiceRequestException
 	{
 		return requestService(serviceIdentifier, emptyByteBuffer, service);
-	}
-	
-	public Port requestAlwaysOpenService(short portNr)
-	{
-		return new Port(portNr);
 	}
 	
 	/**
@@ -324,7 +348,7 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * @TODO: Implement createBulkTransfer
+	 * TODO: Implement createBulkTransfer
 	 */
 	public void createBulkTransfer()
 	{

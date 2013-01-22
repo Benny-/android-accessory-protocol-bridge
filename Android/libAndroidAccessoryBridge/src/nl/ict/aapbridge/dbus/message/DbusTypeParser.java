@@ -22,6 +22,9 @@ import nl.ict.aapbridge.dbus.message.types.DbusUint32;
 import nl.ict.aapbridge.dbus.message.types.DbusUint64;
 import nl.ict.aapbridge.dbus.message.types.DbusVariant;
 
+/**
+ * This class is NOT part of the public API
+ */
 public class DbusTypeParser {
 	
 	/**

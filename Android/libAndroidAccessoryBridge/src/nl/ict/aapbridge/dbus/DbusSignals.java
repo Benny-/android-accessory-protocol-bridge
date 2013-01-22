@@ -25,6 +25,7 @@ import nl.ict.aapbridge.dbus.message.DbusMessage;
  * around to call the {@link #close()} method once you are done receiving.
  * 
  * @see Dbus
+ * @see DbusHandler
  */
 public class DbusSignals implements BridgeService, Closeable {
 	public static final Charset utf8 = Charset.forName("UTF-8");

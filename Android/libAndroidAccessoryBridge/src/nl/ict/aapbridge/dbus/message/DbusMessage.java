@@ -10,6 +10,9 @@ import nl.ict.aapbridge.dbus.message.types.DbusSignature;
 import nl.ict.aapbridge.dbus.message.types.DbusStruct;
 import nl.ict.aapbridge.dbus.message.types.DbusVariant;
 
+/**
+ * Represents a DbusMessage and may contain a array of d-bus values converted to java types.
+ */
 public class DbusMessage {
 	
 	private DbusObjectPath path; // Object path
@@ -95,6 +98,10 @@ public class DbusMessage {
 		arguments = new DbusStruct("("+Signature.getSignatureString()+")",bb);
 	}
 	
+	/**
+	 * @return The top level d-bus values
+	 * @throws RemoteException
+	 */
 	public DbusStruct getArguments() throws RemoteException
 	{
 		return arguments;

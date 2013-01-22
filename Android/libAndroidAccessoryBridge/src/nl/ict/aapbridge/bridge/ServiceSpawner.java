@@ -16,11 +16,13 @@ import static nl.ict.aapbridge.TAG.TAG;
 import nl.ict.aapbridge.bridge.AccessoryBridge.BridgeService;
 import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
 
-public class ServiceSpawner implements BridgeService{
+class ServiceSpawner implements BridgeService{
 	
+	private Port port;
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
+	private ByteBuffer portRequestResponse		= ByteBuffer.allocate(8);
 	private Semaphore openRequestResponsesReady = new Semaphore(0, true);
-	private Semaphore openRequestResponsesDone = new Semaphore(0);
+	private Semaphore openRequestResponsesDone  = new Semaphore(0);
 	private Queue<OpenRequestResponse> openRequestResponses = new LinkedList<OpenRequestResponse>();
 	
 	static class OpenRequestResponse{
@@ -43,26 +45,23 @@ public class ServiceSpawner implements BridgeService{
 		portRequest.mark();
 	}
 	
-	private ByteBuffer bb = ByteBuffer.allocate(8);
-	private Port port;
-	
 	public ServiceSpawner(Port port) {
 		this.port = port;
 	}
 
 	@Override
 	public void onDataReady(int length) throws IOException {
-		port.readAll(bb);
-		char msgType = (char) bb.get();
+		port.readAll(portRequestResponse);
+		char msgType = (char) portRequestResponse.get();
 		if( msgType != 's')
 		{
 			Log.w(TAG, "Accessory is screwing with the protocol, expecting a port status message, but got "+msgType);
 		}
 		else
 		{
-			Short port = bb.getShort();
-			boolean success = bb.get() == 1 ? true : false;
-			int errorCode = bb.getInt();
+			Short port = portRequestResponse.getShort();
+			boolean success = portRequestResponse.get() == 1 ? true : false;
+			int errorCode = portRequestResponse.getInt();
 			this.openRequestResponses.add(new OpenRequestResponse(success, port, errorCode));
 			this.openRequestResponsesReady.release();
 			try {
@@ -75,16 +74,19 @@ public class ServiceSpawner implements BridgeService{
 		}
 	}
 	
-	public synchronized short requestService(byte serviceIdentifier, ByteBuffer arguments) throws IOException, ServiceRequestException
+	public short requestService(byte serviceIdentifier, ByteBuffer arguments) throws IOException, ServiceRequestException
 	{
 		portRequest.reset();
 		portRequest.put(serviceIdentifier);
 		portRequest.putShort((short) arguments.remaining());
 		portRequest.position(0);
-		while(portRequest.hasRemaining())
-			port.write(portRequest);
-		while(arguments.hasRemaining())
-			port.write(arguments);
+		
+		synchronized (this) {
+			while(portRequest.hasRemaining())
+				port.write(portRequest);
+			while(arguments.hasRemaining())
+				port.write(arguments);
+		}
 		
 		OpenRequestResponse response = null;
 		try {

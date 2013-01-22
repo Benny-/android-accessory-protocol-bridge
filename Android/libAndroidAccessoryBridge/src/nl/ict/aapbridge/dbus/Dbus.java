@@ -19,12 +19,13 @@ import nl.ict.aapbridge.dbus.message.DbusMessage;
 import nl.ict.aapbridge.dbus.message.DbusTypeParser;
 
 /**
- * Functionality for communicating to a remote d-bus (methods only).
+ * Functionality for communicating to a remote d-bus (methods only). Dbus method is invoked Asynchronous. The reply is send to the handler.
  * 
  * You should call the {@link #close()} method once you are done.
  * 
  * @author jurgen
  * @see DbusSignals
+ * @see DbusHandler
  */
 public class Dbus implements BridgeService, Closeable {
 	
