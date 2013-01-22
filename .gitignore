@@ -167,6 +167,7 @@ pip-log.txt
 
 /Accessory/AndroidAccessory/androidaccessoryconfig.h
 /Accessory/AAP-Bridge/AAP-bridge
+/Android/libAndroidAccessoryBridge/doc/
 
 # C
 *.o
