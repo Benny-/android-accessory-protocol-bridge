@@ -99,6 +99,31 @@ public class DbusMessage {
 	}
 	
 	/**
+	 * <p>
+	 * The d-bus data are converted to java data types. This is done arcording to the following table:
+	 * </p>
+	 * 
+	 * <table>
+	 * <tr><th>D-bus type</th><th>Java type</th></tr>
+	 * <tr><td>Byte</td><td>{@link java.lang.Byte}</td></tr>
+	 * <tr><td>Boolean</td><td>{@link java.lang.Boolean}</td></tr>
+	 * <tr><td>INT16</td><td>{@link java.lang.Short}</td></tr>
+	 * <tr><td>UINT16</td><td>{@link java.lang.Void}</td></tr>
+	 * <tr><td>INT32</td><td>{@link java.lang.Integer}</td></tr>
+	 * <tr><td>UINT32</td><td><code>null</code></td></tr>
+	 * <tr><td>INT64</td><td>{@link java.lang.Long}</td></tr>
+	 * <tr><td>UINT64</td><td><code>null</code></td></tr>
+	 * <tr><td>DOUBLE</td><td>{@link java.lang.Double}</td></tr>
+	 * <tr><td>STRING</td><td>{@link java.lang.String}</td></tr>
+	 * <tr><td>OBJECT_PATH</td><td><code>null</code></td></tr>
+	 * <tr><td>SIGNATURE</td><td><code>null</code></td></tr>
+	 * <tr><td>ARRAY</td><td><code>null</code></td></tr>
+	 * <tr><td>STRUCT</td><td><code>null</code></td></tr>
+	 * <tr><td>VARIANT</td><td><code>null</code></td></tr>
+	 * <tr><td>DICT</td><td><code>null</code></td></tr>
+	 * <tr><td>UNIX_FD</td><td><code>null</code></td></tr>
+	 * </table>
+	 * 
 	 * @return The top level d-bus values
 	 * @throws RemoteException
 	 */
