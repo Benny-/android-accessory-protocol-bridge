@@ -108,7 +108,7 @@ public class DbusMessage {
 	 * <tr><td>Byte</td><td>{@link java.lang.Byte}</td></tr>
 	 * <tr><td>Boolean</td><td>{@link java.lang.Boolean}</td></tr>
 	 * <tr><td>INT16</td><td>{@link java.lang.Short}</td></tr>
-	 * <tr><td>UINT16</td><td>{@link java.lang.Void}</td></tr>
+	 * <tr><td>UINT16</td><td><code>null</code></td></tr>
 	 * <tr><td>INT32</td><td>{@link java.lang.Integer}</td></tr>
 	 * <tr><td>UINT32</td><td><code>null</code></td></tr>
 	 * <tr><td>INT64</td><td>{@link java.lang.Long}</td></tr>
@@ -124,10 +124,19 @@ public class DbusMessage {
 	 * <tr><td>UNIX_FD</td><td><code>null</code></td></tr>
 	 * </table>
 	 * 
+	 * <p>
+	 * The type is not known at compile time. You should cast the values to the correct type at runtime
+	 * </p>
+	 * 
 	 * @return The top level d-bus values
 	 * @throws RemoteException
 	 */
-	public DbusStruct getArguments() throws RemoteException
+	public Object[] getValues() throws RemoteException
+	{
+		return arguments != null ? arguments.getContent() : null;
+	}
+	
+	DbusStruct getValuesStruct() throws RemoteException
 	{
 		return arguments;
 	}
