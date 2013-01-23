@@ -35,7 +35,6 @@ import android.bluetooth.BluetoothSocket;
  */
 public class BTConnection implements AccessoryConnection, Closeable {
 
-	private final BluetoothAdapter mAdapter;
 	private InputStream mInputStream;
 	private OutputStream mOutputStream;
 	private BluetoothSocket mSocket;
@@ -43,15 +42,16 @@ public class BTConnection implements AccessoryConnection, Closeable {
 
 	private static final UUID MY_UUID_INSECURE = UUID
 			.fromString("a48e5d50-188b-4fca-b261-89c13914e118");
-
-	public BTConnection(String address) throws IOException {
-		mAdapter = BluetoothAdapter.getDefaultAdapter();
-		BluetoothDevice device = mAdapter.getRemoteDevice(address);
-		mSocket = device
-				.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
+	
+	public BTConnection(BluetoothDevice device) throws IOException {
+		mSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
 		mSocket.connect();
 		mInputStream = new BufferedInputStream(mSocket.getInputStream());
 		mOutputStream = new BufferedOutputStream(mSocket.getOutputStream());
+	}
+	
+	public BTConnection(String address) throws IOException {
+		this(BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address));
 	}
 
 	public InputStream getInputStream() throws IOException {
