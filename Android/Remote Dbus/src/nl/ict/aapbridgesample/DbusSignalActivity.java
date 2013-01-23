@@ -17,9 +17,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class SignalFilterActivity extends Activity {
+public class DbusSignalActivity extends Activity {
 	
-	public static final String TAG = SignalFilterActivity.class.getName();
+	public static final String TAG = DbusSignalActivity.class.getName();
 	public static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private AccessoryBridge aapbridge;
@@ -55,7 +55,7 @@ public class SignalFilterActivity extends Activity {
         button_addwatch = (Button)findViewById(R.id.button_addwatch);
         button_removewatch = (Button)findViewById(R.id.button_removewatch);
         
-        aapbridge = AccessoryActionActivity.aapbridge;
+        aapbridge = ServiceSelectionActivity.aapbridge;
         
         button_addwatch.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {

@@ -13,9 +13,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class AccessoryActionActivity extends Activity {
+public class ServiceSelectionActivity extends Activity {
 	
-	public static final String TAG = AccessoryActionActivity.class.getName();
+	public static final String TAG = ServiceSelectionActivity.class.getName();
 
 	public static AccessoryBridge aapbridge;
 	
@@ -35,16 +35,16 @@ public class AccessoryActionActivity extends Activity {
         button_rpc.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
-				Intent intent = new Intent(getApplicationContext(), CallRemoteFunctionActivity.class);
-				AccessoryActionActivity.this.startActivity(intent);
+				Intent intent = new Intent(getApplicationContext(), DbusMethodsActivity.class);
+				ServiceSelectionActivity.this.startActivity(intent);
 			}
 		});
         
         button_signals.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
-				Intent intent = new Intent(getApplicationContext(), SignalFilterActivity.class);
-				AccessoryActionActivity.this.startActivity(intent);
+				Intent intent = new Intent(getApplicationContext(), DbusSignalActivity.class);
+				ServiceSelectionActivity.this.startActivity(intent);
 			}
 		});
         
@@ -54,7 +54,7 @@ public class AccessoryActionActivity extends Activity {
 				aapbridge = new AccessoryBridge(UsbConnection.easyConnect(getApplicationContext()));
 			} catch (IOException e) {
 				Log.e(TAG, "Could not setup aapbridge", e);
-				Toast.makeText(AccessoryActionActivity.this, "Could not setup aapbridge: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+				Toast.makeText(ServiceSelectionActivity.this, "Could not setup aapbridge: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 				finish();
 			}
         }
@@ -65,7 +65,7 @@ public class AccessoryActionActivity extends Activity {
     				aapbridge.sendKeepalive();
     			} catch (IOException e) {
     				Log.e(TAG, "Could not send keepalive", e);
-    				Toast.makeText(AccessoryActionActivity.this, "Failed to send keepalive: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+    				Toast.makeText(ServiceSelectionActivity.this, "Failed to send keepalive: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
     	        	finish();
     			}
     		}

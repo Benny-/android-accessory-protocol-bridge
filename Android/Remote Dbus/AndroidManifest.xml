@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".PairedBtListActivity"
+            android:name="nl.ict.aapbridgesample.BluetoothAccessoryActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AccessoryActionActivity"
+            android:name="nl.ict.aapbridgesample.ServiceSelectionActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
@@ -33,9 +33,9 @@
                 android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
                 android:resource="@xml/accessory_filter" />
         </activity>
-        <activity android:name=".CallRemoteFunctionActivity" >
+        <activity android:name="nl.ict.aapbridgesample.DbusMethodsActivity" >
         </activity>
-        <activity android:name=".SignalFilterActivity" >
+        <activity android:name="nl.ict.aapbridgesample.DbusSignalActivity" >
         </activity>
         <uses-library android:name="com.android.future.usb.accessory" android:required="false"/>
     </application>

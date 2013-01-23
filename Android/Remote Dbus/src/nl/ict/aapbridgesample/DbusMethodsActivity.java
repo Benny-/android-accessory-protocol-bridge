@@ -17,9 +17,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class CallRemoteFunctionActivity extends Activity
+public class DbusMethodsActivity extends Activity
 {
-	public static final String TAG = CallRemoteFunctionActivity.class.getName();
+	public static final String TAG = DbusMethodsActivity.class.getName();
 	public static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private AccessoryBridge aapbridge;
@@ -54,7 +54,7 @@ public class CallRemoteFunctionActivity extends Activity
         
         button_dbus_call = (Button)findViewById(R.id.button_dbus_call);
         
-        aapbridge = AccessoryActionActivity.aapbridge;
+        aapbridge = ServiceSelectionActivity.aapbridge;
         
         try {
 			d = aapbridge.createDbus(dbus_handler);
@@ -74,7 +74,7 @@ public class CallRemoteFunctionActivity extends Activity
 							textfield_interface.getText().toString(),
 							textfield_functionname.getText().toString() );
 				} catch (Exception e) {
-					Toast.makeText(CallRemoteFunctionActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
+					Toast.makeText(DbusMethodsActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
 		        	finish();
 					Log.e(TAG, "", e);
 				}

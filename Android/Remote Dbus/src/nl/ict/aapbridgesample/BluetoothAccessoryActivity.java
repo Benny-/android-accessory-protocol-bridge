@@ -21,9 +21,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class PairedBtListActivity extends ListActivity{
+public class BluetoothAccessoryActivity extends ListActivity{
 	
-	public static final String TAG = PairedBtListActivity.class.getSimpleName();
+	public static final String TAG = BluetoothAccessoryActivity.class.getSimpleName();
 	
 	private ArrayAdapter<btDeviceContainerView> btArrayAdapter;
 	
@@ -68,9 +68,9 @@ public class PairedBtListActivity extends ListActivity{
 		Log.v(TAG, "Clicked on item "+position+" : "+btArrayAdapter.getItem(position));
 		
 		try {
-			AccessoryActionActivity.aapbridge = new AccessoryBridge(
+			ServiceSelectionActivity.aapbridge = new AccessoryBridge(
 					new BTConnection(btArrayAdapter.getItem(position).getBtDevice().getAddress()));
-			Intent intent = new Intent(getApplicationContext(), AccessoryActionActivity.class);
+			Intent intent = new Intent(getApplicationContext(), ServiceSelectionActivity.class);
 			startActivity(intent);
 		} catch (IOException e) {
 			Log.e(TAG, "", e);
