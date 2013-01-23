@@ -100,7 +100,7 @@ public class DbusMessage {
 	
 	/**
 	 * <p>
-	 * The d-bus data are converted to java data types. This is done arcording to the following table:
+	 * The d-bus data is converted to java data types. This is done according to the following table:
 	 * </p>
 	 * 
 	 * <table>
@@ -125,7 +125,7 @@ public class DbusMessage {
 	 * </table>
 	 * 
 	 * <p>
-	 * The type is not known at compile time. You should cast the values to the correct type at runtime
+	 * Only you know what return values a method might return. You should cast the values to the correct type during runtime.
 	 * </p>
 	 * 
 	 * @return The top level d-bus values
