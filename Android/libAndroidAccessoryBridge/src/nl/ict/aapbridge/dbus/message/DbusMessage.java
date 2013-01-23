@@ -133,10 +133,12 @@ public class DbusMessage {
 	 */
 	public Object[] getValues() throws RemoteException
 	{
+		if(errorName != null)
+			throw new RemoteException(errorName, null);
 		return arguments != null ? arguments.getContent() : null;
 	}
 	
-	DbusStruct getValuesStruct() throws RemoteException
+	DbusStruct getValuesStruct()
 	{
 		return arguments;
 	}
