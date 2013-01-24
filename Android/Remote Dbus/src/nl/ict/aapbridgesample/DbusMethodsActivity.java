@@ -60,7 +60,7 @@ public class DbusMethodsActivity extends Activity
 			d = aapbridge.createDbus(dbus_handler);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not create remote dbus service", e);
-			Toast.makeText(this, "Could not start dbus service", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Could not start d-bus method service: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 			finish();
 		}
         

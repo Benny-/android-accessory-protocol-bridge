@@ -39,19 +39,16 @@ class ServiceSpawner implements BridgeService{
 		public int getErrorCode()	{return errorCode;}
 	}
 	
-	static {
-		portRequest.order(ByteOrder.LITTLE_ENDIAN);
-		portRequest.put((byte)'o');
-		portRequest.mark();
-	}
-	
 	public ServiceSpawner(Port port) {
+		portRequest.order(ByteOrder.LITTLE_ENDIAN);
 		this.port = port;
 	}
 
 	@Override
 	public void onDataReady(int length) throws IOException {
+		portRequestResponse.rewind();
 		port.readAll(portRequestResponse);
+		portRequestResponse.rewind();
 		char msgType = (char) portRequestResponse.get();
 		if( msgType != 's')
 		{
@@ -76,10 +73,11 @@ class ServiceSpawner implements BridgeService{
 	
 	public short requestService(byte serviceIdentifier, ByteBuffer arguments) throws IOException, ServiceRequestException
 	{
-		portRequest.reset();
+		portRequest.rewind();
+		portRequest.put((byte)'o');
 		portRequest.put(serviceIdentifier);
 		portRequest.putShort((short) arguments.remaining());
-		portRequest.position(0);
+		portRequest.rewind();
 		
 		synchronized (this) {
 			while(portRequest.hasRemaining())

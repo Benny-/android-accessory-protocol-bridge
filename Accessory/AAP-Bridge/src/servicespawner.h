@@ -3,7 +3,7 @@
 
 #include "server.h"
 
-void* ServiceSpawnerInit(void);
+void* ServiceSpawnerInit(BridgeConnection* bridge, BridgeService* service);
 void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, const void* buffer, int size);
 void ServiceSpawnerOnEof(void* service_data, BridgeService* service);
 void ServiceSpawnerClose(void* service_data, BridgeService* service);

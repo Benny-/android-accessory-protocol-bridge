@@ -15,6 +15,8 @@ struct BridgeService
 {
 	/**
 	 * The port this service is located on. It is negative if the service is down.
+	 *
+	 * This value MUST correspond to the index in BridgeConnection.ports[]
 	 */
 	short port;
 	BridgeConnection* bridge;
@@ -39,7 +41,8 @@ struct BridgeService
 struct BridgeConnection
 {
 	AapConnection* con;
-	BridgeService ports[400];
+	BridgeService services[400];
+	short lastAllocatedPort;
 	pthread_t receive, send;
 	volatile int work;
 	volatile int connectedToAndroid;
@@ -47,13 +50,13 @@ struct BridgeConnection
 
 void sendToCorrectService(BridgeConnection* bridge, short port, const void* data, short size)
 {
-	if(bridge->ports[port].port == -1)
+	if(bridge->services[port].port == -1)
 	{
 		fprintf(stderr, "Received data on port %i, but port is closed\n",port);
 	}
 	else
 	{
-		BridgeService* service = &bridge->ports[port];
+		BridgeService* service = &bridge->services[port];
 		service->onBytesReceived(service->service_data, service, data, size);
 	}
 }
@@ -68,7 +71,7 @@ void writeAllPort	(BridgeService* service, const void* buffer, int size)
 	addSendQueue(msg);
 }
 
-void sendEof		(BridgeService* bridge)
+void sendEof		(BridgeService* service)
 {
 
 }
@@ -87,6 +90,32 @@ void closeService	(BridgeService* service)
 		service->onCloseService = NULL;
 		service->onEof = NULL;
 	}
+}
+
+/**
+ * Returns NULL if all ports are in use.
+ */
+BridgeService* openNewPort(BridgeConnection* bridge)
+{
+	short port = bridge->lastAllocatedPort + 1;
+
+	while(bridge->services[port].port != -1 && port != bridge->lastAllocatedPort)
+		port++;
+
+	if(bridge->services[port].port == -1)
+	{
+		BridgeService* service = &bridge->services[port];
+		service->port = port;
+		bridge->lastAllocatedPort = port;
+		return service;
+	}
+
+	return NULL;
+}
+
+short getPortNr(BridgeService service)
+{
+	service.port;
 }
 
 /**
@@ -109,7 +138,7 @@ void* receiver(void* user_data) {
 		{
 			port   = buffer[0] + (buffer[1] << 8);
 			size = buffer[2] + (buffer[3] << 8);
-			printf("Received multiplexed msg for port %hu length %hu\n",port, size);
+			printf("PORT %hu: received %hu bytes\n",port, size);
 			error = readAllAccessory(bridge->con, buffer, size);
 			if (!error)
 			{
@@ -122,6 +151,7 @@ void* receiver(void* user_data) {
 			}
 		}
 	}
+	fprintf(stderr, "Receiver thread going to stop Work:%i Error:%i\n",bridge->work, error);
 	addreceivequeue(NULL);
 	bridge->work = 0;
 	fprintf(stderr,"Receiver thread has stopped\n");
@@ -164,8 +194,8 @@ void* sender(void* user_data) {
 		}
 		else
 		{
-			printf("Bytes send: %i\n",msg->size);
-			PrintBin(msg->data, msg->size);
+			printf("PORT %hu: send %hu bytes\n",msg->port, msg->size);
+			// PrintBin(msg->data, msg->size); // Uncomment if you wish to see hex values.
 			puts("");
 		}
 	}
@@ -184,26 +214,28 @@ BridgeConnection* initServer(AapConnection* con){
 	bridge->connectedToAndroid = 0;
 	bridge->con = con;
 
-	for(int i = 0; i < (sizeof(bridge->ports) / sizeof(bridge->ports[0])); i++)
+	for(int i = 0; i < (sizeof(bridge->services) / sizeof(bridge->services[0])); i++)
 	{
-		bridge->ports[i].port = -1;
+		bridge->services[i].port = -1;
 	}
 
-	{	BridgeService* servicespawner = &bridge->ports[0];
+	{	BridgeService* servicespawner = &bridge->services[0];
 		servicespawner->port = 0;
 		servicespawner->bridge = bridge;
-		servicespawner->service_data = ServiceSpawnerInit();
+		servicespawner->service_data = ServiceSpawnerInit(bridge, servicespawner);
 		servicespawner->onBytesReceived = &ServiceSpawnerOnBytesReceived;
 		servicespawner->onCloseService = NULL;
 	}
 
-	{	BridgeService* keepalive = &bridge->ports[1];
+	{	BridgeService* keepalive = &bridge->services[1];
 		keepalive->port = 1;
 		keepalive->bridge = bridge;
 		keepalive->service_data = NULL;
 		keepalive->onBytesReceived = &KeepaliveOnBytesReceived;
 		keepalive->onCloseService = NULL;
 	}
+
+	bridge->lastAllocatedPort = 1;
 
 	//initialize the send and receive queue
 	initreceiveQueue();

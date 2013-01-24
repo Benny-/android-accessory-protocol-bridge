@@ -47,10 +47,12 @@ public class AccessoryBridge implements Channel
 		
 		private final ByteBuffer header = ByteBuffer.allocate(4);
 		
+		private short portNr;
 		private boolean inputOpen = true;
 		private boolean outputOpen = true;
 		
 		private Port(short portNr) {
+			this.portNr = portNr;
 			header.order(ByteOrder.LITTLE_ENDIAN);
 			header.putShort(portNr);
 			header.mark();
@@ -92,6 +94,8 @@ public class AccessoryBridge implements Channel
 				outputStream.write(buffer.array(), buffer.arrayOffset(), writeAmount);
 				outputStream.flush();
 			}
+			buffer.position(buffer.position() + writeAmount);
+			Log.d(TAG, "PORT "+portNr+": wrote "+writeAmount+" bytes");
 			return writeAmount;
 		}
 
@@ -108,7 +112,9 @@ public class AccessoryBridge implements Channel
 		 */
 		@Override
 		public int read(ByteBuffer buffer) throws IOException {
-			return inputStream.read(buffer.array(), buffer.arrayOffset(), buffer.remaining());
+			int read = inputStream.read(buffer.array(), buffer.arrayOffset(), buffer.remaining());
+			buffer.position(buffer.position() + read);
+			return read;
 		}
 		
 		/**
@@ -225,6 +231,7 @@ public class AccessoryBridge implements Channel
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
 		
+		this.activeServices[0] = serviceSpawner;
 		this.activeServices[1] = keepAlive;
 		
 		new ReceiverThread().start();
@@ -244,7 +251,8 @@ public class AccessoryBridge implements Channel
 	 */
 	public Port requestService(byte serviceIdentifier, ByteBuffer arguments, BridgeService service) throws IOException, ServiceRequestException
 	{
-		return new Port(serviceSpawner.requestService(serviceIdentifier, arguments));
+		short port = serviceSpawner.requestService(serviceIdentifier, arguments);
+		return new Port(port);
 	}
 	
 	private static final ByteBuffer emptyByteBuffer = ByteBuffer.allocate(0);
@@ -293,7 +301,7 @@ public class AccessoryBridge implements Channel
 					short destinationPort = bb.getShort();
 					short dataLength = bb.getShort();
 					
-					Log.d(TAG, "AAB msg: Port "+destinationPort+" dataLength: "+dataLength);
+					Log.d(TAG, "PORT "+destinationPort+": received: "+dataLength+" bytes");
 					BridgeService service = activeServices[destinationPort];
 					if(service == null)
 					{
