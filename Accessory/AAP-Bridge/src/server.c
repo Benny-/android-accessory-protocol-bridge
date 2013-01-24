@@ -5,38 +5,12 @@
 #include <stdlib.h>
 
 #include "server.h"
+#include "BridgeService.h"
 
 #include "servicespawner.h"
 #include "keepalive.h"
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
-
-struct BridgeService
-{
-	/**
-	 * The port this service is located on. It is negative if the service is down.
-	 *
-	 * This value MUST correspond to the index in BridgeConnection.ports[]
-	 */
-	short port;
-	BridgeConnection* bridge;
-	void* service_data;
-
-	/**
-	 * Called when the service receives some bytes from the android application.
-	 */
-	void (*onBytesReceived)	(void* service_data, BridgeService* service, const void* buffer, int size);
-
-	/**
-	 * Called when the service receives a eof from the android application. The onCloseService() function will not longer be called.
-	 */
-	void (*onEof)			(void* service_data, BridgeService* service);
-
-	/**
-	 * Called when the service should cleanup all service data. Service should not use the write function once this is called.
-	 */
-	void (*onCloseService)	(void* service_data, BridgeService* service);
-};
 
 struct BridgeConnection
 {
@@ -48,7 +22,7 @@ struct BridgeConnection
 	volatile int connectedToAndroid;
 };
 
-void sendToCorrectService(BridgeConnection* bridge, short port, const void* data, short size)
+void sendToCorrectService(BridgeConnection* bridge, short port, void* data, short size)
 {
 	if(bridge->services[port].port == -1)
 	{
@@ -73,7 +47,7 @@ void writeAllPort	(BridgeService* service, const void* buffer, int size)
 
 void sendEof		(BridgeService* service)
 {
-
+	fprintf(stderr, "sendEof() not implemented\n");
 }
 
 void closeService	(BridgeService* service)
@@ -138,10 +112,15 @@ void* receiver(void* user_data) {
 		{
 			port   = buffer[0] + (buffer[1] << 8);
 			size = buffer[2] + (buffer[3] << 8);
-			printf("PORT %hu: received %hu bytes\n",port, size);
 			error = readAllAccessory(bridge->con, buffer, size);
 			if (!error)
 			{
+#ifdef DEBUG
+				printf("PORT %hu: received %hu bytes\n",port, size);
+				PrintBin(buffer, size);
+				puts("");
+#endif
+
 				MultiplexedMessage* msg = malloc(sizeof(MultiplexedMessage));
 				msg->port = port;
 				msg->size = size;
@@ -194,9 +173,11 @@ void* sender(void* user_data) {
 		}
 		else
 		{
+#ifdef DEBUG
 			printf("PORT %hu: send %hu bytes\n",msg->port, msg->size);
-			// PrintBin(msg->data, msg->size); // Uncomment if you wish to see hex values.
+			PrintBin(msg->data, msg->size);
 			puts("");
+#endif
 		}
 	}
 	bridge->connectedToAndroid = 0;

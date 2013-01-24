@@ -3,7 +3,7 @@
 
 #include "server.h"
 
-void KeepaliveOnBytesReceived(void* service_data, BridgeService* service, const void* buffer, int size);
+void KeepaliveOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size);
 void KeepaliveOnEof(void* service_data, BridgeService* service);
 void KeepaliveClose(void* service_data, BridgeService* service);
 

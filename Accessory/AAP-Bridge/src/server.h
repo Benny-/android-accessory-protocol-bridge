@@ -10,7 +10,7 @@ BridgeConnection* initServer(AapConnection* con);
 void deInitServer(BridgeConnection* bridge);
 
 BridgeService* openNewPort(BridgeConnection* bridge);
-void sendToCorrectService(BridgeConnection* bridge, short port, const void* data, short size);
+void sendToCorrectService(BridgeConnection* bridge, short port, void* data, short size);
 
 /**
  * Write the buffer to the remote android application.

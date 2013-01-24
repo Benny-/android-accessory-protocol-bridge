@@ -14,7 +14,7 @@ const static char* const pong = "pong";
 static int counter = 0;
 #endif
 
-void KeepaliveOnBytesReceived(void* service_data, BridgeService* service, const void* buffer, int size)
+void KeepaliveOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size)
 {
 	printf("Keepalive received: %.*s\n", size, (const char*) buffer);
 #ifdef BUGGY_KEEPALIVE_SERVICE

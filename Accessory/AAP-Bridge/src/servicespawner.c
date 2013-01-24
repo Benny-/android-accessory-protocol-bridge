@@ -1,5 +1,9 @@
 
+#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+
+#include "BridgeService.h"
 
 #include "Dbus/method.h"
 #include "Dbus/listener.h"
@@ -24,28 +28,53 @@ void* ServiceSpawnerInit(BridgeConnection* bridge, BridgeService* service)
 	return servicespawner_data;
 }
 
-void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, const void* buffer, int size)
+void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size)
 {
+	BridgeService* new_service;
 	char response[8]; // This variable will be a "Port status message", see protocol specs.
+	memset(response,0,sizeof(response));
+	response[0] = 's';
 
 	SpawnerServiceData* servicespawner_data = service_data;
-	const int8_t* requested_protocool = buffer;
-	switch(*requested_protocool)
+	const int8_t* requested_protocol = ((int8_t*)buffer)+1;
+	printf("ServiceSpawner requested_protocol: %hhi\n", *requested_protocol);
+	switch(*requested_protocol)
 	{
-		case 1:
-			//BridgeService* new_service = openNewPort(servicespawner_data.bridge);
-			//break;
+		case 1: // Bulk data
+			response[3] = STREAM_DENIED;
+			response[4] = 2; // The error.
+			break;
 
-		case 2:
-			//BridgeService* new_service = openNewPort(servicespawner_data.bridge);
-			//break;
+		case 2: // D-Bus function calls
+			new_service = openNewPort(servicespawner_data->bridge);
+			new_service->service_data = MethodInit(new_service);
+			if(new_service->service_data != NULL)
+			{
+				new_service->onBytesReceived = &MethodOnBytesReceived;
+				new_service->onCloseService = &MethodClose;
+				new_service->onEof = &MethodOnEof;
+				response[3] = STREAM_OPEN;
+				response[1] = new_service->port;
+				response[2] = new_service->port >> 8;
+			}
+			else
+			{
+				response[3] = STREAM_DENIED;
+				response[4] = 3; // The error.
+			}
+			break;
+
+		case 3: // D-Bus signal
+			response[3] = STREAM_DENIED;
+			response[4] = 2; // The error.
+			break;
 
 		default:
-			response[0] = 's';
 			response[3] = STREAM_DENIED;
-			writeAllPort(servicespawner_data->service, response, sizeof(response));
+			response[4] = 1; // The error.
 			break;
 	}
+	writeAllPort(servicespawner_data->service, response, sizeof(response));
 }
 
 void ServiceSpawnerOnEof(void* service_data, BridgeService* service)

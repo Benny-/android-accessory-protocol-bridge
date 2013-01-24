@@ -7,8 +7,7 @@
 #include "dbuslib.h"
 #include "../Message/AccessoryMessage.h"
 
-extern DBusConnection *con;
-extern DBusError dbusError;
+#include "method.h"
 
 static unsigned int bytesToDbus(char type, char* bytes, DBusBasicValue* dbusValue)
 {
@@ -52,23 +51,46 @@ static unsigned int bytesToDbus(char type, char* bytes, DBusBasicValue* dbusValu
 	 return -1;
 }
 
-/**
- * This call blocks until it receives a reply from dbus.
- */
-void callmethod(MultiplexedMessage* accessoryMessage) {
+typedef struct Methods
+{
+	DBusConnection* con;
+	BridgeService* service;
+} Methods;
 
-	void* dbusMessage = accessoryMessage->data;
+void* MethodInit(BridgeService* service)
+{
+	DBusError dbusError;
+	dbus_error_init(&dbusError);
+	Methods* methods = malloc(sizeof(Methods));
+	methods->con = dbus_bus_get_private(DBUS_BUS_SESSION, &dbusError);
+	methods->service = service;
+
+	if(dbus_error_is_set(&dbusError))
+	{
+		fprintf(stderr, "%s %d MethodInit Error occurred: %s %s\n", __FILE__, __LINE__,  dbusError.name, dbusError.message);
+		free(methods);
+		return NULL;
+	}
+	return methods;
+}
+
+/**
+ * At this moment we are waiting for the d-bus method to finish.
+ *
+ * This might become a issue, as the service handling thread cant send bytes to other services.
+ * In that case we should wait for the response in another thread or use poll, epoll, select, ect..
+ */
+void  MethodOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size)
+{
+	void* dbusMessage = buffer;
 	char* busname = dbusMessage;
 	char* objectpath = busname + strlen(busname) + 1;
 	char* interfacename = objectpath + strlen(objectpath) + 1;
 	char* function_name = interfacename + strlen(interfacename) + 1;
 	char* arg_pointer = function_name + strlen(function_name) + 1;
 
-	puts("callmethod(): data-> ");
-	PrintBin(accessoryMessage->data, 150);
-	puts("\n");
-
 	//dbus vars
+	DBusError dbusError;
 	DBusMessage* message;
 	DBusMessageIter args;
 	DBusPendingCall* pending;
@@ -118,7 +140,6 @@ void callmethod(MultiplexedMessage* accessoryMessage) {
 		// free the message
 		dbus_message_unref(message);
 
-		//block until theirs a reply
 		if (dbus_error_is_set(&dbusError)) {
 			printf("an error occurred: %s\n", dbusError.message);
 			dbus_error_free(&dbusError);
@@ -129,27 +150,34 @@ void callmethod(MultiplexedMessage* accessoryMessage) {
 
 		// get the reply message
 		message = dbus_pending_call_steal_reply(pending);
-		if (NULL == message) {
-			printf("Reply Null\n");
-		}
+
 		// free the pending message handle
 		dbus_pending_call_unref(pending);
 
-		char* marshalled;
-		int marshalled_size;
-		dbus_message_marshal(message,&marshalled,&marshalled_size);// XXX: Memory leak, right here.
+		if(message != NULL)
+		{
+			char* marshalled;
+			int marshalled_size;
+			dbus_message_marshal(message,&marshalled,&marshalled_size);
+			writeAllPort(service, marshalled, marshalled_size);
+			free(marshalled);
+		}
+		else
+		{
+			fprintf(stderr, "Something horrible went wrong and we are sorry\n");
+			// TODO: Send something to Android to inform it of our failure.
+		}
 
-		// free reply
 		dbus_message_unref(message);
-
-		// TODO: Send dbus response to Android.
 	}
 }
 
-/*
-DBusMessage* createMessage(char id[64], int vartype1, uint8_t var1,
-		int vartype2, uint8_t var2, int vartype3, uint8_t var3, int vartype4,
-		uint8_t var5, char returntype, int returnvar, int prevmessage) {
-	return message;
+void  MethodOnEof(void* service_data, BridgeService* service)
+{
+
 }
-*/
+
+void  MethodClose(void* service_data, BridgeService* service)
+{
+
+}

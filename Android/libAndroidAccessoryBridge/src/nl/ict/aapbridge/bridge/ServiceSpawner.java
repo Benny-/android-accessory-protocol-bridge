@@ -19,7 +19,7 @@ import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
 class ServiceSpawner implements BridgeService{
 	
 	private Port port;
-	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
+	private ByteBuffer portRequest				= ByteBuffer.allocate(4);
 	private ByteBuffer portRequestResponse		= ByteBuffer.allocate(8);
 	private Semaphore openRequestResponsesReady = new Semaphore(0, true);
 	private Semaphore openRequestResponsesDone  = new Semaphore(0);
@@ -41,6 +41,7 @@ class ServiceSpawner implements BridgeService{
 	
 	public ServiceSpawner(Port port) {
 		portRequest.order(ByteOrder.LITTLE_ENDIAN);
+		portRequestResponse.order(ByteOrder.LITTLE_ENDIAN);
 		this.port = port;
 	}
 
