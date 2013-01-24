@@ -118,8 +118,9 @@ public class UsbConnection implements AccessoryConnection, Closeable
 	 * 
 	 * @param context
 	 * @return A connection to the first usb accessory or null in case of failure.
+	 * @throws IOException 
 	 */
-	public static UsbConnection easyConnect(Context context)
+	public static UsbConnection easyConnect(Context context) throws IOException
 	{
 		UsbManager mUSBManager = UsbManager.getInstance(context);
     	UsbAccessory[] accessories = mUSBManager.getAccessoryList();
@@ -131,15 +132,10 @@ public class UsbConnection implements AccessoryConnection, Closeable
 				UsbConnection connection = new UsbConnection(context, mUSBManager, accessory);
 				Log.v(TAG, "Connected to USB accessory");
 				return connection;
-			} else {
-				Log.w(TAG, "No permission to operate on accessory");
 			}
+			throw new IOException("No permission to operate on accessory");
 		}
-		else
-		{
-			Log.e(TAG, "No USB accessory found");
-		}
-    	return null;
+		throw new IOException("No USB accessory found");
 	}
 
 	public boolean disconnected() {
