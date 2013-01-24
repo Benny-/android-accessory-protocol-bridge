@@ -5,10 +5,6 @@
 
 const static char* const pong = "pong";
 
-#ifdef DEBUG
-#define BUGGY_KEEPALIVE_SERVICE
-#endif
-
 #ifdef BUGGY_KEEPALIVE_SERVICE
 #warning This is a buggy build and will suddenly stop sending keepalives
 static int counter = 0;
