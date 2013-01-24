@@ -80,7 +80,7 @@ void* MethodInit(BridgeService* service)
  * This might become a issue, as the service handling thread cant send bytes to other services.
  * In that case we should wait for the response in another thread or use poll, epoll, select, ect..
  */
-void  MethodOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size)
+void MethodOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size)
 {
 	void* dbusMessage = buffer;
 	char* busname = dbusMessage;
@@ -90,13 +90,9 @@ void  MethodOnBytesReceived(void* service_data, BridgeService* service, void* bu
 	char* arg_pointer = function_name + strlen(function_name) + 1;
 
 	//dbus vars
-	DBusError dbusError;
 	DBusMessage* message;
 	DBusMessageIter args;
 	DBusPendingCall* pending;
-
-	//return value
-	uint8_t returnvalue;
 
 	// create a signal and check for errors
 	message = dbus_message_new_method_call(
@@ -140,11 +136,6 @@ void  MethodOnBytesReceived(void* service_data, BridgeService* service, void* bu
 		// free the message
 		dbus_message_unref(message);
 
-		if (dbus_error_is_set(&dbusError)) {
-			printf("an error occurred: %s\n", dbusError.message);
-			dbus_error_free(&dbusError);
-		}
-
 		// block until we receive a reply
 		dbus_pending_call_block(pending);
 
@@ -165,7 +156,7 @@ void  MethodOnBytesReceived(void* service_data, BridgeService* service, void* bu
 		else
 		{
 			fprintf(stderr, "Something horrible went wrong and we are sorry\n");
-			// TODO: Send something to Android to inform it of our failure.
+			// TODO: Send something to Android to inform of our failure.
 		}
 
 		dbus_message_unref(message);
