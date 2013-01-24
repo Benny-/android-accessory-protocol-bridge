@@ -10,6 +10,7 @@ import java.nio.channels.AsynchronousCloseException;
 import java.nio.charset.Charset;
 
 import android.os.Message;
+import android.util.Log;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
@@ -29,6 +30,7 @@ import nl.ict.aapbridge.dbus.message.DbusTypeParser;
  */
 public class Dbus implements BridgeService, Closeable {
 	
+	public static final String TAG = "DbusMethods";
 	private static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private short receiveLength = 0;
@@ -111,30 +113,15 @@ public class Dbus implements BridgeService, Closeable {
 
 	@Override
 	public void onDataReady(int length) throws IOException {
-		while(length > 0)
-		{
-			length -= port.read(receiveBuffer);
-			if(!receiveBuffer.hasRemaining())
-			{
-				if(receiveLength == 0)
-				{
-					receiveBuffer.rewind();
-					receiveBuffer.order(ByteOrder.LITTLE_ENDIAN);
-					receiveLength = receiveBuffer.getShort();
-					receiveBuffer.rewind();
-					receiveBuffer.limit(receiveLength);
-				}
-				else
-				{
-					receiveBuffer.rewind();
-					DbusMessage dbusMessage = new DbusMessage(receiveBuffer);
-					Message.obtain(handler, DbusHandler.MessageTypes.DbusMethods.ordinal(), return_id++, 0, dbusMessage);
-					receiveBuffer.rewind();
-					receiveBuffer.limit(2);
-					receiveLength = 0;
-				}
-			}
-		}
+		receiveBuffer.rewind();
+		receiveBuffer.limit(length);
+		port.readAll(receiveBuffer);
+		receiveBuffer.rewind();
+		DbusMessage dbusMessage = new DbusMessage(receiveBuffer);
+		Message.obtain(handler, DbusHandler.MessageTypes.DbusMethods.ordinal(), return_id++, 0, dbusMessage).sendToTarget();
+		receiveBuffer.rewind();
+		receiveBuffer.limit(2);
+		receiveLength = 0;
 	}
 
 	@Override

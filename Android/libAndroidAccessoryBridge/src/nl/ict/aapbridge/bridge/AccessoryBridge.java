@@ -251,8 +251,10 @@ public class AccessoryBridge implements Channel
 	 */
 	public Port requestService(byte serviceIdentifier, ByteBuffer arguments, BridgeService service) throws IOException, ServiceRequestException
 	{
-		short port = serviceSpawner.requestService(serviceIdentifier, arguments);
-		return new Port(port);
+		short portNr = serviceSpawner.requestService(serviceIdentifier, arguments);
+		Port port = new Port(portNr);
+		this.activeServices[portNr] = service;
+		return port;
 	}
 	
 	private static final ByteBuffer emptyByteBuffer = ByteBuffer.allocate(0);

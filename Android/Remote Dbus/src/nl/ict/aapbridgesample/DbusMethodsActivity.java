@@ -35,7 +35,7 @@ public class DbusMethodsActivity extends Activity
     	@Override
     	public void handleMessage(Message msg) {
     		Log.v(TAG, "Received some dbus response: "+msg.toString());
-    		msg.recycle();
+    		// msg.recycle(); // This crashes the process.
     	}
 	};
 	
