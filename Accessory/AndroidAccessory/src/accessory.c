@@ -51,8 +51,8 @@ Accessory* initAccessory(
  	libusb_context *usb_context;
  	if (libusb_init(&usb_context))
  	{
- 		fprintf(stderr,"libusb_init failed\n");
- 		exit(EXIT_FAILURE);
+ 		fprintf(stderr,"libAndroidAccessory: Failed to init libusb-1.0\n");
+ 		return NULL;
  	}
 
 #ifdef DEBUG
@@ -63,8 +63,9 @@ Accessory* initAccessory(
 
  	struct udev *udev = udev_new();
 	if (!udev) {
-		fprintf(stderr,"Can't create udev\n");
-		exit(EXIT_FAILURE);
+		fprintf(stderr,"libAndroidAccessory: Failed to init udev\n");
+		libusb_exit(usb_context);
+		return NULL;
 	}
 
 	struct udev_monitor *udev_monitor = udev_monitor_new_from_netlink(udev,"udev");
