@@ -4,15 +4,22 @@
 typedef struct Accessory Accessory;
 typedef struct AapConnection AapConnection;
 
+/**
+ * Returns NULL if something went wrong.
+ */
 Accessory* initAccessory(
 		const char* manufacturer,	// Used for usb accessory protocol
-		const char* modelName,		// Used for bt & usb accessory protocol
-		const char* description,	// Used for bt & usb accessory protocol
+		const char* modelName,		// Used for usb accessory protocol & bluetooth (This value is added to the bluetooth service discovery protocol for humans, not as identification for the Android app)
+		const char* description,	// Used for usb accessory protocol & bluetooth (This value is added to the bluetooth service discovery protocol for humans, not as identification for the Android app)
+		const char* bt_uuid,		// Used for bluetooth (This value is used as identification for connecting Android applications)
 		const char* version,		// Used for usb accessory protocol
 		const char* uri,			// Used for usb accessory protocol
 		const char* serialNumber);	// Used for usb accessory protocol
 void deInitaccessory(Accessory* accessory);
 
+/**
+ * This is a blocking function. It listens on both bluetooth and usb for a new Android connection.
+ */
 AapConnection* getNextAndroidConnection(Accessory* accessory);
 void closeAndroidConnection(AapConnection* con);
 

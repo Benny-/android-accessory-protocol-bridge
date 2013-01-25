@@ -44,6 +44,7 @@ Accessory* initAccessory(
 		const char* manufacturer,
 		const char* modelName,
 		const char* description,
+		const char* bt_uuid,
 		const char* version,
 		const char* uri,
 		const char* serialNumber)
@@ -76,6 +77,7 @@ Accessory* initAccessory(
 	accessory->manufacturer = manufacturer;
 	accessory->modelName = modelName;
 	accessory->description = description;
+	accessory->bt_uuid = bt_uuid;
 	accessory->version = version;
 	accessory->uri = uri;
 	accessory->serialNumber = serialNumber;

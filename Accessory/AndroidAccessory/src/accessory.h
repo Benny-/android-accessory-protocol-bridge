@@ -16,6 +16,7 @@ struct Accessory
 	const char* modelName;
 	const char* name;
 	const char* description;
+	const char* bt_uuid;
 	const char* version;
 	const char* uri;
 	const char* serialNumber;
