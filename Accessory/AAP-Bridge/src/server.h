@@ -18,8 +18,17 @@ void sendToCorrectService(BridgeConnection* bridge, short port, void* data, shor
 void writeAllPort	(BridgeService* service, const void* buffer, int size);
 
 /**
- * Send a eof to the remote android application. No more write calls may be made from the service.
+ * Send a eof to the remote android application. No more write calls may be made.
+ *
+ * Bytes can still be received from the Android device.
  */
 void sendEof		(BridgeService* service);
+
+/**
+ * Send a close to the remote android application. No more bytes will be received from the android device.
+ *
+ * Bytes can still be written to the android device.
+ */
+void sendClose		(BridgeService* service);
 
 #endif

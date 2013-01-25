@@ -15,6 +15,7 @@ import android.util.Log;
 import static nl.ict.aapbridge.TAG.TAG;
 import nl.ict.aapbridge.bridge.AccessoryBridge.BridgeService;
 import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
+import nl.ict.aapbridge.bridge.AccessoryBridge.ReceiverThread;
 
 class ServiceSpawner implements BridgeService{
 	
@@ -45,10 +46,18 @@ class ServiceSpawner implements BridgeService{
 		this.port = port;
 	}
 
+	/**
+	 * This function is only called by the {@link ReceiverThread}
+	 */
 	@Override
 	public void onDataReady(int length) throws IOException {
 		portRequestResponse.rewind();
-		port.readAll(portRequestResponse);
+		try{
+			port.readAll(portRequestResponse);
+		} catch (IOException e)
+		{
+			this.openRequestResponsesReady.release(5000); // We release all these permits so the requestService() thread will not block forever
+		}
 		portRequestResponse.rewind();
 		char msgType = (char) portRequestResponse.get();
 		if( msgType != 's')
@@ -72,6 +81,15 @@ class ServiceSpawner implements BridgeService{
 		}
 	}
 	
+	/**
+	 * This may not be called from the {@link ReceiverThread}. This function may be called from any other thread (including the ui-thread)
+	 * 
+	 * @param serviceIdentifier
+	 * @param arguments
+	 * @return The port the new service will be located on
+	 * @throws IOException If connection to accessory is lost
+	 * @throws ServiceRequestException If accessory declined to create the service
+	 */
 	public short requestService(byte serviceIdentifier, ByteBuffer arguments) throws IOException, ServiceRequestException
 	{
 		portRequest.rewind();
@@ -99,10 +117,7 @@ class ServiceSpawner implements BridgeService{
 		}
 		if(response == null)
 		{
-			// This should never happen.
-			String errmsg = "Service spawner is in illegal state";
-			Log.wtf(TAG, errmsg);
-			throw new Error(errmsg);
+			throw new IOException("Diddent receive a response");
 		}
 		else
 		{

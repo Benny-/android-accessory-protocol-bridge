@@ -33,13 +33,11 @@ public class Dbus implements BridgeService, Closeable {
 	public static final String TAG = "DbusMethods";
 	private static final Charset utf8 = Charset.forName("UTF-8");
 	
-	private short receiveLength = 0;
-	
 	private int call_id = 0;
 	private int return_id = 0;
 	
-	private final ByteBuffer receiveBuffer = ByteBuffer.allocate(8000);
-	private final ByteBuffer sendBuffer = ByteBuffer.allocate(8000);
+	private final ByteBuffer receiveBuffer = ByteBuffer.allocate(4000);
+	private final ByteBuffer sendBuffer = ByteBuffer.allocate(4000);
 	private final DbusHandler handler;
 	private final Port port;
 	
@@ -119,9 +117,6 @@ public class Dbus implements BridgeService, Closeable {
 		receiveBuffer.rewind();
 		DbusMessage dbusMessage = new DbusMessage(receiveBuffer);
 		Message.obtain(handler, DbusHandler.MessageTypes.DbusMethods.ordinal(), return_id++, 0, dbusMessage).sendToTarget();
-		receiveBuffer.rewind();
-		receiveBuffer.limit(2);
-		receiveLength = 0;
 	}
 
 	@Override

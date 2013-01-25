@@ -61,12 +61,12 @@ public class AccessoryBridge implements Channel
 		@Override
 		public void close() throws IOException {
 			inputOpen = false;
-			// TODO: Send close over the wire.
+			portStatusService.close(this);
 		}
 		
 		public void eof() throws IOException {
 			outputOpen = false;
-			// TODO: Send eof over the wire.
+			portStatusService.eof(this);
 		}
 
 		@Override
@@ -157,7 +157,7 @@ public class AccessoryBridge implements Channel
 	 * NOT part of the public API.
 	 */
 	public interface BridgeService {
-		
+
 		/**
 		 * NOT part of the public API.
 		 * 
@@ -197,8 +197,54 @@ public class AccessoryBridge implements Channel
 			}
 		}
 	};
-	private ServiceSpawner serviceSpawner	= new ServiceSpawner(new Port( (short) 0 ));
-	private Keepalive keepAlive				= new Keepalive(new Port( (short) 1 ), keepAliveFailureHandler);
+	
+	private class PortStatus implements BridgeService{
+		private Port port;
+		
+		public PortStatus(Port port) {
+			this.port = port;
+		}
+
+		void eof(Port port_who_promised_not_to_send) throws IOException
+		{
+			ByteBuffer bb = ByteBuffer.allocate(4);
+			bb.order(ByteOrder.LITTLE_ENDIAN);
+			bb.putShort(port_who_promised_not_to_send.portNr);
+			bb.put((byte)3);
+			bb.put((byte)0);
+			bb.rewind();
+			port.write(bb);
+		}
+		
+		void close(Port port_who_is_not_interested_in_more_bytes) throws IOException
+		{
+			ByteBuffer bb = ByteBuffer.allocate(4);
+			bb.order(ByteOrder.LITTLE_ENDIAN);
+			bb.putShort(port_who_is_not_interested_in_more_bytes.portNr);
+			bb.put((byte)4);
+			bb.put((byte)0);
+			bb.rewind();
+			port.write(bb);
+		}
+
+		@Override
+		public void onDataReady(int length) throws IOException {
+			ByteBuffer bb = ByteBuffer.allocate(4);
+			bb.order(ByteOrder.LITTLE_ENDIAN);
+			if(length != 4)
+				throw new Error("Port status messages should be 4 bytes");
+			port.readAll(bb);
+		}
+
+		@Override
+		public Port getPort() {
+			return port;
+		}
+	}
+	
+	private PortStatus portStatusService			= new PortStatus	(new Port( (short) 0 ) );
+	private ServiceSpawner serviceSpawner	= new ServiceSpawner(new Port( (short) 1 ) );
+	private Keepalive keepAlive				= new Keepalive		(new Port( (short) 2 ), keepAliveFailureHandler);
 	
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
 	
@@ -231,8 +277,9 @@ public class AccessoryBridge implements Channel
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
 		
-		this.activeServices[0] = serviceSpawner;
-		this.activeServices[1] = keepAlive;
+		this.activeServices[portStatusService.getPort().portNr		]	= portStatusService;
+		this.activeServices[serviceSpawner.getPort().portNr	]	= serviceSpawner;
+		this.activeServices[keepAlive.getPort().portNr		]	= keepAlive;
 		
 		new ReceiverThread().start();
 	}
@@ -275,7 +322,7 @@ public class AccessoryBridge implements Channel
 	 * @author Jurgen
 	 *
 	 */
-	public class ReceiverThread extends Thread
+	class ReceiverThread extends Thread
 	{
 		private ByteBuffer bb = ByteBuffer.allocate(4);
 		

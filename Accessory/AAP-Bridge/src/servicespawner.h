@@ -3,9 +3,9 @@
 
 #include "server.h"
 
-void* ServiceSpawnerInit(BridgeConnection* bridge, BridgeService* service);
+void* ServiceSpawnerInit(BridgeConnection* bridge);
 void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size);
 void ServiceSpawnerOnEof(void* service_data, BridgeService* service);
-void ServiceSpawnerClose(void* service_data, BridgeService* service);
+void ServiceSpawnerCleanup(void* service_data, BridgeService* service);
 
 #endif /* SERVICESPAWNER_H_ */

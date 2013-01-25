@@ -165,10 +165,12 @@ void MethodOnBytesReceived(void* service_data, BridgeService* service, void* buf
 
 void  MethodOnEof(void* service_data, BridgeService* service)
 {
-
+	sendEof(service);
 }
 
-void  MethodClose(void* service_data, BridgeService* service)
+void  MethodCleanup(void* service_data, BridgeService* service)
 {
-
+	Methods* methods = service_data;
+	dbus_connection_close(methods->con);
+	free(methods);
 }

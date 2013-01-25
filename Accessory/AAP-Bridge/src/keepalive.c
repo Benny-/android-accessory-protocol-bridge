@@ -5,6 +5,11 @@
 
 const static char* const pong = "pong";
 
+void* KeepaliveInit(void)
+{
+	return NULL;
+}
+
 #ifdef BUGGY_KEEPALIVE_SERVICE
 #warning This is a buggy build and will suddenly stop sending keepalives
 static int counter = 0;
@@ -33,7 +38,7 @@ void KeepaliveOnEof(void* service_data, BridgeService* service)
 
 }
 
-void KeepaliveClose(void* service_data, BridgeService* service)
+void KeepaliveCleanup(void* service_data, BridgeService* service)
 {
 
 }

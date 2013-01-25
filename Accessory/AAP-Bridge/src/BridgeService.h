@@ -13,6 +13,8 @@ struct BridgeService
 	short port;
 	BridgeConnection* bridge;
 	void* service_data;
+	int8_t inputOpen;
+	int8_t outputOpen;
 
 	/**
 	 * Called when the service receives some bytes from the android application.
@@ -25,9 +27,9 @@ struct BridgeService
 	void (*onEof)			(void* service_data, BridgeService* service);
 
 	/**
-	 * Called when the service should cleanup all service data. Service should not use the write function once this is called.
+	 * Called when the service should cleanup all service data. Service should not use the write function during this call.
 	 */
-	void (*onCloseService)	(void* service_data, BridgeService* service);
+	void (*onCleanupService)	(void* service_data, BridgeService* service);
 };
 
 #endif /* BRIDGESERVICE_H_ */
