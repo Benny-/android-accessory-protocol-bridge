@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Set;
 
+import android.util.Log;
+
 import nl.ict.aapbridge.dbus.message.DbusTypeParser.DbusExtractor;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import nl.ict.aapbridge.dbus.message.types.DbusBoolean;
@@ -26,6 +28,8 @@ import nl.ict.aapbridge.dbus.message.types.DbusVariant;
  * This class is NOT part of the public API
  */
 public class DbusTypeParser {
+	
+	public static final String TAG = DbusTypeParser.class.getSimpleName();
 	
 	/**
 	 * Align the byte buffer to specified alignment
@@ -77,6 +81,7 @@ public class DbusTypeParser {
 	public static Object extract(String signature, ByteBuffer bb)
 	{
 		DbusExtractor extractor = extractors.get(signature.charAt(0));
+		// Log.d(TAG, "Extracter for "+signature+" "+extractor);
 		if(extractor == null)
 		{
 			throw new RuntimeException("Could not find a extractor for signature "+signature.charAt(0));

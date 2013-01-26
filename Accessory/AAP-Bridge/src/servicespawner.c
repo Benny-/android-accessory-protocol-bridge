@@ -35,7 +35,7 @@ void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, v
 			break;
 
 		case 2: // D-Bus function calls
-			new_service = openNewPort(bridge);
+			new_service = openNewPort(bridge); // Fixme: leaking a open port if new_service->service_data is null
 			new_service->service_data = MethodInit(new_service);
 			if(new_service->service_data != NULL)
 			{

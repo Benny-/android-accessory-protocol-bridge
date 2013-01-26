@@ -165,7 +165,6 @@ int writeAccessoryUSB(AapConnection* con, const void* buffer, int size)
 			size,
 			&written,
 			0u);
-	printf("writeAccessoryUSB() size: %i written: %i\n", size, written);
 	return error ? error : written;
 }
 
