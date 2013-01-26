@@ -10,8 +10,11 @@ import nl.ict.aapbridge.dbus.RemoteException;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class BusNameListActivity extends ListActivity {
@@ -41,7 +44,7 @@ public class BusNameListActivity extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.busnamelistactivity);
+		setContentView(R.layout.activity_bus_name_list);
 		
 		busnameadapter = new BusnameAdapter(this);
 		setListAdapter(busnameadapter);
@@ -50,6 +53,7 @@ public class BusNameListActivity extends ListActivity {
 		{
 			try {
 				bridge = new AccessoryBridge(UsbConnection.easyConnect(getApplicationContext()));
+				staticBridge = bridge;
 			} catch (IOException e) {
 				String msg = "Could not setup aapbridge: "+e.getLocalizedMessage();
 				Log.e(TAG, msg, e);
@@ -82,5 +86,11 @@ public class BusNameListActivity extends ListActivity {
 		}
 		super.onDestroy();
 	}
-
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent intent = new Intent(getApplicationContext(), ObjectPathListActivity.class);
+		intent.putExtra(ObjectPathListActivity.EXTRA_BUSNAME, busnameadapter.getList().get(position).toString());
+		startActivity(intent);
+	}
 }

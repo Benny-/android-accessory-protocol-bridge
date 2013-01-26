@@ -112,7 +112,7 @@ public class AccessoryBridge implements Channel
 		 */
 		@Override
 		public int read(ByteBuffer buffer) throws IOException {
-			int read = inputStream.read(buffer.array(), buffer.arrayOffset(), buffer.remaining());
+			int read = inputStream.read(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
 			buffer.position(buffer.position() + read);
 			return read;
 		}
@@ -276,6 +276,8 @@ public class AccessoryBridge implements Channel
 		this.connection = connection;
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
+		
+		Log.i(TAG, "Created a new "+AccessoryBridge.class.getSimpleName());
 		
 		this.activeServices[portStatusService.getPort().portNr		]	= portStatusService;
 		this.activeServices[serviceSpawner.getPort().portNr	]	= serviceSpawner;

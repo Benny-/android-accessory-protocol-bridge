@@ -2,20 +2,20 @@ package nl.ict.dfinger;
 
 import java.util.Collections;
 import java.util.List;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
-public class BusnameAdapter extends BaseAdapter {
-	
+public class ObjectPathAdapter extends BaseAdapter
+{
 	private List<Object> list = Collections.emptyList();
 	
 	protected LayoutInflater invlater;
 	
-	public BusnameAdapter(Context context) {
+	public ObjectPathAdapter(Context context) {
 		this.invlater = LayoutInflater.from( context );
 	}
 	
@@ -32,20 +32,8 @@ public class BusnameAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View v = this.invlater.inflate( R.layout.activity_bus_name_list_row, parent, false);
-		((TextView)v.findViewById(R.id.busnamelistactivity_row_name)).setText(list.get(position).toString());
-		return v;
+		// TODO Auto-generated method stub
+		return null;
 	}
-	
-	public void setList(List<Object> list)
-	{
-		this.list = list;
-		notifyDataSetChanged();
-	}
-	
-	public List<Object> getList()
-	{
-		return Collections.unmodifiableList(list);
-	}
-	
+
 }
