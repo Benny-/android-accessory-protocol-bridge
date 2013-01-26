@@ -103,7 +103,7 @@ struct udev_device* tryGetNextUSB(struct udev_monitor *udev_monitor)
         udev_device = udev_monitor_receive_device(udev_monitor);
         if(udev_device == NULL)
         {
-                fprintf(stderr,"Error in receiving next udev device (udev event)\n");
+                fprintf(stderr,"libAndroidAccessory: Error in receiving next udev device (udev event)\n");
         }
         else
         {

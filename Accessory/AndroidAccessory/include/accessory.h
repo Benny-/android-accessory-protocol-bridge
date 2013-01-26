@@ -11,7 +11,7 @@ Accessory* initAccessory(
 		const char* manufacturer,	// Used for usb accessory protocol
 		const char* modelName,		// Used for usb accessory protocol & bluetooth (This value is added to the bluetooth service discovery protocol for humans, not as identification for the Android app)
 		const char* description,	// Used for usb accessory protocol & bluetooth (This value is added to the bluetooth service discovery protocol for humans, not as identification for the Android app)
-		const char* bt_uuid,		// Used for bluetooth (This value is used as identification for connecting Android applications)
+		const char* const* bt_uuids,		// Used for bluetooth (This value is used as identification for connecting Android applications). Expecting a pointer to a null terminated array of uuid string pointers.
 		const char* version,		// Used for usb accessory protocol
 		const char* uri,			// Used for usb accessory protocol
 		const char* serialNumber);	// Used for usb accessory protocol

@@ -68,12 +68,20 @@ int main (int argc, char *argv[])
 		initSignalWatcher(DBUS_BUS_SESSION);
 	}
 
+	const char* const uuids[] = {
+			"",
+			"",
+			NULL
+	};
+
 	accessory = initAccessory(
 					"ICT",
 					"AAP",
 					"AAP Bridge Prototype",
+					uuids,
 					"1.0",
-					"http://www.ict.nl","2254711");
+					"http://www.ict.nl",
+					"2254711");
 
 	while(1)
 	{

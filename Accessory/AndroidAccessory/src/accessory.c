@@ -44,7 +44,7 @@ Accessory* initAccessory(
 		const char* manufacturer,
 		const char* modelName,
 		const char* description,
-		const char* bt_uuid,
+		const char* const* bt_uuids,
 		const char* version,
 		const char* uri,
 		const char* serialNumber)
@@ -77,7 +77,7 @@ Accessory* initAccessory(
 	accessory->manufacturer = manufacturer;
 	accessory->modelName = modelName;
 	accessory->description = description;
-	accessory->bt_uuid = bt_uuid;
+	accessory->bt_uuids = bt_uuids;
 	accessory->version = version;
 	accessory->uri = uri;
 	accessory->serialNumber = serialNumber;
@@ -100,7 +100,7 @@ Accessory* initAccessory(
 	}
 	else
 	{
-		fprintf(stderr, "Not listening on bluetooth. Do you have a bt device and have sufficient permissions (added to bluetooth group) ?\n");
+		fprintf(stderr, "libAndroidAccessory: Not listening on bluetooth. Do you have a bt device and have sufficient permissions (added to bluetooth group) ?\n");
 		accessory->fds[1].fd = -1;
 		accessory->fds[1].revents = 0;
 	}
@@ -125,7 +125,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 
 		if(accessory->fds[0].revents)
 		{
-			printf("LOG: UDEV descriptor ready\n");
+			printf("libAndroidAccessory: UDEV descriptor ready\n");
 			accessory->fds[0].revents = 0;
 
 			usb_device = tryGetNextUSB(accessory->udev_monitor);
@@ -169,7 +169,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 
 		if(accessory->fds[1].revents)
 		{
-			printf("LOG: BT server descriptor ready\n");
+			printf("libAndroidAccessory: BT server descriptor ready\n");
 			accessory->fds[1].revents = 0;
 
 			int fd = accept(bt_getFD(accessory->bt_service),NULL,NULL);
