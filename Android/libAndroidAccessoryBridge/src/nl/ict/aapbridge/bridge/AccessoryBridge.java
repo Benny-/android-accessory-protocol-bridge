@@ -86,6 +86,10 @@ public class AccessoryBridge implements Channel
 
 		@Override
 		public synchronized int write(ByteBuffer buffer) throws IOException {
+			if(!outputOpen)
+			{
+				throw new IOException("Port output stream is closed");
+			}
 			header.reset();
 			short writeAmount = (short) (buffer.remaining() > 4000 ? 4000 : buffer.remaining());
 			header.putShort(writeAmount);
@@ -112,6 +116,8 @@ public class AccessoryBridge implements Channel
 		 */
 		@Override
 		public int read(ByteBuffer buffer) throws IOException {
+			if(!inputOpen)
+				throw new IOException("Port input is closed, this error should never be seen"); // Why should this error never be seen? Well.. The reader thread signals if a port should be read, its his duty to prevent these reads if data is incomming but the port input is closed.
 			int read = inputStream.read(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
 			buffer.position(buffer.position() + read);
 			return read;
@@ -178,6 +184,8 @@ public class AccessoryBridge implements Channel
 		 * @return The Port object associated with this service.
 		 */
 		Port getPort();
+
+		void onEof();
 	}
 	
 	private AccessoryConnection connection;
@@ -205,26 +213,43 @@ public class AccessoryBridge implements Channel
 			this.port = port;
 		}
 
-		void eof(Port port_who_promised_not_to_send) throws IOException
+		/**
+		 * 
+		 * @param targetPort port_who_promised_not_to_send
+		 * @throws IOException
+		 */
+		void eof(Port targetPort) throws IOException
 		{
 			ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
-			bb.putShort(port_who_promised_not_to_send.portNr);
+			bb.putShort(targetPort.portNr);
 			bb.put((byte)3);
 			bb.put((byte)0);
 			bb.rewind();
 			port.write(bb);
+			
+			if(!targetPort.inputOpen && !targetPort.inputOpen)
+				activeServices[targetPort.portNr] = null; // Cleanup
 		}
 		
-		void close(Port port_who_is_not_interested_in_more_bytes) throws IOException
+		/**
+		 * 
+		 * @param targetPort port_who_is_not_interested_in_more_bytes
+		 * @throws IOException
+		 */
+		void close(Port targetPort) throws IOException
 		{
 			ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
-			bb.putShort(port_who_is_not_interested_in_more_bytes.portNr);
+			bb.putShort(targetPort.portNr);
 			bb.put((byte)4);
 			bb.put((byte)0);
 			bb.rewind();
+			
 			port.write(bb);
+			
+			if(!targetPort.inputOpen && !targetPort.inputOpen)
+				activeServices[targetPort.portNr] = null; // Cleanup
 		}
 
 		@Override
@@ -234,11 +259,50 @@ public class AccessoryBridge implements Channel
 			if(length != 4)
 				throw new Error("Port status messages should be 4 bytes");
 			port.readAll(bb);
+			bb.rewind();
+			
+			short port = bb.getShort();
+			byte status = bb.get();
+			if(activeServices[port] == null)
+			{
+				Log.w(TAG, "PORT_STATUS ignoring new status for closed port: "+port);
+			}
+			else
+			{
+				switch (status)
+				{
+					case 3: // STREAM_EOF
+						Log.i(TAG, "PORT "+port+" received EOF");
+						if(activeServices[port].getPort().inputOpen)
+							Log.e(TAG, "PORT "+port+" received a double EOF");
+						activeServices[port].getPort().inputOpen = false;
+						activeServices[port].onEof();
+						break;
+					
+					case 4: // STREAM_CLOSE
+						Log.i(TAG, "PORT "+port+" received CLOSE");
+						if(activeServices[port].getPort().outputOpen)
+							Log.e(TAG, "PORT "+port+" received a double CLOSE");
+						activeServices[port].getPort().outputOpen = false;
+						break;
+						
+					default:
+						Log.e(TAG, "PORT "+port+" received unknown status "+status);
+						break;
+				}
+				if(!activeServices[port].getPort().inputOpen && !activeServices[port].getPort().inputOpen)
+					activeServices[port] = null; // Cleanup
+			}
 		}
 
 		@Override
 		public Port getPort() {
 			return port;
+		}
+
+		@Override
+		public void onEof() {
+			// TODO Auto-generated method stub
 		}
 	}
 	
@@ -349,11 +413,11 @@ public class AccessoryBridge implements Channel
 					}
 					bb.rewind();
 					
-					short destinationPort = bb.getShort();
+					short port = bb.getShort();
 					short dataLength = bb.getShort();
 					
-					Log.d(TAG, "PORT "+destinationPort+": received: "+dataLength+" bytes");
-					BridgeService service = activeServices[destinationPort];
+					Log.d(TAG, "PORT "+port+": received: "+dataLength+" bytes");
+					BridgeService service = activeServices[port];
 					if(service == null)
 					{
 						int mustSkip = dataLength;
@@ -362,7 +426,14 @@ public class AccessoryBridge implements Channel
 							mustSkip -= inputStream.skip(mustSkip);
 					}
 					else
-						service.onDataReady(dataLength);
+					{
+						if(service.getPort().inputOpen)
+							service.onDataReady(dataLength);
+						else
+						{
+							Log.w(TAG, "PORT "+port+" received data while port is closed");
+						}
+					}
 				}
 			}
 			catch (Exception e)

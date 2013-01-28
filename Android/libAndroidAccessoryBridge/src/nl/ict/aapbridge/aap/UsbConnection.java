@@ -81,15 +81,18 @@ public class UsbConnection implements AccessoryConnection, Closeable
 //	};
 
 	public UsbConnection(Context context, UsbManager usbManager,
-			UsbAccessory accessory) {
+			UsbAccessory accessory) throws IOException {
 		mContext = context;
+		mAccessory = accessory;
+		
 		mFileDescriptor = usbManager.openAccessory(accessory);
-		if (mFileDescriptor != null) {
-			mAccessory = accessory;
-			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
-			mInputStream = new BufferedInputStream(new FileInputStream(fd));
-			mOutputStream = new BufferedOutputStream(new FileOutputStream(fd));
+		if (mFileDescriptor == null) {
+			throw new IOException("Could not open accessory");
 		}
+		
+		FileDescriptor fd = mFileDescriptor.getFileDescriptor();
+		mInputStream = new BufferedInputStream(new FileInputStream(fd));
+		mOutputStream = new BufferedOutputStream(new FileOutputStream(fd));
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
 		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
 		//mContext.registerReceiver(mUsbReceiver, filter);

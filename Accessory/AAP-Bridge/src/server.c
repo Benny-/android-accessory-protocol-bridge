@@ -242,18 +242,18 @@ static void PortStatusOnBytesReceived(void* service_data, BridgeService* service
 			case STREAM_EOF:
 				printf("PORT %hi received EOF\n", port);
 				if(!target_service->inputOpen)
-					fprintf(stderr,"PORT %hi received a double EOF!", port);
+					fprintf(stderr,"PORT %hi received a double EOF", port);
 				target_service->inputOpen = 0;
 				target_service->onEof(target_service->service_data, target_service);
 				break;
 			case STREAM_CLOSE:
 				printf("PORT %hi received CLOSE\n", port);
 				if(!target_service->outputOpen)
-					fprintf(stderr,"PORT %hi received a double CLOSE!", port);
+					fprintf(stderr,"PORT %hi received a double CLOSE", port);
 				target_service->outputOpen = 0;
 				break;
 			default:
-				fprintf(stderr,"Whoa whoa, I dont know what your asking man. What is this number?: %hhi", casted_buffer[3]);
+				fprintf(stderr,"PORT %hi received unknown status %hhi", port, casted_buffer[3]);
 				break;
 		}
 		if(!target_service->inputOpen && !target_service->outputOpen)

@@ -71,4 +71,10 @@ class Keepalive implements BridgeService{
 		return port;
 	}
 
+	@Override
+	public void onEof() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

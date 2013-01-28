@@ -133,4 +133,9 @@ class ServiceSpawner implements BridgeService{
 	public Port getPort() {
 		return port;
 	}
+
+	@Override
+	public void onEof() {
+		// TODO Auto-generated method stub
+	}
 }

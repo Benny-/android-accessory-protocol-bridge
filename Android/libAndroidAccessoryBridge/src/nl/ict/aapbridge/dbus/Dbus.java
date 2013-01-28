@@ -133,6 +133,12 @@ public class Dbus implements BridgeService, Closeable {
 	 */
 	@Override
 	public void close() throws IOException {
+		port.close();
 		port.eof();
+	}
+
+	@Override
+	public void onEof() {
+		// TODO Auto-generated method stub
 	}
 }
