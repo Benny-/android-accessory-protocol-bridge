@@ -215,41 +215,41 @@ public class AccessoryBridge implements Channel
 
 		/**
 		 * 
-		 * @param targetPort port_who_promised_not_to_send
+		 * @param port_who_promised_not_to_send port_who_promised_not_to_send
 		 * @throws IOException
 		 */
-		void eof(Port targetPort) throws IOException
+		void eof(Port port_who_promised_not_to_send) throws IOException
 		{
 			ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
-			bb.putShort(targetPort.portNr);
+			bb.putShort(port_who_promised_not_to_send.portNr);
 			bb.put((byte)3);
 			bb.put((byte)0);
 			bb.rewind();
 			port.write(bb);
 			
-			if(!targetPort.inputOpen && !targetPort.inputOpen)
-				activeServices[targetPort.portNr] = null; // Cleanup
+			if(!port_who_promised_not_to_send.inputOpen && !port_who_promised_not_to_send.inputOpen)
+				activeServices[port_who_promised_not_to_send.portNr] = null; // Cleanup
 		}
 		
 		/**
 		 * 
-		 * @param targetPort port_who_is_not_interested_in_more_bytes
+		 * @param port_who_is_not_interested_in_more_bytes port_who_is_not_interested_in_more_bytes
 		 * @throws IOException
 		 */
-		void close(Port targetPort) throws IOException
+		void close(Port port_who_is_not_interested_in_more_bytes) throws IOException
 		{
 			ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
-			bb.putShort(targetPort.portNr);
+			bb.putShort(port_who_is_not_interested_in_more_bytes.portNr);
 			bb.put((byte)4);
 			bb.put((byte)0);
 			bb.rewind();
 			
 			port.write(bb);
 			
-			if(!targetPort.inputOpen && !targetPort.inputOpen)
-				activeServices[targetPort.portNr] = null; // Cleanup
+			if(!port_who_is_not_interested_in_more_bytes.inputOpen && !port_who_is_not_interested_in_more_bytes.inputOpen)
+				activeServices[port_who_is_not_interested_in_more_bytes.portNr] = null; // Cleanup
 		}
 
 		@Override
@@ -457,9 +457,9 @@ public class AccessoryBridge implements Channel
 	 * 
 	 * @see Dbus
 	 */
-	public Dbus createDbus(DbusHandler dbusHandler) throws IOException, ServiceRequestException
+	public Dbus createDbus(DbusHandler dbushandler) throws IOException, ServiceRequestException
 	{
-		return new Dbus(dbusHandler, this);
+		return new Dbus(dbushandler, this);
 	}
 	
 	/**

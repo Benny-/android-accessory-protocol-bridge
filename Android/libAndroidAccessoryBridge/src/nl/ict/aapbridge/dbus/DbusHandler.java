@@ -38,7 +38,5 @@ public abstract class DbusHandler extends Handler{
 	 * <p>{@link Message#obj} is a {@link DbusMessage}, you should cast it to a DbusMessage.</p>
 	 */
 	@Override
-	public void handleMessage(Message msg) {
-		
-	}
+	abstract public void handleMessage(Message msg);
 }

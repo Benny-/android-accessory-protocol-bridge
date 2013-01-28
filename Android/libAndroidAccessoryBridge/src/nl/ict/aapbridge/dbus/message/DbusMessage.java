@@ -19,11 +19,11 @@ public class DbusMessage {
 	private String interfaceName;
 	private String member;
 	private String errorName;
-	private int reply_serial;
+	private int reply_serial = -1;
 	private String destination;
 	private String sender;
 	private DbusSignature Signature;
-	private int unix_fds;
+	private int unix_fds = -1;
 	private DbusStruct arguments;
 	
 	private void parseHeader(DbusArray arr)
@@ -146,15 +146,42 @@ public class DbusMessage {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(path); sb.append('\n');
-		sb.append(interfaceName); sb.append('\n');
-		sb.append(member); sb.append('\n');
-		sb.append(errorName); sb.append('\n');
-		sb.append(reply_serial); sb.append('\n');
-		sb.append(destination); sb.append('\n');
-		sb.append(sender); sb.append('\n');
-		sb.append(Signature); sb.append('\n');
-		sb.append(unix_fds); sb.append('\n');
+		if(path != null)
+		{
+			sb.append("Object path         : "); sb.append(path);          sb.append('\n');
+		}
+		if(interfaceName != null)
+		{
+			sb.append("Interface name      : "); sb.append(interfaceName); sb.append('\n');
+		}
+		if(member != null)
+		{
+			sb.append("Member name         : "); sb.append(member);        sb.append('\n');
+		}
+		if(errorName != null)
+		{
+			sb.append("Error name          : "); sb.append(errorName);     sb.append('\n');
+		}
+		if(reply_serial != -1)
+		{
+			sb.append("Reply serial        : "); sb.append(reply_serial);  sb.append('\n');
+		}
+		if(destination != null)
+		{
+			sb.append("Destination busname : "); sb.append(destination);   sb.append('\n');
+		}
+		if(sender != null)
+		{
+			sb.append("Sender busname      : "); sb.append(sender);        sb.append('\n');
+		}
+		if(Signature != null)
+		{
+			sb.append("Signature           : "); sb.append(Signature);     sb.append('\n');
+		}
+		if(unix_fds != -1)
+		{
+			sb.append("Unix FD             : "); sb.append(unix_fds);      sb.append('\n');
+		}
 		
 		sb.append(arguments.toString()); sb.append('\n');
 		return sb.toString();

@@ -48,15 +48,15 @@ public class Dbus implements BridgeService, Closeable {
 	 * 
 	 * The return values are received asynchronous and posted as messages to the handler.
 	 * 
-	 * @param handler The handler who will receive Dbus messages
+	 * @param dbushandler The handler who will receive Dbus messages
 	 * @param bridge The communication multiplexer
 	 * @throws IOException
 	 * @throws ServiceRequestException 
 	 * @see {@link DbusHandler}
 	 * @see #methodCall(String, String, String, String, Object...)
 	 */
-	public Dbus(DbusHandler handler, AccessoryBridge bridge) throws IOException, ServiceRequestException {
-		this.handler = handler;
+	public Dbus(DbusHandler dbushandler, AccessoryBridge bridge) throws IOException, ServiceRequestException {
+		this.handler = dbushandler;
 		this.port = bridge.requestService((byte)2, this);
 		sendBuffer.order(ByteOrder.LITTLE_ENDIAN);
 	}

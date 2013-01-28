@@ -43,7 +43,7 @@ public class DbusSignals implements BridgeService, Closeable {
 	 * 
 	 * You must call {@link #close()} once you are done receiving dbus signals.
 	 * 
-	 * @param dbusHandler
+	 * @param dbushandler
 	 * @param bridge
 	 * @param busname
 	 * @param objectpath
@@ -54,7 +54,7 @@ public class DbusSignals implements BridgeService, Closeable {
 	 * @throws BufferOverflowException
 	 */
 	public DbusSignals(
-			DbusHandler dbusHandler,
+			DbusHandler dbushandler,
 			AccessoryBridge bridge,
 			String busname,
 			String objectpath,
@@ -75,7 +75,7 @@ public class DbusSignals implements BridgeService, Closeable {
 		bb.put(memberName.getBytes(utf8));
 		bb.put((byte)0);
 		
-		this.handler = dbusHandler;
+		this.handler = dbushandler;
 		this.port = bridge.requestService((byte)3, bb, this);
 	}
 
