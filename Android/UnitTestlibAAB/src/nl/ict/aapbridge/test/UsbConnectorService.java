@@ -27,8 +27,9 @@ public class UsbConnectorService extends Service {
 	 * 
 	 * The test cases need a accessory to test the aab.
 	 * But a aap can only be started using a pendingIntent, which requires a Service, Activity or Broadcast receiver.
+	 * @throws IOException 
 	 */
-    public UsbConnectorService() {
+    public UsbConnectorService() throws IOException {
     	super();
     	usb_connection = UsbConnection.easyConnect(this);
     	usb_connections.release();

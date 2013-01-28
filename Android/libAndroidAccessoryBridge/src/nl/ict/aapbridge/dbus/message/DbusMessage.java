@@ -95,7 +95,8 @@ public class DbusMessage {
 		
 		DbusArray arr = new DbusArray("a(yv)",bb);
 		parseHeader(arr);
-		arguments = new DbusStruct("("+Signature.getSignatureString()+")",bb);
+		if(Signature != null)
+			arguments = new DbusStruct("("+Signature.getSignatureString()+")",bb);
 	}
 	
 	/**
@@ -135,9 +136,16 @@ public class DbusMessage {
 	{
 		if(errorName != null)
 			throw new RemoteException(errorName, null);
+		if(arguments == null)
+			throw new RemoteException("There are not values in this d-bus message");
 		return arguments != null ? arguments.getContent() : null;
 	}
 	
+	/**
+	 * NOT part of public API.
+	 * 
+	 * @return
+	 */
 	DbusStruct getValuesStruct()
 	{
 		return arguments;

@@ -10,7 +10,7 @@
         android:name="android.test.InstrumentationTestRunner"
         android:targetPackage="nl.ict.aapbridge.test" />
 
-    <application android:label="@string/app_name" android:allowBackup="yes">
+    <application android:label="@string/app_name" android:allowBackup="true">
 
         <uses-library android:name="android.test.runner" />
         <uses-library
