@@ -215,41 +215,41 @@ public class AccessoryBridge implements Channel
 
 		/**
 		 * 
-		 * @param port_who_promised_not_to_send port_who_promised_not_to_send
+		 * @param targetPort port who promised not to send to the accessory
 		 * @throws IOException
 		 */
-		void eof(Port port_who_promised_not_to_send) throws IOException
+		void eof(Port targetPort) throws IOException
 		{
 			ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
-			bb.putShort(port_who_promised_not_to_send.portNr);
+			bb.putShort(targetPort.portNr);
 			bb.put((byte)3);
 			bb.put((byte)0);
 			bb.rewind();
 			port.write(bb);
 			
-			if(!port_who_promised_not_to_send.inputOpen && !port_who_promised_not_to_send.inputOpen)
-				activeServices[port_who_promised_not_to_send.portNr] = null; // Cleanup
+			if(!targetPort.inputOpen && !targetPort.inputOpen)
+				activeServices[targetPort.portNr] = null; // Cleanup
 		}
 		
 		/**
 		 * 
-		 * @param port_who_is_not_interested_in_more_bytes port_who_is_not_interested_in_more_bytes
+		 * @param targetPort port who is not interested in more bytes from the accessory
 		 * @throws IOException
 		 */
-		void close(Port port_who_is_not_interested_in_more_bytes) throws IOException
+		void close(Port targetPort) throws IOException
 		{
 			ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
-			bb.putShort(port_who_is_not_interested_in_more_bytes.portNr);
+			bb.putShort(targetPort.portNr);
 			bb.put((byte)4);
 			bb.put((byte)0);
 			bb.rewind();
 			
 			port.write(bb);
 			
-			if(!port_who_is_not_interested_in_more_bytes.inputOpen && !port_who_is_not_interested_in_more_bytes.inputOpen)
-				activeServices[port_who_is_not_interested_in_more_bytes.portNr] = null; // Cleanup
+			if(!targetPort.inputOpen && !targetPort.inputOpen)
+				activeServices[targetPort.portNr] = null; // Cleanup
 		}
 
 		@Override
