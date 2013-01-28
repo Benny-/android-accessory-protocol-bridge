@@ -21,7 +21,7 @@ public class DbusBoolean {
 		@Override
 		public Object parse(String signature, ByteBuffer bb) {
 			align(bb, 4); // Yes. A dbus boolean is a 4 byte aligned to a 4 byte block.
-			return bb.getInt()>1 ? true:0;
+			return bb.getInt()==0 ? false : true;
 		}
 	}
 	
