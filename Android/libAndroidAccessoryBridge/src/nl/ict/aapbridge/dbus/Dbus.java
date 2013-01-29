@@ -22,15 +22,14 @@ import nl.ict.aapbridge.dbus.message.DbusTypeParser;
 /**
  * Functionality for communicating to a remote d-bus (methods only). Dbus method is invoked Asynchronous. The reply is send to the handler.
  * 
- * You should call the {@link #close()} method once you are done.
+ * <p>You should call the {@link #close()} method once you are done.</p>
  * 
  * @author jurgen
  * @see DbusSignals
  * @see DbusHandler
  */
-public class Dbus implements BridgeService, Closeable {
-	
-	public static final String TAG = "DbusMethods";
+public class Dbus implements BridgeService, Closeable
+{
 	private static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private int call_id = 0;
@@ -66,7 +65,7 @@ public class Dbus implements BridgeService, Closeable {
 	 * or system bus depending on the accessory's implementation.
 	 * 
 	 * Throws a BufferOverflowException if the combined arguments byte length exceeds the
-	 * internal sendBuffer size.
+	 * internal {@link #sendBuffer} size.
 	 * 
 	 * @param busname
 	 * @param objectpath
@@ -76,8 +75,8 @@ public class Dbus implements BridgeService, Closeable {
 	 * 
 	 * @return Unique id for this request. This value will be the same as Message.arg1 in the DbusHandler message handler for the return value.
 	 * 
-	 * @throws IOException
-	 * @throws BufferOverflowException
+	 * @throws IOException - If connection to the remote port is lost
+	 * @throws BufferOverflowException If the byte size of all combined parameters exceed 4000 bytes
 	 */
 	public synchronized int methodCall(
 			String busname,

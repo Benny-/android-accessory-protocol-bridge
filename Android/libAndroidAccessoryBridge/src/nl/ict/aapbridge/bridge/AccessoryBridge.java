@@ -28,9 +28,21 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * Handles the communication with the android accessory bridge.
+ * <p>Handles the communication with the android accessory bridge.</p>
+ * 
+ * <p>The AccessoryBridge allows multiple concurrent data streams on top of the android accessory protocol.
+ * These datastreams are not directly available to to enduser. On top of these multiplexed streams the bridge
+ * also periodically sends messages to the accessory to ensure it is still alive</p>
+ * 
+ * <p>While you cant use the bridge directly, you can create other services who can make use of the bridge. This
+ * include {@link Dbus} for invoking d-bus methods and {@link DbusSignals} for listening to d-bus signals. You
+ * can do so by calling a factory method (like {@link #createDbus(DbusHandler)}) or invoking the constructor</p>
+ * 
+ * <p>Calling {@link #close()} will release any resources in use and invalidates the bridge (any operation will throw a io-exception)</p>
  * 
  * @author jurgen
+ * @see Dbus
+ * @see DbusSignals
  */
 public class AccessoryBridge implements Channel
 {
@@ -191,6 +203,13 @@ public class AccessoryBridge implements Channel
 	private AccessoryConnection connection;
 	private OutputStream outputStream;
 	private InputStream inputStream;
+	
+	/**
+	 * <p>This field is a lookup table. Every created service is stored here.
+	 * The index is the same as the port this service is located on. Once a service
+	 * is cleaned up, the reference in this table becomes null. There
+	 * may be gaps if a service between two other services are cleaned up.</p>
+	 */
 	private BridgeService activeServices[] = new BridgeService[400];
 	private Handler keepAliveFailureHandler = new Handler(){
 		@Override
@@ -383,10 +402,20 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * Thread who receive the data from Android Accessory bus, decodes it and sends the data to the relevant service.
+	 * <p>Thread who receive the data from Android Accessory bus, decodes it and sends the data to the relevant service.</p>
+	 * 
+	 * <p>The received data is a multiplexed message. The header is 4 bytes.
+	 * The first two bytes desginate the port it should arrive on
+	 * and the last two indicate the length of the data which follows.</p>
+	 * 
+	 * <p>It uses the {@link AccessoryBridge#activeServices} to lookup the service which should
+	 * receive the data within the multiplexed message. It calls the {@link BridgeService#onDataReady(int)}
+	 * function on the service who should receive the data. The called service should read the amount of bytes
+	 * ready from the port using {@link Port#readAll(ByteBuffer)} or {@link Port#skipRead(int)}. The 
+	 * called port should not block under any circumstances, as the reader thread is the only thread who
+	 * passes data around to all the services.</p>
 	 * 
 	 * @author Jurgen
-	 *
 	 */
 	class ReceiverThread extends Thread
 	{
@@ -452,9 +481,10 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * Creates a Dbus object. This is the same as new {@link Dbus#Dbus(DbusHandler, AccessoryBridge)}
-	 * @throws ServiceRequestException 
+	 * <p>Creates a Dbus object. This is the same as <code>new {@link Dbus#Dbus(DbusHandler, AccessoryBridge)}</code></p>
 	 * 
+	 * @throws IOException If the connection to the accessory is severed
+	 * @throws ServiceRequestException If the remote host could not start the requested service
 	 * @see Dbus
 	 */
 	public Dbus createDbus(DbusHandler dbushandler) throws IOException, ServiceRequestException
@@ -463,8 +493,11 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * Creates a DbusSignals object. This is the same as new {@link DbusSignals#DbusSignals(DbusHandler, AccessoryBridge, String, String, String, String)}
+	 * <p>Creates a DbusSignals object. This is the same as
+	 * <code>new {@link DbusSignals#DbusSignals(DbusHandler, AccessoryBridge, String, String, String, String)}</code></p>
 	 * 
+	 * @throws IOException If the connection to the accessory is severed
+	 * @throws ServiceRequestException If the remote host could not start the requested service
 	 * @see DbusSignals
 	 */
 	public DbusSignals createDbusSignal(
@@ -479,10 +512,13 @@ public class AccessoryBridge implements Channel
 	
 	/**
 	 * TODO: Implement createBulkTransfer
+	 * 
+	 * @throws IOException If the connection to the accessory is severed
+	 * @throws ServiceRequestException If the remote host could not start the requested service
 	 */
-	public void createBulkTransfer()
+	public void createBulkTransfer() throws IOException, ServiceRequestException
 	{
-		
+		throw new ServiceRequestException("Bulk transfer not yet implemented");
 	}
 
 	@Override

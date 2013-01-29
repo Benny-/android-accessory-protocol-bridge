@@ -200,7 +200,7 @@ static void CleanupService(BridgeService* service)
 {
 	if(service->inputOpen || service->outputOpen)
 	{
-		fprintf(stderr, "I'm not cleaning up a  service who's input or output are still open");
+		fprintf(stderr, "I'm not cleaning up a service who's input or output are still open");
 	}
 	else
 	{

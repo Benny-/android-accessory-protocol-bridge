@@ -12,7 +12,7 @@ import android.os.Message;
  * 
  * You should inherit this class and override the {@link Handler#handleMessage(Message)} function to receive d-bus responses.
  * 
- * @see MessageTypes For possible "what" values in the received messages
+ * @see MessageTypes
  * @see Dbus
  * @see DbusSignals
  */
@@ -33,9 +33,20 @@ public abstract class DbusHandler extends Handler{
 	/**
 	 * <p>Override this function to receive d-bus responses and d-bus signals.</p>
 	 * 
-	 * <p>{@link Message#arg1} is a value from {@link MessageTypes}, indicating what kind of dbus message it is.</p>
-	 * <p>{@link Message#arg2} will be the same as the return value from {@link Dbus#methodCall(String, String, String, String, Object...)}, this value is undefined for signals.</p>
-	 * <p>{@link Message#obj} is a {@link DbusMessage}, you should cast it to a DbusMessage.</p>
+	 * <p>The following fields are set in the received Message parameter:</p>
+	 * <ul>
+	 * <li>int {@link Message#what} is a value from {@link MessageTypes}, indicating what kind of dbus message
+	 * this is (Return value from d-bus methods or a d-bus signals).</li>
+	 * 
+	 * <li>int {@link Message#arg1} will be the same as the return value from
+	 * {@link Dbus#methodCall(String, String, String, String, Object...)}, this value is undefined for signals.</li>
+	 * 
+	 * <li>int {@link Message#arg2} is always zero.</li>
+	 * 
+	 * <li>Object {@link Message#obj} is a {@link DbusMessage}, you should cast it to a DbusMessage and extract
+	 * the values using {@link DbusMessage#getValues()}.</li>
+	 * </ul>
+	 * 
 	 */
 	@Override
 	abstract public void handleMessage(Message msg);

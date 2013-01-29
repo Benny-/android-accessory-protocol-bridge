@@ -16,7 +16,7 @@ import static nl.ict.aapbridge.TAG.TAG;
 /**
  * <p>Represents a DbusMessage and may contain a array of d-bus values converted to java types.</p>
  * 
- * <p>You can access the values by calling {@link #getValues()} and casting the Objects to the expected type</p>
+ * <p>You can access the values by calling {@link #getValues()} and casting the Objects to the expected type, this method might throw a {@link RemoteException}</p>
  */
 public class DbusMessage {
 	
@@ -132,6 +132,10 @@ public class DbusMessage {
 	 * <p>
 	 * Only you know what return values a method might return. You should cast the values to the correct type during runtime.
 	 * </p>
+	 * 
+	 * <p>This method throws a {@link RemoteException} if a error occured on the remote device. This can be related
+	 * to d-bus (Cant find the bus-name), the payload d-bus interface (incorrect d-bus signature) or the payload itself
+	 * (payload generated exceptions)</p>
 	 * 
 	 * @return The top level d-bus values
 	 * @throws RemoteException

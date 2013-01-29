@@ -46,8 +46,9 @@ public class DbusTypeParser {
 	}
 	
 	/**
-	 * A DbusExtractor is something which can convert a bytestream into a DbusType object or native java object.
-	 *
+	 * <p>A DbusExtractor is something which can convert bytes in a bytebuffer into a {@link DbusType} object or native java object.</p>
+	 * 
+	 * @see DbusSerializer
 	 */
 	public static interface DbusExtractor {
 		abstract char getSupportedToplevelType();
@@ -55,8 +56,9 @@ public class DbusTypeParser {
 	}
 	
 	/**
-	 * DbusSerialiser is the opposite of a DbusExtractor and converts java types to a byte array.
-	 *
+	 * <p>DbusSerialiser is the opposite of a DbusExtractor and converts a java type a bytes.</p>
+	 * 
+	 * @see DbusExtractor
 	 */
 	public static interface DbusSerializer {
 		abstract Class getSupportedJavaType();
