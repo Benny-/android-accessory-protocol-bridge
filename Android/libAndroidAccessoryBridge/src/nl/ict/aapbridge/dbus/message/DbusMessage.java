@@ -3,26 +3,31 @@ package nl.ict.aapbridge.dbus.message;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import android.util.Log;
+
 import nl.ict.aapbridge.dbus.RemoteException;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import nl.ict.aapbridge.dbus.message.types.DbusObjectPath;
 import nl.ict.aapbridge.dbus.message.types.DbusSignature;
 import nl.ict.aapbridge.dbus.message.types.DbusStruct;
 import nl.ict.aapbridge.dbus.message.types.DbusVariant;
+import static nl.ict.aapbridge.TAG.TAG;
 
 /**
- * Represents a DbusMessage and may contain a array of d-bus values converted to java types.
+ * <p>Represents a DbusMessage and may contain a array of d-bus values converted to java types.</p>
+ * 
+ * <p>You can access the values by calling {@link #getValues()} and casting the Objects to the expected type</p>
  */
 public class DbusMessage {
 	
-	private DbusObjectPath path; // Object path
+	private DbusObjectPath objectPath;
 	private String interfaceName;
 	private String member;
 	private String errorName;
 	private int reply_serial = -1;
 	private String destination;
 	private String sender;
-	private DbusSignature Signature;
+	private DbusSignature signature;
 	private int unix_fds = -1;
 	private DbusStruct arguments;
 	
@@ -35,7 +40,7 @@ public class DbusMessage {
 			DbusVariant variant = (DbusVariant) struct.getContent()[1];
 			switch(headertype){
 				case 1:
-					this.path = (DbusObjectPath) variant.getEmbeddedThing();
+					this.objectPath = (DbusObjectPath) variant.getEmbeddedThing();
 					break;
 				case 2:
 					this.interfaceName = (String) variant.getEmbeddedThing();
@@ -56,14 +61,13 @@ public class DbusMessage {
 					this.sender = (String) variant.getEmbeddedThing();
 					break;
 				case 8:
-					this.Signature = (DbusSignature) variant.getEmbeddedThing();
+					this.signature = (DbusSignature) variant.getEmbeddedThing();
 					break;
 				case 9:
 					this.unix_fds = (Integer) variant.getEmbeddedThing();
 					break;
 				default:
-					System.err.println("Warning unknwon dbus message header "+headertype+" :"+variant);
-					;
+					Log.w(TAG, "Warning unknwon dbus message header "+headertype+" : "+variant);
 			}
 		}
 	}
@@ -95,8 +99,8 @@ public class DbusMessage {
 		
 		DbusArray arr = new DbusArray("a(yv)",bb);
 		parseHeader(arr);
-		if(Signature != null)
-			arguments = new DbusStruct("("+Signature.getSignatureString()+")",bb);
+		if(signature != null)
+			arguments = new DbusStruct("("+signature.getSignatureString()+")",bb);
 	}
 	
 	/**
@@ -154,9 +158,9 @@ public class DbusMessage {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		if(path != null)
+		if(objectPath != null)
 		{
-			sb.append("Object path         : "); sb.append(path);          sb.append('\n');
+			sb.append("Object path         : "); sb.append(objectPath);          sb.append('\n');
 		}
 		if(interfaceName != null)
 		{
@@ -182,9 +186,9 @@ public class DbusMessage {
 		{
 			sb.append("Sender busname      : "); sb.append(sender);        sb.append('\n');
 		}
-		if(Signature != null)
+		if(signature != null)
 		{
-			sb.append("Signature           : "); sb.append(Signature);     sb.append('\n');
+			sb.append("Signature           : "); sb.append(signature);     sb.append('\n');
 		}
 		if(unix_fds != -1)
 		{
