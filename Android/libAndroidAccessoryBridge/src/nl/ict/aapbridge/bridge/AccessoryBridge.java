@@ -457,7 +457,17 @@ public class AccessoryBridge implements Channel
 					else
 					{
 						if(service.getPort().inputOpen)
-							service.onDataReady(dataLength);
+						{
+							try
+							{
+								service.onDataReady(dataLength);
+							}
+							catch (Exception e)
+							{
+								Log.e(TAG, "", e);
+								// TODO: Think about what should happen here.
+							}
+						}
 						else
 						{
 							Log.w(TAG, "PORT "+port+" received data while port is closed");

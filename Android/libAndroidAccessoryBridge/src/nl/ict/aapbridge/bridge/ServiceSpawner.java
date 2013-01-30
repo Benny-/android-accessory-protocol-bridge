@@ -20,7 +20,7 @@ import nl.ict.aapbridge.bridge.AccessoryBridge.ReceiverThread;
 class ServiceSpawner implements BridgeService{
 	
 	private Port port;
-	private ByteBuffer portRequest				= ByteBuffer.allocate(4);
+	private ByteBuffer portRequest				= ByteBuffer.allocate(4000);
 	private ByteBuffer portRequestResponse		= ByteBuffer.allocate(8);
 	private Semaphore openRequestResponsesReady = new Semaphore(0, true);
 	private Semaphore openRequestResponsesDone  = new Semaphore(0);
@@ -92,17 +92,16 @@ class ServiceSpawner implements BridgeService{
 	 */
 	public short requestService(byte serviceIdentifier, ByteBuffer arguments) throws IOException, ServiceRequestException
 	{
-		portRequest.rewind();
+		portRequest.clear();
 		portRequest.put((byte)'o');
 		portRequest.put(serviceIdentifier);
 		portRequest.putShort((short) arguments.remaining());
-		portRequest.rewind();
+		portRequest.put(arguments);
+		portRequest.flip();
 		
 		synchronized (this) {
 			while(portRequest.hasRemaining())
 				port.write(portRequest);
-			while(arguments.hasRemaining())
-				port.write(arguments);
 		}
 		
 		OpenRequestResponse response = null;

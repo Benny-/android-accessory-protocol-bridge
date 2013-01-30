@@ -55,17 +55,16 @@ int main (int argc, char *argv[])
 	signal(SIGSEGV, &stop);
 	signal(SIGINT,  &stop);
 
+	DBusBusType bus;
 	if(--argc) // Connect to sysBus if we have no arguments.
 	{
 		puts("Connecting to DBUS_BUS_SYSTEM\n");
-		initDbus(DBUS_BUS_SYSTEM);
-		initSignalWatcher(DBUS_BUS_SYSTEM);
+		bus = DBUS_BUS_SYSTEM;
 	}
 	else
 	{
 		puts("Connecting to DBUS_BUS_SESSION\n");
-		initDbus(DBUS_BUS_SESSION);
-		initSignalWatcher(DBUS_BUS_SESSION);
+		bus = DBUS_BUS_SESSION;
 	}
 
 	const char* const uuids[] = {

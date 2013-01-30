@@ -74,9 +74,9 @@ public class DbusMethodsActivity extends Activity
 							textfield_interface.getText().toString(),
 							textfield_functionname.getText().toString() );
 				} catch (Exception e) {
+					Log.e(TAG, "", e);
 					Toast.makeText(DbusMethodsActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
 		        	finish();
-					Log.e(TAG, "", e);
 				}
         	}
 		});

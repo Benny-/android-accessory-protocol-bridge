@@ -11,17 +11,20 @@
 #include "../Message/AccessoryMessage.h"
 #include "../server.h"
 
-static DBusConnection* con;
-static pthread_t dbusSignalWatcher;
-
-/**
- * The function signalWatch() eats from the incomming dbus message queue.
- *
- * Sometimes another thread waits on a message in the function addSignalWatch().
- * The message might get eaten by the signalWatch() thread. The mutex prevents it.
- */
-static pthread_mutex_t dbus_mutex;
-static volatile int work = 1;
+typedef struct Signals
+{
+	BridgeService* service;
+	DBusConnection* con;
+	pthread_t dbusSignalWatcher;
+	/**
+	 * The function signalWatch() eats from the incomming dbus message queue.
+	 *
+	 * Sometimes another thread waits on a message in the function addSignalWatch().
+	 * The message might get eaten by the signalWatch() thread. The mutex prevents it.
+	 */
+	pthread_mutex_t dbus_mutex;
+	volatile int work;
+} Signals;
 
 /**
  * This function runs in a separate thread.
@@ -31,14 +34,15 @@ static volatile int work = 1;
  * @param user_data (Ignored)
  */
 static void* signalWatch(void* user_data) {
+	Signals* signals = user_data;
 	DBusMessage* m;
 
-	while(work)
+	while(signals->work)
 	{
-		pthread_mutex_lock(&dbus_mutex);
-		dbus_connection_read_write(con, 100);
-		m = dbus_connection_pop_message(con);
-		pthread_mutex_unlock(&dbus_mutex);
+		pthread_mutex_lock(&signals->dbus_mutex);
+		dbus_connection_read_write(signals->con, 100);
+		m = dbus_connection_pop_message(signals->con);
+		pthread_mutex_unlock(&signals->dbus_mutex);
 		if(m != NULL)
 		{
 			char* str = PrintDBusMessage(m);
@@ -47,7 +51,7 @@ static void* signalWatch(void* user_data) {
 				char* marshalled;
 				int size;
 				dbus_message_marshal(m, &marshalled, &size);
-				// TODO: Send dbus signal to android.
+				writeAllPort(signals->service, marshalled, size);
 				free(marshalled);
 			}
 
@@ -59,45 +63,18 @@ static void* signalWatch(void* user_data) {
 			 * pthread's mutexes are not fair (it does not prevent starvation),
 			 * the signalWatch() thread might hog the mutex all for itself.
 			 *
-			 * Other threads might require the dbus connection (and the mutex).
-			 * One way to minimize this starvation is to yield control to another
-			 * thread when the signalWatch() thread released the mutex.
+			 * Other threads might require the dbus connection (and the mutex)
+			 * for adding/removing watches. One way to minimize this starvation
+			 * is to yield control to another thread when the signalWatch()
+			 * thread released the mutex.
 			 *
 			 * This is a sub-optimal solution. The best solution would be a fair mutex.
 			 */
 			sched_yield();
 		}
 	}
+	fprintf(stderr, "signalWatch thread stopped\n");
 	return NULL;
-}
-
-void initSignalWatcher(DBusBusType bus_type)
-{
-	DBusError dbusError;
-	dbus_error_init(&dbusError);
-	dbus_threads_init_default();
-
-	con = dbus_bus_get_private(bus_type, &dbusError);
-
-	if (dbus_error_is_set(&dbusError)) {
-		fprintf(stderr, "%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
-		dbus_error_free(&dbusError);
-	}
-
-	if (con == NULL) {
-		exit(1);
-	}
-
-	work = 1;
-	pthread_create(&dbusSignalWatcher, NULL, signalWatch, NULL);
-}
-
-void deInitSignalWatcher()
-{
-	dbus_connection_close(con);
-
-	work = 0;
-	pthread_join(dbusSignalWatcher,NULL);
 }
 
 /**
@@ -150,6 +127,7 @@ static bstring createRule(
 }
 
 void addSignalWatch(
+		Signals* signals,
 		char* busname,
 		char* objectpath,
 		char* interface,
@@ -162,9 +140,9 @@ void addSignalWatch(
 	char* cstr_rule = bstr2cstr(rule,'\0');
 	printf("Rule         : %s\n",cstr_rule);
 
-	pthread_mutex_lock(&dbus_mutex);
-	dbus_bus_add_match(con,cstr_rule,&dbusError);
-	pthread_mutex_unlock(&dbus_mutex);
+	pthread_mutex_lock(&signals->dbus_mutex);
+	dbus_bus_add_match(signals->con,cstr_rule,&dbusError);
+	pthread_mutex_unlock(&signals->dbus_mutex);
 	if (dbus_error_is_set(&dbusError)) {
 		fprintf(stderr, "%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
 		dbus_error_free(&dbusError);
@@ -175,6 +153,7 @@ void addSignalWatch(
 }
 
 void removeSignalWatch(
+		Signals* signals,
 		char* busname,
 		char* objectpath,
 		char* interface,
@@ -187,9 +166,9 @@ void removeSignalWatch(
 	char* cstr_rule = bstr2cstr(rule,'\0');
 	printf("Rule         : %s\n",cstr_rule);
 
-	pthread_mutex_lock(&dbus_mutex);
-	dbus_bus_remove_match(con,cstr_rule,&dbusError);
-	pthread_mutex_unlock(&dbus_mutex);
+	pthread_mutex_lock(&signals->dbus_mutex);
+	dbus_bus_remove_match(signals->con,cstr_rule,&dbusError);
+	pthread_mutex_unlock(&signals->dbus_mutex);
 	if (dbus_error_is_set(&dbusError)) {
 		fprintf(stderr, "%s %d: Error occurred: %s\n",__FILE__,__LINE__, dbusError.message);
 		dbus_error_free(&dbusError);
@@ -197,4 +176,55 @@ void removeSignalWatch(
 
 	bcstrfree(cstr_rule);
 	bdestroy(rule);
+}
+
+void* SignalsInit(BridgeService* service, char* compressed_rule)
+{
+	DBusError dbusError;
+	dbus_error_init(&dbusError);
+
+	Signals* signals = malloc(sizeof(Signals));
+	signals->con = dbus_bus_get_private(DBUS_BUS_SESSION, &dbusError);
+	signals->service = service;
+
+	if(dbus_error_is_set(&dbusError))
+	{
+		fprintf(stderr, "%s %d MethodInit Error occurred: %s %s\n", __FILE__, __LINE__,  dbusError.name, dbusError.message);
+		free(signals);
+		return NULL;
+	}
+	pthread_mutex_init(&signals->dbus_mutex, NULL);
+
+	signals->work = 1;
+	dbus_threads_init_default();
+    char* busname = compressed_rule;
+    char* objectpath = busname + strlen(busname) + 1;
+    char* interfacename = objectpath + strlen(objectpath) + 1;
+    char* signalname = interfacename + strlen(interfacename) + 1;
+	addSignalWatch(signals, busname, objectpath, interfacename, signalname);
+	pthread_create(&signals->dbusSignalWatcher, NULL, signalWatch, signals);
+
+	return signals;
+}
+
+void  SignalsOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size)
+{
+	// The signal service should never receive data. It only sends data.
+}
+
+void  SignalsOnEof(void* service_data, BridgeService* service)
+{
+
+}
+
+void  SignalsCleanup(void* service_data, BridgeService* service)
+{
+	Signals* signals = service_data;
+
+	signals->work = 0;
+	pthread_join(signals->dbusSignalWatcher,NULL);
+	dbus_connection_close(signals->con);
+	pthread_mutex_destroy(&signals->dbus_mutex);
+
+	free(signals);
 }

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class DbusSignalActivity extends Activity {
 	
@@ -36,7 +37,7 @@ public class DbusSignalActivity extends Activity {
     	@Override
     	public void handleMessage(Message msg) {
     		Log.v(TAG, "Received some signal response: "+msg.toString());
-    		msg.recycle();
+    		// msg.recycle();
     	}
 	};
 	
@@ -69,6 +70,8 @@ public class DbusSignalActivity extends Activity {
 					signalListeners.add(signalListener);
 				} catch (Exception e) {
 					Log.e(TAG, "", e);
+					Toast.makeText(DbusSignalActivity.this, "Accessory not connected", Toast.LENGTH_SHORT).show();
+		        	finish();
 				}
 			}
 		});

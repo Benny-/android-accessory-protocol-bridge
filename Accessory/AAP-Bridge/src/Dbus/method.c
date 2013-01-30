@@ -62,7 +62,7 @@ void* MethodInit(BridgeService* service)
 	DBusError dbusError;
 	dbus_error_init(&dbusError);
 	Methods* methods = malloc(sizeof(Methods));
-	methods->con = dbus_bus_get_private(DBUS_BUS_SESSION, &dbusError);
+	methods->con = dbus_bus_get(DBUS_BUS_SESSION, &dbusError);
 	methods->service = service;
 
 	if(dbus_error_is_set(&dbusError))
@@ -82,6 +82,7 @@ void* MethodInit(BridgeService* service)
  */
 void MethodOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size)
 {
+	Methods* methods = service_data;
 	void* dbusMessage = buffer;
 	char* busname = dbusMessage;
 	char* objectpath = busname + strlen(busname) + 1;
@@ -122,7 +123,7 @@ void MethodOnBytesReceived(void* service_data, BridgeService* service, void* buf
 		}
 
 		// send the message and flush the connection
-		if (!dbus_connection_send_with_reply(methodCallsCon, message, &pending, -1)) { // -1 is default timeout
+		if (!dbus_connection_send_with_reply(methods->con, message, &pending, -1)) { // -1 is default timeout
 			fprintf(stderr,"Out Of Memory!\n");
 			exit(1);
 		}
@@ -131,7 +132,7 @@ void MethodOnBytesReceived(void* service_data, BridgeService* service, void* buf
 			fprintf(stderr,"Pending Call Null\n");
 		}
 
-		dbus_connection_flush(methodCallsCon);
+		dbus_connection_flush(methods->con);
 
 		// free the message
 		dbus_message_unref(message);
@@ -171,6 +172,6 @@ void  MethodOnEof(void* service_data, BridgeService* service)
 void  MethodCleanup(void* service_data, BridgeService* service)
 {
 	Methods* methods = service_data;
-	dbus_connection_close(methods->con);
+	// dbus_connection_close(methods->con); // Only private connections should be closed. Currently this is a shared d-bus connection.
 	free(methods);
 }

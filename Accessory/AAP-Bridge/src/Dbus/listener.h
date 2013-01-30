@@ -1,19 +1,12 @@
 #ifndef LISTENER_H
 #define LISTENER_H
 
-void initSignalWatcher();
-void deInitSignalWatcher();
+#include "../server.h"
 
-void addSignalWatch(
-		char* busname,
-		char* objectpath,
-		char* interface,
-		char* signalname);
-void removeSignalWatch(
-		char* busname,
-		char* objectpath,
-		char* interface,
-		char* signalname);
+void* SignalsInit(BridgeService* service, char* compressed_rule);
+void  SignalsOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size);
+void  SignalsOnEof(void* service_data, BridgeService* service);
+void  SignalsCleanup(void* service_data, BridgeService* service);
 
 #endif
 

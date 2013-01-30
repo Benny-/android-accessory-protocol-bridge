@@ -25,7 +25,10 @@ void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, v
 	response[0] = 's';
 
 	BridgeConnection* bridge = service_data;
-	const int8_t* requested_protocol = ((int8_t*)buffer)+1;
+	int8_t* requested_protocol = ((int8_t*)buffer)+1;
+	int16_t arguments_length = 0;
+	arguments_length = (*(requested_protocol+1)) || ( (*(requested_protocol+2)) << 8);
+	void* arguments = requested_protocol + 3;
 	printf("ServiceSpawner requested_protocol: %hhi\n", *requested_protocol);
 	switch(*requested_protocol)
 	{
@@ -54,8 +57,22 @@ void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, v
 			break;
 
 		case 3: // D-Bus signal
-			response[3] = STREAM_DENIED;
-			response[4] = 2; // The error.
+			new_service = openNewPort(bridge); // Fixme: leaking a open port if new_service->service_data is null
+			new_service->service_data = SignalsInit(new_service, arguments);
+			if(new_service->service_data != NULL)
+			{
+				new_service->onBytesReceived = &SignalsOnBytesReceived;
+				new_service->onCleanupService = &SignalsCleanup;
+				new_service->onEof = &SignalsOnEof;
+				response[3] = STREAM_OPEN;
+				response[1] = new_service->port;
+				response[2] = new_service->port >> 8;
+			}
+			else
+			{
+				response[3] = STREAM_DENIED;
+				response[4] = 2; // The error.
+			}
 			break;
 
 		default:

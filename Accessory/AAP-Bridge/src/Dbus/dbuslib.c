@@ -4,9 +4,6 @@
 #include <dbus/dbus.h>
 #include "dbuslib.h"
 
-DBusConnection *methodCallsCon;
-DBusError dbusError;
-
 /**
  * Print binary data as hexidecimal characters to stdout
  */
@@ -84,24 +81,5 @@ char* PrintDBusMessage(DBusMessage* message)
 
 	printf("\n");
 	return retval;
-}
-
-void initDbus(DBusBusType bus_type)
-{
-	dbus_error_init(&dbusError);
-	dbus_threads_init_default();
-
-	methodCallsCon = dbus_bus_get(bus_type, &dbusError);
-
-	if (dbus_error_is_set(&dbusError)) {
-		printf("an error occurred: %s\n", dbusError.message);
-		dbus_error_free(&dbusError);
-	}
-
-	if (methodCallsCon == NULL) {
-		exit(1);
-	}
-
-	dbus_connection_set_exit_on_disconnect(methodCallsCon, 0);
 }
 
