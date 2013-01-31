@@ -45,6 +45,7 @@ public class DbusMethodsActivity extends Activity
     		catch(RemoteException e)
     		{
     			Log.v(TAG, "Dbus threw a exception", e);
+    			Toast.makeText(DbusMethodsActivity.this, "A "+e.getTrueType()+" exception occured: "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
     		}
     		
     		// msg.recycle(); // This crashes the process.

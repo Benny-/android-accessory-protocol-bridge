@@ -167,7 +167,7 @@ public class DbusMessage {
 			{
 				try
 				{
-					throw Class.forName(errorName).asSubclass(RemoteDbusException.class).getConstructor(String.class, String.class).newInstance(errString);
+					throw Class.forName(errorName).asSubclass(RemoteDbusException.class).getConstructor(String.class).newInstance(errString);
 				}
 				catch (RemoteDbusException e)
 				{
