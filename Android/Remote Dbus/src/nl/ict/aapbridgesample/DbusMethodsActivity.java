@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.ServiceRequestException;
-import nl.ict.aapbridge.dbus.Dbus;
+import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.RemoteException;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
@@ -52,7 +52,7 @@ public class DbusMethodsActivity extends Activity
     	}
 	};
 	
-	private Dbus d;
+	private DbusMethods d;
     
     @Override
     public void onCreate(Bundle savedInstanceState)

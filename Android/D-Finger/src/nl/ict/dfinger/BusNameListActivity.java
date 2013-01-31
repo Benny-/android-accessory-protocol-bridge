@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import nl.ict.aapbridge.aap.UsbConnection;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
-import nl.ict.aapbridge.dbus.Dbus;
+import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.RemoteException;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
@@ -23,7 +23,7 @@ public class BusNameListActivity extends ListActivity {
 	public static AccessoryBridge staticBridge;
 	
 	private AccessoryBridge bridge;
-	private Dbus dbus;
+	private DbusMethods dbus;
 	private BusnameAdapter busnameadapter;
 	private DbusHandler dbushandler = new DbusHandler() {
 		public void handleMessage(android.os.Message msg)

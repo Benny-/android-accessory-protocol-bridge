@@ -24,7 +24,7 @@ import nl.ict.aapbridge.dbus.message.DbusMessage;
  * You should however always keep a reference to the DbusSignals
  * around to call the {@link #close()} method once you are done receiving.
  * 
- * @see Dbus
+ * @see DbusMethods
  * @see DbusHandler
  */
 public class DbusSignals implements BridgeService, Closeable {

@@ -35,7 +35,7 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 		}
 	}
 	
-	private Dbus dbus;
+	private DbusMethods dbus;
 	private SyncDbusHandler synchandler = new SyncDbusHandler();
 	
 	@Override

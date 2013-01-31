@@ -18,7 +18,7 @@ import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import nl.ict.aapbridge.aap.AccessoryConnection;
-import nl.ict.aapbridge.dbus.Dbus;
+import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.DbusSignals;
 import android.os.Handler;
@@ -35,13 +35,13 @@ import android.widget.Toast;
  * also periodically sends messages to the accessory to ensure it is still alive</p>
  * 
  * <p>While you cant use the bridge directly, you can create other services who can make use of the bridge. This
- * include {@link Dbus} for invoking d-bus methods and {@link DbusSignals} for listening to d-bus signals. You
+ * include {@link DbusMethods} for invoking d-bus methods and {@link DbusSignals} for listening to d-bus signals. You
  * can do so by calling a factory method (like {@link #createDbus(DbusHandler)}) or invoking the constructor</p>
  * 
  * <p>Calling {@link #close()} will release any resources in use and invalidates the bridge (any operation will throw a io-exception)</p>
  * 
  * @author jurgen
- * @see Dbus
+ * @see DbusMethods
  * @see DbusSignals
  */
 public class AccessoryBridge implements Channel
@@ -352,7 +352,7 @@ public class AccessoryBridge implements Channel
 	 * 
 	 * @param connection The underlying connection to use. This can be bluetooth, usb or any other implementation
 	 * @throws IOException
-	 * @see {@link Dbus}
+	 * @see {@link DbusMethods}
 	 * @see {@link DbusSignals}
 	 */
 	public AccessoryBridge(AccessoryConnection connection) throws IOException {
@@ -491,15 +491,15 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * <p>Creates a Dbus object. This is the same as <code>new {@link Dbus#Dbus(DbusHandler, AccessoryBridge)}</code></p>
+	 * <p>Creates a Dbus object. This is the same as <code>new {@link DbusMethods#Dbus(DbusHandler, AccessoryBridge)}</code></p>
 	 * 
 	 * @throws IOException If the connection to the accessory is severed
 	 * @throws ServiceRequestException If the remote host could not start the requested service
-	 * @see Dbus
+	 * @see DbusMethods
 	 */
-	public Dbus createDbus(DbusHandler dbushandler) throws IOException, ServiceRequestException
+	public DbusMethods createDbus(DbusHandler dbushandler) throws IOException, ServiceRequestException
 	{
-		return new Dbus(dbushandler, this);
+		return new DbusMethods(dbushandler, this);
 	}
 	
 	/**

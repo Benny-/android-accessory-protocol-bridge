@@ -28,7 +28,7 @@ import nl.ict.aapbridge.dbus.message.DbusTypeParser;
  * @see DbusSignals
  * @see DbusHandler
  */
-public class Dbus implements BridgeService, Closeable
+public class DbusMethods implements BridgeService, Closeable
 {
 	private static final Charset utf8 = Charset.forName("UTF-8");
 	
@@ -54,7 +54,7 @@ public class Dbus implements BridgeService, Closeable
 	 * @see {@link DbusHandler}
 	 * @see #methodCall(String, String, String, String, Object...)
 	 */
-	public Dbus(DbusHandler dbushandler, AccessoryBridge bridge) throws IOException, ServiceRequestException {
+	public DbusMethods(DbusHandler dbushandler, AccessoryBridge bridge) throws IOException, ServiceRequestException {
 		this.handler = dbushandler;
 		this.port = bridge.requestService((byte)2, this);
 		sendBuffer.order(ByteOrder.LITTLE_ENDIAN);

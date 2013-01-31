@@ -13,7 +13,7 @@ import android.os.Message;
  * You should inherit this class and override the {@link Handler#handleMessage(Message)} function to receive d-bus responses.
  * 
  * @see MessageTypes
- * @see Dbus
+ * @see DbusMethods
  * @see DbusSignals
  */
 public abstract class DbusHandler extends Handler{
@@ -39,7 +39,7 @@ public abstract class DbusHandler extends Handler{
 	 * this is (Return value from d-bus methods or a d-bus signals).</li>
 	 * 
 	 * <li>int {@link Message#arg1} will be the same as the return value from
-	 * {@link Dbus#methodCall(String, String, String, String, Object...)}, this value is undefined for signals.</li>
+	 * {@link DbusMethods#methodCall(String, String, String, String, Object...)}, this value is undefined for signals.</li>
 	 * 
 	 * <li>int {@link Message#arg2} is always zero.</li>
 	 * 

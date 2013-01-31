@@ -5,7 +5,7 @@ import java.io.IOException;
 import nl.ict.aapbridge.aap.UsbConnection;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.ServiceRequestException;
-import nl.ict.aapbridge.dbus.Dbus;
+import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import android.os.Bundle;
 import android.app.Activity;
@@ -21,7 +21,7 @@ public class ObjectPathListActivity extends ListActivity
 	
 	private String busname;
 	private AccessoryBridge bridge;
-	private Dbus dbus;
+	private DbusMethods dbus;
 	private ObjectPathAdapter objectpathadapter;
 	private DbusHandler dbushandler = new DbusHandler() {
 		public void handleMessage(android.os.Message msg)
