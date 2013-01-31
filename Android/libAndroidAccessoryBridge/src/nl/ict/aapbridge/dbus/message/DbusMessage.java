@@ -163,7 +163,7 @@ public class DbusMessage {
 			{
 				errString = "No error description";
 			}
-			if(errorName.startsWith("org.freedesktop.DBus"))
+			if(errorName.startsWith("org.freedesktop.DBus.Error") || errorName.startsWith("org.freedesktop.DBus.Exceptions"))
 			{
 				try
 				{

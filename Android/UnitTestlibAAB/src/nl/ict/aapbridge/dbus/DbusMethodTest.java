@@ -1,16 +1,19 @@
 package nl.ict.aapbridge.dbus;
 
+import static nl.ict.aapbridge.test.TAG.TAG;
+
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
+import nl.ict.aapbridge.dbus.message.DbusMessage;
+import nl.ict.aapbridge.dbus.message.NoValues;
+import nl.ict.aapbridge.test.UsbConnectorService;
+
+import org.freedesktop.DBus.Python.TypeError;
+
 import android.os.Message;
 import android.util.Log;
-import nl.ict.aapbridge.bridge.AccessoryBridge;
-import nl.ict.aapbridge.dbus.message.DbusMessage;
-import nl.ict.aapbridge.test.UsbConnectorService;
-import static nl.ict.aapbridge.test.TAG.TAG;
 
 public class DbusMethodTest extends android.test.AndroidTestCase  {
 	
@@ -56,14 +59,32 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 	
 	public void testLocalEchoAABUnitTestB() throws Exception
 	{
-		dbus.methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
-		synchandler.getDbusMessage().getValues();
+		try
+		{
+			dbus.methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
+			synchandler.getDbusMessage().getValues();
+			fail("Expected a exception");
+		}
+		catch (NoValues e)
+		{
+			// Test passed.
+		}
+
+		
 	}
 	
 	public void testLocalEchoAABUnitTestC() throws Exception
 	{
-		dbus.methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
-		synchandler.getDbusMessage().getValues();
+		try
+		{
+			dbus.methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
+			synchandler.getDbusMessage().getValues();
+			fail("Expected a exception");
+		}
+		catch (NoValues e)
+		{
+			// Test passed.
+		}
 	}
 	
 	public void testByte() throws Exception
@@ -145,5 +166,50 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 		assertEquals(34, retvals[2]);
 		assertEquals((byte)9, retvals[3]);
 		assertEquals((long)2333223, retvals[4]);
+	}
+	
+	public void testExceptionThrower1() throws Exception
+	{
+		dbus.methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.Methods", "ExceptionThrower1");
+		try
+		{
+			Object[] retvals = synchandler.getDbusMessage().getValues();
+			fail("No exception caught :(");
+		}
+		catch(RemotePayloadException e)
+		{
+			// Pass the test.
+		}
+		catch (RemoteException e)
+		{
+			fail("Wrong exception thrown");
+		}
+	}
+	
+	/**
+	 * <p>This test tests if you can create custom exception classes who might be thrown from the payload.</p>
+	 * 
+	 * <p><code>TypeError</code> is a python exception. The d-bus method <code>ExceptionThrower2</code> will throw this exception.
+	 * This exception should convert correctly to the java {@link TypeError} class.</p>
+	 * 
+	 * @see TypeError
+	 */
+	public void testExceptionThrower2() throws Exception
+	{
+		dbus.methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.Methods", "ExceptionThrower2");
+		try
+		{
+			Object[] retvals = synchandler.getDbusMessage().getValues();
+			fail("No exception caught :(");
+		}
+		catch(TypeError e)
+		{
+			// Pass the test.
+		}
+		catch (RemoteException e)
+		{
+			Log.e(TAG, "Wrong exception thrown: " + e.getTrueType(), e);
+			fail("Wrong exception thrown");
+		}
 	}
 }

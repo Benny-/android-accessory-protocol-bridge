@@ -1,17 +1,14 @@
 package nl.ict.aapbridge.dbus;
 
+/**
+ * <p>All exception originating from the remote accessory device will inherit this class</p>
+ */
 abstract public class RemoteException extends Exception {
 	
 	private static final long serialVersionUID = -3840812648892065819L;
 	
 	private final String trueType;
 	
-	/**
-	 * This function has no javadocs
-	 * 
-	 * @param type
-	 * @param errString
-	 */
 	public RemoteException(String type, String errString) {
 		super(errString);
 		trueType = type;

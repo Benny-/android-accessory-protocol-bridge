@@ -123,6 +123,18 @@ class AABUnitTestB(dbus.service.Object):
         print(str(datetime.now()) + " Expecting: yyiyx Got: "+repr( (byte1,byte2,i,byte3,x) ))
         return (byte1,byte2,i,byte3,x);
 
+    @dbus.service.method(InterfaceB, in_signature='', out_signature='')
+    def ExceptionThrower1(self):
+        raise NotImplementedError, "I diddent had time to implement this function"
+    
+    @dbus.service.method(InterfaceB, in_signature='', out_signature='')
+    def ExceptionThrower2(self):
+        raise TypeError, "Yeah well... no."
+        
+    @dbus.service.method(InterfaceB, in_signature='', out_signature='')
+    def ReturnsNothing(self):
+        pass
+
 class AABUnitTestC(dbus.service.Object):
     InterfaceC = "nl.ict.AABUnitTest.Signals"
     
