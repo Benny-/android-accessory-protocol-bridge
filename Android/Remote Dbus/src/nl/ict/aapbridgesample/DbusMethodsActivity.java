@@ -7,6 +7,8 @@ import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.ServiceRequestException;
 import nl.ict.aapbridge.dbus.Dbus;
 import nl.ict.aapbridge.dbus.DbusHandler;
+import nl.ict.aapbridge.dbus.RemoteException;
+import nl.ict.aapbridge.dbus.message.DbusMessage;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Message;
@@ -34,7 +36,17 @@ public class DbusMethodsActivity extends Activity
     private DbusHandler dbus_handler = new DbusHandler() {
     	@Override
     	public void handleMessage(Message msg) {
-    		Log.v(TAG, "Received some dbus response: "+msg.toString());
+    		DbusMessage dbusmsg =  (DbusMessage) msg.obj;
+    		Log.v(TAG, "Received a dbus response: \n"+dbusmsg.toString());
+    		try
+    		{
+    			Object[] values = dbusmsg.getValues();
+    		}
+    		catch(RemoteException e)
+    		{
+    			Log.v(TAG, "Dbus threw a exception", e);
+    		}
+    		
     		// msg.recycle(); // This crashes the process.
     	}
 	};
