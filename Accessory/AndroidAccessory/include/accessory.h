@@ -23,20 +23,24 @@ typedef struct AapConnection AapConnection;
  *
  * This library offers the ability to communicate to a Android device more easily.
  *
- * It does this by offering two ways of communication and abstracting the low-level communication protocol used (bluetooth or usb). The application on 
+ * It does this by offering two ways of communication and abstracting the low-level communication protocol used (bluetooth or usb).
  *
  * \section install_sec Installation
  *
  * This project has the following dependecies:
  * \li libudev for new device detection
  * \li libusb-1.0 for usb communication
- * \li libbluetooth for bluetooth communication
+ * \li libbluetooth (bluez) for bluetooth communication
  * 
  * All libraries must be installed, regardless if only one form of communication is used.
+ *
+ * It is a autotools project and detailed instructions for compilation can be read in INSTALL.
  *
  * \subsection step1 Accepting connections from Android devices
  *
  * Briefly: Call `initAccessory()` to start listening. Call `getNextAndroidConnection()` to accept new connection. Now use any of the read/write functions.
+ *
+ * You may need special permissions to create a bluetooth socket or communicate using usb. This may involve adding yourself to the bluetooth group and writing a udev rule. A alternative is running your program as sudo.
  *
  * \subsection step2 Connecting to the accessory from Android
  * 
