@@ -19,6 +19,14 @@ LT_INIT
 dnl this allows us specify individual liking flags for each target
 AM_PROG_CC_C_O 
 
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+if test -z "$DOXYGEN";
+   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+fi
+
+AM_CONDITIONAL([HAVE_DOXYGEN],
+[test -n "$DOXYGEN"])AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile])])
+
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h stdlib.h string.h unistd.h])
 
@@ -38,5 +46,6 @@ AC_SUBST([ANDROIDACCESSORY_SO_VERSION], [1:1:0])
 AC_SUBST([ANDROIDACCESSORY_API_VERSION], [1.0])
 
 AC_CONFIG_FILES([Makefile
+                 doc/Makefile
                  libandroidaccessory-${ANDROIDACCESSORY_API_VERSION}.pc:libandroidaccessory.pc.in])
 AC_OUTPUT

@@ -9,9 +9,6 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 # in the $(libdir) directory. For example /usr/lib
 lib_LTLIBRARIES = libandroidaccessory-@ANDROIDACCESSORY_API_VERSION@.la
 
-#######################################
-# Build information for each library
-
 EXTRA_DIST = src/*.h
 
 # Sources for libandroidaccessory
@@ -40,4 +37,5 @@ libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_LDFLAGS = -version-info $(
 ## in which case the correct install location would be $(datadir)/pkgconfig.
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libandroidaccessory-$(ANDROIDACCESSORY_API_VERSION).pc
+
 
