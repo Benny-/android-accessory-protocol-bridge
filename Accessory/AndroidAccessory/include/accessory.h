@@ -58,6 +58,8 @@ typedef struct AapConnection AapConnection;
  * 
  * Read https://developer.android.com/guide/topics/connectivity/usb/accessory.html if you wish to connect using the usb accessory protocol.
  *
+ * \example example.c
+ * 
  */
 
 /**

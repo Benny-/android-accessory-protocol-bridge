@@ -12,7 +12,7 @@
 #include "Message/AccessoryMessage.h"
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
-#include "accessory.h"
+#include <accessory.h>
 
 Accessory* accessory;
 BridgeConnection* bridge;

@@ -1,6 +1,6 @@
 if HAVE_DOXYGEN
 
-doxyfile.stamp: ../include/accessory.h
+doxyfile.stamp: ../include/accessory.h example.c
 	$(DOXYGEN) Doxyfile
 	echo Timestamp > doxyfile.stamp
 
