@@ -29,13 +29,13 @@ typedef struct AapConnection AapConnection;
  *
  * \section intro_sec Introduction
  *
- * This library offers the ability to communicate to a Android device more easily.
+ * This library offers the ability to communicate to a Android device more easily. This library is designed to be run on any - embedded - Linux system. This library can not be run on a micro controller unit without a operating system.
  *
- * It does this by offering two ways of communication and abstracting the low-level communication protocol used (bluetooth or usb).
+ * The main feature is its ability to communicate to a Android device using the Android accessory protocol or bluetooth. This is done transparently and you have no way of knowing what underlying communication protocol is used.
  *
  * \section install_sec Installation
  *
- * This project has the following dependecies:
+ * This project has the following dependencies:
  * \li libudev for new device detection
  * \li libusb-1.0 for usb communication
  * \li libbluetooth (bluez) for bluetooth communication
