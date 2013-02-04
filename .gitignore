@@ -161,6 +161,16 @@ pip-log.txt
 .DS_Store
 
 #############
+## Project specific Doxygen
+#############
+/Accessory/AndroidAccessory/doc/Doxyfile
+/Accessory/AndroidAccessory/doc/doxyfile.stamp
+/Accessory/AndroidAccessory/doc/html/
+/Accessory/AndroidAccessory/doc/latex/
+/Accessory/AndroidAccessory/doc/man/
+/Accessory/AndroidAccessory/doc/rtf/
+
+#############
 ## Project specific
 #############
 
