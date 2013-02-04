@@ -5,15 +5,23 @@
  * Returned by `initAccessory()`. This struct represents the resources required to accept new connections.
  *
  * You can free these resources by calling `deInitaccessory()`.
+ *
+ * @see initAccessory()
+ * @see deInitaccessory()
  */
 typedef struct Accessory Accessory;
 
 /**
- * Returned by `getNextAndroidConnection()`. This struct represents the connection to a remote Android device.
+ * Returned by `getNextAndroidConnection()`. This struct represents the connection to a remote Android device. There is no way to know if this connection is over bluetooth or usb.
  *
  * This struct is required in all the read/write functions.
  *
  * You should always close this connection using `closeAndroidConnection()` if you are done or if a error occurred on read/write.
+ *
+ * @see readAccessory()
+ * @see readAllAccessory()
+ * @see writeAccessory()
+ * @see writeAllAccessory()
  */
 typedef struct AapConnection AapConnection;
 
@@ -38,7 +46,7 @@ typedef struct AapConnection AapConnection;
  *
  * \subsection step1 Accepting connections from Android devices
  *
- * Briefly: Call `initAccessory()` to start listening. Call `getNextAndroidConnection()` to accept new connection. Now use any of the read/write functions.
+ * Briefly: Call `initAccessory()` to start listening. Call `getNextAndroidConnection()` to accept a new connection. Now use any of the read/write functions on the `::AapConnection`. Call `closeAndroidConnection()` when you are done.
  *
  * You may need special permissions to create a bluetooth socket or communicate using usb. This may involve adding yourself to the bluetooth group and writing a udev rule. A alternative is running your program as sudo.
  *
@@ -53,7 +61,7 @@ typedef struct AapConnection AapConnection;
  */
 
 /**
- * This function call starts the monitors for new incoming bluetooth or usb android connections. The arguments will be used for identification by the Android device and should match on the Android device.
+ * This function call starts the monitors for new incoming bluetooth and usb android connections. The arguments will be used for identification by the Android device and should match on the Android device.
  *
  * This function may be called if no bluetooth device is present or if the bluetooth device can't be accessed. This will result in listening to new usb connections only.
  *
