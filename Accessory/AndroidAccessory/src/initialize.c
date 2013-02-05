@@ -280,6 +280,10 @@ libusb_device_handle* setupAccessory(
 	printf("Accessory Identification sent\n");
 #endif
 
+	// SET_AUDIO_MODE. XXX: We are not checking if the Android device supports audio mode.
+	libusb_control_transfer(handle, LIBUSB_ENDPOINT_OUT|LIBUSB_REQUEST_TYPE_VENDOR, 58, 1, 0, NULL, 0, 0);
+
+	// ACCESSORY_START
 	if ((response = libusb_control_transfer(handle, LIBUSB_ENDPOINT_OUT|LIBUSB_REQUEST_TYPE_VENDOR, 53, 0, 0, NULL, 0, 0)) < 0) {
 		return NULL;
 	}
