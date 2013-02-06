@@ -1,9 +1,5 @@
 <resources>
 
     <string name="app_name">libAndroidAccessoryBridge</string>
-    <string name="none_paired">None paired</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
-    <string name="title_activity_connect">Connect</string>
 
 </resources>
