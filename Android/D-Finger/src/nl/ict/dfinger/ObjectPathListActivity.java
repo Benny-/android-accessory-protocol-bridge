@@ -61,14 +61,6 @@ public class ObjectPathListActivity extends ListActivity
 			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 			finish();
 		}
-		
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_object_path_list, menu);
-		return true;
 	}
 	
 	@Override
