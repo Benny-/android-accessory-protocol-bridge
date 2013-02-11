@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
 				try {
 					dbusMethods.methodCall("org.gnome.Rhythmbox3", "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "PlayPause");
 				} catch (IOException e) {
-					String msg = "Could not send to remote player: " + e.getLocalizedMessage();
+					String msg = "Could not send 'play/pause' command: " + e.getLocalizedMessage();
 					Log.e(TAG, msg, e);
 					Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
 				}
@@ -100,7 +100,7 @@ public class MainActivity extends Activity {
 				try {
 					dbusMethods.methodCall("org.gnome.Rhythmbox3", "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "Next");
 				} catch (IOException e) {
-					String msg = "Could not send to remote player: " + e.getLocalizedMessage();
+					String msg = "Could not send 'next' command: " + e.getLocalizedMessage();
 					Log.e(TAG, msg, e);
 					Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
 				}
@@ -113,7 +113,7 @@ public class MainActivity extends Activity {
 				try {
 					dbusMethods.methodCall("org.gnome.Rhythmbox3", "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "Previous");
 				} catch (IOException e) {
-					String msg = "Could not send to remote player: " + e.getLocalizedMessage();
+					String msg = "Could not send 'previous' command: " + e.getLocalizedMessage();
 					Log.e(TAG, msg, e);
 					Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
 				}
@@ -126,7 +126,7 @@ public class MainActivity extends Activity {
 				try {
 					dbusMethods.methodCall("org.gnome.Rhythmbox3", "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "Stop");
 				} catch (IOException e) {
-					String msg = "Could not send to remote player: " + e.getLocalizedMessage();
+					String msg = "Could not send 'stop' command: " + e.getLocalizedMessage();
 					Log.e(TAG, msg, e);
 					Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
 				}
