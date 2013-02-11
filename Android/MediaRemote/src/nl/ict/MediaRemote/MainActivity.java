@@ -11,7 +11,6 @@ import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.RemoteDbusException;
 import nl.ict.aapbridge.dbus.RemotePayloadException;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
-import nl.ict.aapbridge.dbus.message.NoValues;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.RemoteException;

@@ -9,6 +9,11 @@
 
 #include "method.h"
 
+/**
+ * Reads the type "type" from pointer "bytes" and puts the d-bus value into dbusValue
+ *
+ * Return the size of the data read from the byte array
+ */
 static unsigned int bytesToDbus(char type, char* bytes, DBusBasicValue* dbusValue)
 {
 	 switch(type)

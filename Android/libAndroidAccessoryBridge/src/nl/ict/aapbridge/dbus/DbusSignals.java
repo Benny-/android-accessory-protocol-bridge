@@ -62,6 +62,9 @@ public class DbusSignals implements BridgeService, Closeable {
 		ByteBuffer bb = ByteBuffer.allocate(3000);
 		bb.order(ByteOrder.LITTLE_ENDIAN);
 		
+		if(dbushandler == null)
+			throw new NullPointerException("Handler may not be null");
+		
 		bb.clear();
 		bb.put(busname.getBytes(utf8));
 		bb.put((byte)0);

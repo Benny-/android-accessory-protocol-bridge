@@ -7,7 +7,6 @@ import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
 import nl.ict.aapbridge.dbus.message.DbusMessage;
-import nl.ict.aapbridge.dbus.message.NoValues;
 import nl.ict.aapbridge.test.UsbConnectorService;
 
 import org.freedesktop.DBus.Python.TypeError;
@@ -62,15 +61,13 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 		try
 		{
 			dbus.methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
-			synchandler.getDbusMessage().getValues();
-			fail("Expected a exception");
+			Object[] retval = synchandler.getDbusMessage().getValues();
+			assertEquals(null, retval);
 		}
-		catch (NoValues e)
+		catch (Exception e)
 		{
-			// Test passed.
+			fail(e.toString());
 		}
-
-		
 	}
 	
 	public void testLocalEchoAABUnitTestC() throws Exception
@@ -78,12 +75,12 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 		try
 		{
 			dbus.methodCall("nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.A" ,"LocalEcho" );
-			synchandler.getDbusMessage().getValues();
-			fail("Expected a exception");
+			Object[] retval = synchandler.getDbusMessage().getValues();
+			assertEquals(null, retval);
 		}
-		catch (NoValues e)
+		catch (Exception e)
 		{
-			// Test passed.
+			fail(e.toString());
 		}
 	}
 	
