@@ -78,8 +78,9 @@ public class DbusMethods implements BridgeService, Closeable
 	 * 
 	 * @return Unique id for this request. This value will be the same as Message.arg1 in the DbusHandler message handler for the return value.
 	 * 
-	 * @throws IOException - If connection to the remote port is lost
+	 * @throws IOException If connection to the remote port is lost
 	 * @throws BufferOverflowException If the byte size of all combined parameters exceed 4000 bytes
+	 * @throws NullPointerException If busname, objectpath, interfaceName or fucntionName are null
 	 */
 	public synchronized int methodCall(
 			String busname,
@@ -88,6 +89,18 @@ public class DbusMethods implements BridgeService, Closeable
 			String functionName,
 			Object... arguments) throws IOException
 	{
+		if(busname == null)
+			throw new NullPointerException("Busname may not be null");
+		
+		if(objectpath == null)
+			throw new NullPointerException("Objectpath may not be null");
+		
+		if(interfaceName == null)
+			throw new NullPointerException("Interface name may not be null");
+		
+		if(functionName == null)
+			throw new NullPointerException("Function name may not be null");
+		
 		sendBuffer.clear();
 		sendBuffer.put(busname.getBytes(utf8));
 		sendBuffer.put((byte)0);

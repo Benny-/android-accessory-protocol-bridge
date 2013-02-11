@@ -48,8 +48,9 @@ public class DbusSignals implements BridgeService, Closeable {
 	 * @param interfaceName
 	 * @param memberName
 	 * 
-	 * @throws IOException
-	 * @throws BufferOverflowException
+	 * @throws IOException If connection to host is lost
+	 * @throws BufferOverflowException If the combined byte size of all arguments (except dbushandler) exceed the internal send buffer. The internal send buffer is 3000 bytes.
+	 * @throws NullPointerException If dbushandler, busname, objectpath, interfaceName or memberName are null
 	 */
 	public DbusSignals(
 			DbusHandler dbushandler,
@@ -59,11 +60,23 @@ public class DbusSignals implements BridgeService, Closeable {
 			String interfaceName,
 			String memberName) throws IOException, ServiceRequestException
 	{
-		ByteBuffer bb = ByteBuffer.allocate(3000);
-		bb.order(ByteOrder.LITTLE_ENDIAN);
+		if(busname == null)
+			throw new NullPointerException("Busname may not be null");
+		
+		if(objectpath == null)
+			throw new NullPointerException("Objectpath may not be null");
+		
+		if(interfaceName == null)
+			throw new NullPointerException("Interface name may not be null");
+		
+		if(memberName == null)
+			throw new NullPointerException("Function name may not be null");
 		
 		if(dbushandler == null)
 			throw new NullPointerException("Handler may not be null");
+		
+		ByteBuffer bb = ByteBuffer.allocate(3000);
+		bb.order(ByteOrder.LITTLE_ENDIAN);
 		
 		bb.clear();
 		bb.put(busname.getBytes(utf8));

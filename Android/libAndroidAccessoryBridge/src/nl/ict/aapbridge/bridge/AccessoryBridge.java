@@ -354,8 +354,15 @@ public class AccessoryBridge implements Channel
 	 * @throws IOException
 	 * @see {@link DbusMethods}
 	 * @see {@link DbusSignals}
+	 * 
+	 * @throws NullPointerException If connection is null
+	 * @throws IOException If connection is no longer a valid connection (i.e. it has been closed)
 	 */
 	public AccessoryBridge(AccessoryConnection connection) throws IOException {
+		
+		if(connection == null)
+			throw new NullPointerException("Connection may not be null");
+		
 		this.connection = connection;
 		outputStream = this.connection.getOutputStream();
 		inputStream = this.connection.getInputStream();
