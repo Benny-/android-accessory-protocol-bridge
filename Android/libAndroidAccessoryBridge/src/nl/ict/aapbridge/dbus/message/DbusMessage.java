@@ -116,21 +116,23 @@ public class DbusMessage {
 	 * <tr><td>Byte</td><td>{@link java.lang.Byte}</td></tr>
 	 * <tr><td>Boolean</td><td>{@link java.lang.Boolean}</td></tr>
 	 * <tr><td>INT16</td><td>{@link java.lang.Short}</td></tr>
-	 * <tr><td>UINT16</td><td><code>null</code></td></tr>
+	 * <tr><td>UINT16</td><td><code>Undefined</code></td></tr>
 	 * <tr><td>INT32</td><td>{@link java.lang.Integer}</td></tr>
-	 * <tr><td>UINT32</td><td><code>null</code></td></tr>
+	 * <tr><td>UINT32</td><td><code>Undefined</code></td></tr>
 	 * <tr><td>INT64</td><td>{@link java.lang.Long}</td></tr>
-	 * <tr><td>UINT64</td><td><code>null</code></td></tr>
+	 * <tr><td>UINT64</td><td><code>Undefined</code></td></tr>
 	 * <tr><td>DOUBLE</td><td>{@link java.lang.Double}</td></tr>
 	 * <tr><td>STRING</td><td>{@link java.lang.String}</td></tr>
-	 * <tr><td>OBJECT_PATH</td><td><code>null</code></td></tr>
-	 * <tr><td>SIGNATURE</td><td><code>null</code></td></tr>
-	 * <tr><td>ARRAY</td><td><code>null</code></td></tr>
-	 * <tr><td>STRUCT</td><td><code>null</code></td></tr>
-	 * <tr><td>VARIANT</td><td><code>null</code></td></tr>
-	 * <tr><td>DICT</td><td><code>null</code></td></tr>
-	 * <tr><td>UNIX_FD</td><td><code>null</code></td></tr>
+	 * <tr><td>OBJECT_PATH</td><td><code>Undefined</code></td></tr>
+	 * <tr><td>SIGNATURE</td><td><code>Undefined</code></td></tr>
+	 * <tr><td>ARRAY</td><td><code>Undefined</code></td></tr>
+	 * <tr><td>STRUCT</td><td><code>Undefined</code></td></tr>
+	 * <tr><td>VARIANT</td><td><code>Undefined</code></td></tr>
+	 * <tr><td>DICT</td><td><code>Undefined</code></td></tr>
+	 * <tr><td>UNIX_FD</td><td><code>Undefined</code></td></tr>
 	 * </table>
+	 * 
+	 * <p>Undefined in the table above could be any kind of Object or null.</p>
 	 * 
 	 * <p>
 	 * Only you know what return values a method might return. You should cast the values to the correct type during runtime.
@@ -199,8 +201,6 @@ public class DbusMessage {
 	
 	/**
 	 * NOT part of public API.
-	 * 
-	 * @return
 	 */
 	DbusStruct getValuesStruct()
 	{

@@ -29,11 +29,22 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 /**
+ * <p>Creates a connection to a android accessory using a rfcomm bluetooth socket.</p>
  * 
- * Creates a connection to a android accessory using a rfcomm bluetooth socket.
+ * <p>The following permission is required to use this class:</p>
+ * 
+ * <pre>
+ * {@code
+ * <uses-permission android:name="android.permission.BLUETOOTH" />
+ * }
+ * </pre>
+ * 
+ * <p>There are multiple ways to connect to a bluetooth device.
+ * You could enumerate all paired devices and let the user pick or
+ * scan the local bluez for new bluetooth devices or a combination of both.</p>
  * 
  */
-public class BTConnection implements AccessoryConnection, Closeable {
+public class BTConnection implements AccessoryConnection {
 
 	private InputStream mInputStream;
 	private OutputStream mOutputStream;

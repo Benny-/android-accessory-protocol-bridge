@@ -57,7 +57,7 @@ public interface AccessoryConnection {
 	 * 
 	 * Will always return true if {@link #close() close} has been called.
 	 * 
-	 * @return
+	 * @return True if communication channel is closed. False if communication channel can still be used.
 	 */
 	public boolean disconnected();
 }

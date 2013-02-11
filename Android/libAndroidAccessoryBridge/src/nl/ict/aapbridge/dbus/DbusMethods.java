@@ -22,7 +22,14 @@ import nl.ict.aapbridge.dbus.message.DbusMessage;
 import nl.ict.aapbridge.dbus.message.DbusTypeParser;
 
 /**
- * <p>Functionality for communicating to a remote d-bus (methods only). Dbus method is invoked Asynchronous. The reply is send to the handler.</p>
+ * <p>Functionality for communicating to a remote d-bus (methods only).</p>
+ * 
+ * <p>Dbus method are invoked Asynchronous, but they are executed in a
+ * synchronous way on the accessory, the next method is only executed once the current one is done.
+ * The d-bus reply is send to the handler some time later.</p>
+ * 
+ * <p>If you need Asynchronous method execution on the accessory, you should create multiple DbusMethods objects.
+ * <b>At the moment this is not yet supported and all methods will be executed synchronous</b></p>
  * 
  * <p>You should call the {@link #close()} method once you are done.</p>
  * 
@@ -112,7 +119,11 @@ public class DbusMethods implements BridgeService, Closeable
 	 *		Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
 	 *		// Finish(); // Call Finish() on own discretion.
 	 *	}
+	 *	}
 	 * </pre>
+	 * 
+	 * <p>You can add parameters to the d-bus method by appending them to the methodCall() function as last argument. These java types will
+	 * be converted to d-bus types arcording to the table found here</p>
 	 * 
 	 * <p>The return values from the d-bus method will be send to the handler some time later. </p>
 	 * 

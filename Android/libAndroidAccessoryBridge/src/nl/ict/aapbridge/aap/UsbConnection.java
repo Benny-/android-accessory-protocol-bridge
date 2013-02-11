@@ -97,6 +97,7 @@ import com.android.future.usb.UsbManager;
  *		Toast.makeText(this, "Could not setup connection: "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
  *		finish();
  *	}
+ * }
  * </pre>
  * 
  * <p>Manually creating UsbConnection objects using {@link UsbManager#requestPermission(UsbAccessory, PendingIntent) UsbManager.requestPermission()}
@@ -104,7 +105,7 @@ import com.android.future.usb.UsbManager;
  * and reconnect.</p>
  * 
  */
-public class UsbConnection implements AccessoryConnection, Closeable
+public class UsbConnection implements AccessoryConnection
 {
 	
 	private Context mContext;

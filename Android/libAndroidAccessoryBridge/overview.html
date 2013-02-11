@@ -4,9 +4,14 @@
         <title>Android accessory bridge</title>
     </head>
     <body>
-        <p>The android accessory bridge provides additional protocols on top of android accessory protocol</p>
+        <p>The Android accessory bridge library allows easy communication between a Android application and a linux host sytem.
+        This is done by connecting to the linux systems d-bus and allowing to invoke d-bus methods from Android.</p>
+        
+        <p>The library is build on android accessory protocol and provides additional protocols on top of it</p>
         <p>Before you can use the additional functionality, you should create a accessory connection from the package {@link nl.ict.aapbridge.aap} and feed in into a {@link nl.ict.aapbridge.bridge.AccessoryBridge}</p>
-        <p>Dbus methods can be invoked using a {@link nl.ict.aapbridge.dbus.Dbus}. Dbus signals can be received using a {@link nl.ict.aapbridge.dbus.DbusSignals} object.</p>
+        <p>Dbus methods can be invoked using a {@link nl.ict.aapbridge.dbus.DbusMethods}. Dbus signals can be received using a {@link nl.ict.aapbridge.dbus.DbusSignals} object.</p>
+        
+        <p>The mapping between d-bus types and java types can be found in {@link nl.ict.aapbridge.dbus.message.DbusMessage#getValues() }.</p>
     </body>
 </html>
 

@@ -351,8 +351,8 @@ public class AccessoryBridge implements Channel
 	 * 
 	 * @param connection The underlying connection to use. This can be bluetooth, usb or any other implementation
 	 * @throws IOException
-	 * @see {@link DbusMethods}
-	 * @see {@link DbusSignals}
+	 * @see DbusMethods
+	 * @see DbusSignals
 	 * 
 	 * @throws NullPointerException If connection is null
 	 * @throws IOException If connection is no longer a valid connection (i.e. it has been closed)
@@ -497,7 +497,7 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * <p>Creates a Dbus object. This is the same as <code>new {@link DbusMethods#Dbus(DbusHandler, AccessoryBridge)}</code></p>
+	 * <p>Creates a Dbus object. This is the same as <code>new {@link DbusMethods#DbusMethods(DbusHandler, AccessoryBridge)}</code></p>
 	 * 
 	 * @throws IOException If the connection to the accessory is severed
 	 * @throws ServiceRequestException If the remote host could not start the requested service

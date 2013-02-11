@@ -10,7 +10,7 @@ import android.os.Message;
 /**
  * The DbusHandler class provides a message based interface to receive dbus messages in a asynchronous way to a event loop.
  * 
- * You should inherit this class and override the {@link Handler#handleMessage(Message)} function to receive d-bus responses.
+ * You should inherit this class and override the {@link #handleMessage(Message)} function to receive d-bus responses.
  * 
  * @see MessageTypes
  * @see DbusMethods
