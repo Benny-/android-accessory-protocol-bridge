@@ -127,11 +127,11 @@ public class DbusMethods implements BridgeService, Closeable
 	 * 
 	 * <p>The return values from the d-bus method will be send to the handler some time later. </p>
 	 * 
-	 * @param busname
-	 * @param objectpath
-	 * @param interfaceName
-	 * @param functionName
-	 * @param arguments
+	 * @param busname The busname this message should be posted on
+	 * @param objectpath The objectpath this message should be posted on
+	 * @param interfaceName The interfaceName this message should be posted on
+	 * @param functionName The functionName this message should be posted on
+	 * @param arguments See {@link DbusMessage#getValues() } for the mapping between java and d-bus types.
 	 * 
 	 * @return Unique id for this request. This value will be the same as Message.arg1 in the DbusHandler message handler for the return value.
 	 * 
@@ -192,6 +192,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 * @return
 	 * @throws IOException
 	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
+	 * @see #methodCall(String, String, String, String, Object...)
 	 */
 	public int methodCall(
 			String objectpath,
@@ -212,6 +213,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 * @return
 	 * @throws IOException
 	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
+	 * @see #methodCall(String, String, String, String, Object...)
 	 */
 	public int methodCall(
 			String interfaceName,
@@ -230,6 +232,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 * @return
 	 * @throws IOException
 	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
+	 * @see #methodCall(String, String, String, String, Object...)
 	 */
 	public int methodCall(
 			String functionName,
@@ -249,6 +252,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 * @return
 	 * @throws IOException
 	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
+	 * @see #methodCall(String, String, String, String, Object...)
 	 */
 	public int methodCall(
 			Object... arguments) throws IOException
