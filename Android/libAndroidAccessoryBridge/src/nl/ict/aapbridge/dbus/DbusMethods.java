@@ -35,6 +35,34 @@ public class DbusMethods implements BridgeService, Closeable
 	private int call_id = 0;
 	private int return_id = 0;
 	
+	/**
+	 * <p>Used for the convenience functions</p>
+	 * 
+	 * @see #methodCall(String, String, String, Object...)
+	 */
+	private String busname;
+	
+	/**
+	 * <p>Used for the convenience functions</p>
+	 * 
+	 * @see #methodCall(String, String, Object...)
+	 */
+	private String objectpath;
+	
+	/**
+	 * <p>Used for the convenience functions</p>
+	 * 
+	 * @see #methodCall(String, Object...)
+	 */
+	private String interfaceName;
+	
+	/**
+	 * <p>Used for the convenience functions</p>
+	 * 
+	 * @see #methodCall(Object...)
+	 */
+	private String functionName;
+	
 	private final ByteBuffer receiveBuffer = ByteBuffer.allocate(4000);
 	private final ByteBuffer sendBuffer = ByteBuffer.allocate(4000);
 	private final DbusHandler handler;
@@ -64,11 +92,11 @@ public class DbusMethods implements BridgeService, Closeable
 	}
 	
 	/**
-	 * Performs a remote dbus call. The dbus call will be performed on the session bus
-	 * or system bus depending on the accessory's implementation.
+	 * <p>Performs a remote dbus call. The dbus call will be performed on the session bus
+	 * or system bus depending on the accessory's implementation.</p>
 	 * 
-	 * Throws a BufferOverflowException if the combined arguments byte length exceeds the
-	 * internal {@link #sendBuffer} size.
+	 * <p>Throws a BufferOverflowException if the combined arguments byte length exceeds the
+	 * internal {@link #sendBuffer} size.</p>
 	 * 
 	 * @param busname
 	 * @param objectpath
@@ -80,7 +108,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 * 
 	 * @throws IOException If connection to the remote port is lost
 	 * @throws BufferOverflowException If the byte size of all combined parameters exceed 4000 bytes
-	 * @throws NullPointerException If busname, objectpath, interfaceName or fucntionName are null
+	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
 	 */
 	public synchronized int methodCall(
 			String busname,
@@ -123,6 +151,81 @@ public class DbusMethods implements BridgeService, Closeable
 		
 		return call_id++;
 	}
+	
+	/**
+	 * <p>Convenience function for repeated calls to the same busname.</p>
+	 * 
+	 * <p>The busname must be set beforehand using {@link #setBusname(String)}</p>
+	 * 
+	 * @param interfaceName
+	 * @param functionName
+	 * @param arguments
+	 * @return
+	 * @throws IOException
+	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
+	 */
+	public int methodCall(
+			String objectpath,
+			String interfaceName,
+			String functionName,
+			Object... arguments) throws IOException
+	{
+		return methodCall(getBusname(), objectpath, interfaceName, functionName, arguments);
+	}
+	
+	/**
+	 * <p>Convenience function for repeated calls to the same objectpath.</p>
+	 * 
+	 * <p>The busname and objectpath must be set beforehand using {@link #setBusname(String)} and {@link #setObjectpath(String) }</p>
+	 * 
+	 * @param functionName
+	 * @param arguments
+	 * @return
+	 * @throws IOException
+	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
+	 */
+	public int methodCall(
+			String interfaceName,
+			String functionName,
+			Object... arguments) throws IOException
+	{
+		return methodCall(getBusname(), getObjectpath(), interfaceName, functionName, arguments);
+	}
+	
+	/**
+	 * <p>Convenience function for repeated calls to the same interface.</p>
+	 * 
+	 * <p>The busname, objectpath and interface must be set beforehand using {@link #setBusname(String)}, {@link #setObjectpath(String) } and {@link #setInterfaceName(String) }</p>
+	 * 
+	 * @param arguments
+	 * @return
+	 * @throws IOException
+	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
+	 */
+	public int methodCall(
+			String functionName,
+			Object... arguments) throws IOException
+	{
+		return methodCall(getBusname(), getObjectpath(), getInterfaceName(), functionName, arguments);
+	}
+	
+	/**
+	 * <p>Convenience function for repeated calls to the same method.</p>
+	 * 
+	 * <p>The busname, objectpath, interface and method must be set beforehand using 
+	 * {@link #setBusname(String)}, {@link #setObjectpath(String) },
+	 * {@link #setInterfaceName(String) } and {@link #setFunctionName(String) }</p>
+	 * 
+	 * @param arguments
+	 * @return
+	 * @throws IOException
+	 * @throws NullPointerException If busname, objectpath, interfaceName or functionName are null
+	 */
+	public int methodCall(
+			Object... arguments) throws IOException
+	{
+		return methodCall(getBusname(), getObjectpath(), getInterfaceName(), getFunctionName(), arguments);
+	}
 
 	@Override
 	public void onDataReady(int length) throws IOException {
@@ -155,5 +258,69 @@ public class DbusMethods implements BridgeService, Closeable
 	@Override
 	public void onEof() {
 		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * @return the busname
+	 */
+	public String getBusname() {
+		return busname;
+	}
+
+	/**
+	 * @param busname the busname to set
+	 * 
+	 * @see #methodCall(String, String, String, Object...)
+	 */
+	public void setBusname(String busname) {
+		this.busname = busname;
+	}
+
+	/**
+	 * @return the objectpath
+	 */
+	public String getObjectpath() {
+		return objectpath;
+	}
+
+	/**
+	 * @param objectpath the objectpath to set
+	 * 
+	 * @see #methodCall(String, String, Object...)
+	 */
+	public void setObjectpath(String objectpath) {
+		this.objectpath = objectpath;
+	}
+
+	/**
+	 * @return the interfaceName
+	 */
+	public String getInterfaceName() {
+		return interfaceName;
+	}
+
+	/**
+	 * @param interfaceName the interfaceName to set
+	 * 
+	 * @see #methodCall(String, Object...)
+	 */
+	public void setInterfaceName(String interfaceName) {
+		this.interfaceName = interfaceName;
+	}
+
+	/**
+	 * @return the functionName
+	 */
+	public String getFunctionName() {
+		return functionName;
+	}
+
+	/**
+	 * @param functionName the functionName to set
+	 * 
+	 * @see #methodCall(Object...)
+	 */
+	public void setFunctionName(String functionName) {
+		this.functionName = functionName;
 	}
 }
