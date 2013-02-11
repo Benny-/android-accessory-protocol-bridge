@@ -252,7 +252,6 @@ public class AccessoryBridge implements Channel
 		}
 		
 		/**
-		 * 
 		 * @param targetPort port who is not interested in more bytes from the accessory
 		 * @throws IOException
 		 */

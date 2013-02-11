@@ -37,20 +37,71 @@ import android.content.IntentFilter;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
 /**
  * 
- * Creates a connection to a android accessory using a usb bulk endpoint.
+ * <p>Creates a connection to a android accessory using a usb bulk endpoint.</p>
  * 
- * Briefly: Make sure you have the proper permissions and call {@link #easyConnect(Context)}
- * once your application is started when the android device is inserted into the accessory.
+ * <p>Briefly: Make sure you have the proper permissions and call {@link #easyConnect(Context)}
+ * once your application is started when the android device is inserted into the accessory.</p>
  * 
- * Manually creating UsbConnection objects using {@link UsbManager#requestPermission(UsbAccessory, PendingIntent) UsbManager.requestPermission()}
+ * <p>The following must be in your manifest for the usb connection to properly work:</p>
+ * 
+ * <pre>
+ * {@code
+ * <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ *	<uses-feature android:name="com.android.future.usb.accessory" android:required="false"/>
+ *	<application>
+ *		<activity
+ *		android:name="com.example.yourMainActivity"
+ *			<intent-filter>
+ *				<action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+ *			</intent-filter>
+ *			<meta-data
+ *				android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+ *				android:resource="@xml/accessory_filter" />
+ *		</activity>
+ *	</application>
+ * </manifest>
+ * }
+ * </pre>
+ * 
+ * <p>"@xml/accessory_filter" contains matching information. The Android system uses this
+ * to decide which application should be started when a accessory identifies itself.
+ * This is a example of a minimal accessory_filter.xml:</p>
+ * 
+ * <pre>
+ * {@code
+ *	<?xml version="1.0" encoding="utf-8"?>
+ *	<resources>
+ *		<usb-accessory model="Example product" manufacturer="Example company" version="1.0"/>
+ *	</resources>
+ * }
+ * </pre>
+ * 
+ * <p>The user will be given a option to start your application when the accessory is inserted.
+ * If the user chooses so, the "yourMainActivity" in the manifest above will be started.
+ * The activity will have permission to access the accessory once it is started this way.
+ * To create a usb connection, call {@link #easyConnect(Context) } like this: </p>
+ * 
+ * <pre>
+ * {@code
+ *	try {
+ *		AccessoryConnection con = UsbConnection.easyConnect(getApplicationContext());
+ *	} catch (IOException e) {
+ *		Log.e(TAG, "Could not setup connection", e);
+ *		Toast.makeText(this, "Could not setup connection: "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+ *		finish();
+ *	}
+ * </pre>
+ * 
+ * <p>Manually creating UsbConnection objects using {@link UsbManager#requestPermission(UsbAccessory, PendingIntent) UsbManager.requestPermission()}
  * and the constructor is not recommended as the accessory may be in a inconsistent state. Disconnect the android deivce
- * and reconnect.
+ * and reconnect.</p>
  * 
  */
 public class UsbConnection implements AccessoryConnection, Closeable

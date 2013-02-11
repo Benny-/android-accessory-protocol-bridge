@@ -11,7 +11,9 @@ import java.nio.charset.Charset;
 
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
+import nl.ict.aapbridge.aap.UsbConnection;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
 import nl.ict.aapbridge.bridge.AccessoryBridge.BridgeService;
@@ -20,7 +22,7 @@ import nl.ict.aapbridge.dbus.message.DbusMessage;
 import nl.ict.aapbridge.dbus.message.DbusTypeParser;
 
 /**
- * Functionality for communicating to a remote d-bus (methods only). Dbus method is invoked Asynchronous. The reply is send to the handler.
+ * <p>Functionality for communicating to a remote d-bus (methods only). Dbus method is invoked Asynchronous. The reply is send to the handler.</p>
  * 
  * <p>You should call the {@link #close()} method once you are done.</p>
  * 
@@ -75,7 +77,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 * 
 	 * The return values are received asynchronous and posted as messages to the handler.
 	 * 
-	 * @param dbushandler The handler who will receive Dbus messages
+	 * @param dbushandler The handler who will receive the reply's from all invoked d-bus methods by this DbusMethods object.
 	 * @param bridge The communication multiplexer
 	 * @throws IOException
 	 * @throws ServiceRequestException 
@@ -97,6 +99,22 @@ public class DbusMethods implements BridgeService, Closeable
 	 * 
 	 * <p>Throws a BufferOverflowException if the combined arguments byte length exceeds the
 	 * internal {@link #sendBuffer} size.</p>
+	 * 
+	 * <p>This example invokes a d-bus method to start playing a song on Rhythmbox:</p>
+	 * 
+	 * <pre>
+	 * {@code
+	 * 	try {
+	 *		dbusMethods.methodCall("org.gnome.Rhythmbox3", "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "PlayPause");
+	 *	} catch (IOException e) {
+	 *		String msg = "Could not send 'play/pause' command: " + e.getLocalizedMessage();
+	 *		Log.e(TAG, msg, e);
+	 *		Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+	 *		// Finish(); // Call Finish() on own discretion.
+	 *	}
+	 * </pre>
+	 * 
+	 * <p>The return values from the d-bus method will be send to the handler some time later. </p>
 	 * 
 	 * @param busname
 	 * @param objectpath
