@@ -105,6 +105,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 * <p>Same as {@link #DbusMethods(DbusHandler, AccessoryBridge), but ignores any reply }</p>
 	 * 
 	 * <p>It is totally irresponsible to do d-bus method calls this way.
+	 * Things might have happened. Like the service went down or d-bus deamon died (unlikely).
 	 * You have been warned.</p>
 	 * 
 	 * @see #DbusMethods(DbusHandler, AccessoryBridge)
