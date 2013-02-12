@@ -91,13 +91,27 @@ public class DbusMethods implements BridgeService, Closeable
 	 * @see {@link DbusHandler}
 	 * @see #methodCall(String, String, String, String, Object...)
 	 */
-	public DbusMethods(DbusHandler dbushandler, AccessoryBridge bridge) throws IOException, ServiceRequestException {
+	public DbusMethods(DbusHandler dbushandler, AccessoryBridge bridge) throws IOException, ServiceRequestException
+	{
 		if(dbushandler == null)
 			throw new NullPointerException("Handler may not be null");
 		
 		this.handler = dbushandler;
 		this.port = bridge.requestService((byte)2, this);
 		sendBuffer.order(ByteOrder.LITTLE_ENDIAN);
+	}
+	
+	/**
+	 * <p>Same as {@link #DbusMethods(DbusHandler, AccessoryBridge), but ignores any reply }</p>
+	 * 
+	 * <p>It is totally irresponsible to do d-bus method calls this way.
+	 * You have been warned.</p>
+	 * 
+	 * @see #DbusMethods(DbusHandler, AccessoryBridge)
+	 */
+	public DbusMethods(AccessoryBridge bridge) throws IOException, ServiceRequestException
+	{
+		this(DbusHandler.NullDbusHandler, bridge);
 	}
 	
 	/**
