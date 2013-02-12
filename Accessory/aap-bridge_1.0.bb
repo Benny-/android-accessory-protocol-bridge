@@ -8,11 +8,11 @@ DEPENDS = "dbus-1, libandroidaccessory-1.0"
 
 # Update checksum if license file changes.
 LIC_FILES_CHKSUM = "file://COPYING;md5=4347375aa52ecf07c16943db6168fc19"
-PR = "r7"
+PR = "r8"
 
 # Do a "make dist" in the AAP-Bridge/ subdirectory to create the source package.
 # Update checksum if package content changes.
-SRC_URI = "file://AAP-Bridge/${P}.tar.gz;md5=c11fe47ccc3ce745f5e98a9be5d99f63"
+SRC_URI = "file://AAP-Bridge/${P}.tar.gz;md5=883e33552f13213fb518ed870d0e4c31"
 
 inherit autotools
 
