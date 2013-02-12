@@ -25,6 +25,22 @@ void initreceiveQueue(void)
 
 void deInitreceiveQueue(void)
 {
+	// Here we remove any stray items in the queue.
+	pthread_mutex_lock(&lock);
+	while(messages)
+	{
+		MultiplexedMessage* msg;
+		if (readPosition >= MESSAGEQUEMAX) {
+			readPosition -= MESSAGEQUEMAX;
+		}
+		msg = queue[readPosition];
+		readPosition++;
+		messages--;
+		free(msg->data);
+		free(msg);
+	}
+	pthread_mutex_unlock(&lock);
+
 	sem_destroy(&sem);
 	pthread_mutex_destroy(&lock);
 }
