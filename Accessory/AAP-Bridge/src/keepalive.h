@@ -1,7 +1,7 @@
 #ifndef KEEPALIVE_H_
 #define KEEPALIVE_H_
 
-#include "server.h"
+#include "bridge.h"
 
 void* KeepaliveInit(void);
 void KeepaliveOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size);

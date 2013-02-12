@@ -1,7 +1,7 @@
 #ifndef LISTENER_H
 #define LISTENER_H
 
-#include "../server.h"
+#include "../bridge.h"
 
 void* SignalsInit(BridgeService* service, char* compressed_rule);
 void  SignalsOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size);

@@ -5,7 +5,7 @@
 #include <dbus/dbus.h>
 #include <signal.h>
 
-#include "server.h"
+#include "bridge.h"
 #include "Dbus/dbuslib.h"
 #include "Dbus/method.h"
 #include "Dbus/listener.h"

@@ -1,7 +1,7 @@
 #ifndef BRIDGESERVICE_H_
 #define BRIDGESERVICE_H_
 
-#include "server.h"
+#include "bridge.h"
 
 struct BridgeService
 {

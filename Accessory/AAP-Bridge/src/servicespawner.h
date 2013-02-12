@@ -1,7 +1,7 @@
 #ifndef SERVICESPAWNER_H_
 #define SERVICESPAWNER_H_
 
-#include "server.h"
+#include "bridge.h"
 
 void* ServiceSpawnerInit(BridgeConnection* bridge);
 void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size);

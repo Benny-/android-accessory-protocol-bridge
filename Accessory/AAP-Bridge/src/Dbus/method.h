@@ -1,7 +1,7 @@
 #ifndef METHOD_H
 #define METHOD_H
 
-#include "../server.h"
+#include "../bridge.h"
 
 void* MethodInit(BridgeService* service);
 void  MethodOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size);

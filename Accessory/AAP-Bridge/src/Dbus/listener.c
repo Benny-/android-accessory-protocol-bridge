@@ -9,7 +9,7 @@
 
 #include "bstrlib.h"
 #include "../Message/AccessoryMessage.h"
-#include "../server.h"
+#include "../bridge.h"
 
 typedef struct Signals
 {

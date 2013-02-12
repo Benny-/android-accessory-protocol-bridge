@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "server.h"
+#include "bridge.h"
 #include "BridgeService.h"
 
 #include "servicespawner.h"
