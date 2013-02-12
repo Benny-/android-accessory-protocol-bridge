@@ -1,59 +1,68 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include "receivequeue.h"
-#include "../Message/AccessoryMessage.h"
 
 #define MESSAGEQUEMAX 64
 
-static MultiplexedMessage* receiveequeue[MESSAGEQUEMAX];
+static MultiplexedMessage* queue[MESSAGEQUEMAX];
+static int messages; // The amount of messages in the above queue
+static int writePosition;
+static int readPosition;
+static pthread_mutex_t lock;
+static sem_t sem;
 
-static pthread_mutex_t queueReceiveMutex;
-static int currentposistion;
-static sem_t inReceiveQueue;
-
-void initreceiveQueue() {
-	currentposistion = 0;
-	sem_init(&inReceiveQueue, 0, 0);
-	pthread_mutex_init(&queueReceiveMutex, NULL);
+void initreceiveQueue(void)
+{
+	messages = 0;
+	writePosition = 0;
+	readPosition = 0;
+	sem_init(&sem, 0, 0);
+	pthread_mutex_init(&lock, NULL);
 }
 
-void deInitreceiveQueue() {
-	sem_destroy(&inReceiveQueue);
-	pthread_mutex_destroy(&queueReceiveMutex);
+void deInitreceiveQueue(void)
+{
+	sem_destroy(&sem);
+	pthread_mutex_destroy(&lock);
 }
 
-void addreceivequeue(MultiplexedMessage *buffer) {
-	//lock the message queue
-	pthread_mutex_lock(&queueReceiveMutex);
-	currentposistion++;
-	if (currentposistion > MESSAGEQUEMAX) {
-		receiveequeue[currentposistion - MESSAGEQUEMAX] = buffer;
-	} else {
-		receiveequeue[currentposistion] = buffer;
-	}
-	sem_post(&inReceiveQueue);
-	pthread_mutex_unlock(&queueReceiveMutex);
-}
-
-void pollReceiveQueue(MultiplexedMessage **tmp) {
-	sem_wait(&inReceiveQueue);
-	pthread_mutex_lock(&queueReceiveMutex);
-	int itemsinrecievequeue = 0;
-	int pollpos = 0;
-
-	sem_getvalue(&inReceiveQueue, &itemsinrecievequeue);
-	pollpos = currentposistion - itemsinrecievequeue; //location to pull
-
-	if (pollpos < 0) {
-		pollpos = MESSAGEQUEMAX - pollpos; //its smaller then zero start at the end
+void addreceivequeue(MultiplexedMessage *message)
+{
+	pthread_mutex_lock(&lock);
+	if (writePosition >= MESSAGEQUEMAX) {
+		writePosition -= MESSAGEQUEMAX;
 	}
 
-	pthread_mutex_unlock(&queueReceiveMutex);
-	*tmp = receiveequeue[pollpos];
+	if(messages == MESSAGEQUEMAX)
+	{
+		// This code will silently drop a message if the queue is full
+		free(message->data);
+		free(message);
+	}
+	else
+	{
+		queue[writePosition] = message;
+		writePosition++;
+		messages++;
+		sem_post(&sem);
+	}
+	pthread_mutex_unlock(&lock);
+}
 
-	//empty the location
-	receiveequeue[pollpos] = NULL;
+MultiplexedMessage* pollReceiveQueue(void)
+{
+	MultiplexedMessage* retval;
+	sem_wait(&sem);
+	pthread_mutex_lock(&lock);
+	if (readPosition >= MESSAGEQUEMAX) {
+		readPosition -= MESSAGEQUEMAX;
+	}
+	retval = queue[readPosition];
+	readPosition++;
+	messages--;
+	pthread_mutex_unlock(&lock);
+	return retval;
 }

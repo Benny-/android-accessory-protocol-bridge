@@ -3,10 +3,9 @@
 #ifndef SENDMESSAGEQUEUE_H
 #define SENDMESSAGEQUEUE_H
 
-void initSendQueue();
-void deInitSendQueue();
+void initSendQueue(void);
+void deInitSendQueue(void);
 void addSendQueue(MultiplexedMessage* message);
-void addBulkSendQueue(MultiplexedMessage* message[], int count);
 MultiplexedMessage* pollSendQueue();
 
 #endif // MESSAGEQUEUE_H

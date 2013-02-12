@@ -88,9 +88,9 @@ int main (int argc, char *argv[])
 		AapConnection* con = getNextAndroidConnection(accessory);
 		bridge = initServer(con);
 
-		MultiplexedMessage *msg = NULL;
+		MultiplexedMessage *msg;
 		do {
-			pollReceiveQueue(&msg);
+			msg = pollReceiveQueue();
 			if(msg != NULL)
 			{
 				sendToCorrectService(bridge, msg->port, msg->data, msg->size);

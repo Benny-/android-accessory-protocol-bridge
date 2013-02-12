@@ -3,9 +3,9 @@
 #ifndef RECEIVEMESSAGEQUEUE_H
 #define RECEIVEMESSAGEQUEUE_H
 
-void initreceiveQueue();
-void deInitreceiveQueue();
-void addreceivequeue(MultiplexedMessage *buffer);
-void pollReceiveQueue(MultiplexedMessage **tmp);
+void initreceiveQueue(void);
+void deInitreceiveQueue(void);
+void addreceivequeue(MultiplexedMessage *message);
+MultiplexedMessage* pollReceiveQueue(void);
 
 #endif
