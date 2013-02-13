@@ -11,4 +11,4 @@
  * Press YES and the unit test results begin showing up in eclipse.</p>
  * 
  */
-package nl.ict.aapbridge.dbus;
+package nl.ict.aapbridge.test;
