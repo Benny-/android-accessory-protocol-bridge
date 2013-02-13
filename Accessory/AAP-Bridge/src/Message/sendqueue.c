@@ -36,8 +36,11 @@ void deInitSendQueue(void)
 		msg = queue[readPosition];
 		readPosition++;
 		messages--;
-		free(msg->data);
-		free(msg);
+		if(msg) // Okay. listen. I dont know why a NULL is in this queue.
+		{
+			free(msg->data);
+			free(msg);
+		}
 	}
 	pthread_mutex_unlock(&lock);
 
