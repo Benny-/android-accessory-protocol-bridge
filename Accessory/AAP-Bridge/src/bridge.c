@@ -200,21 +200,22 @@ static void CleanupService(BridgeService* service)
 {
 	if(service->inputOpen || service->outputOpen)
 	{
-		fprintf(stderr, "I'm not cleaning up a service who's input or output are still open");
+		fprintf(stderr, "WARNING: cleaning up a service who's input or output are still open on port %hi\n",service->port);
 	}
 	else
 	{
-		printf("Cleanup for port %hi\n",service->port);
-
-		service->onCleanupService(service->service_data, service);
-		service->port = -1;
-		service->inputOpen = 1;
-		service->outputOpen = 1;
-		service->service_data = NULL;
-		service->onBytesReceived = NULL;
-		service->onEof = NULL;
-		service->onCleanupService = NULL;
+#ifdef DEBUG
+		printf("Cleanup for service on port %hi\n",service->port);
+#endif
 	}
+	service->onCleanupService(service->service_data, service);
+	service->port = -1;
+	service->inputOpen = 1;
+	service->outputOpen = 1;
+	service->service_data = NULL;
+	service->onBytesReceived = NULL;
+	service->onEof = NULL;
+	service->onCleanupService = NULL;
 }
 
 static void* PortStatusInit(BridgeConnection* bridge)
@@ -233,7 +234,7 @@ static void PortStatusOnBytesReceived(void* service_data, BridgeService* service
 	BridgeService* target_service = &service->bridge->services[port];
 	if(target_service->port == -1)
 	{
-		fprintf(stderr, "PORT_STATUS ignoring new status for closed port: %hi \n",port);
+		fprintf(stderr, "PORT_STATUS ignoring new status for cleaned up port: %hi \n",port);
 	}
 	else
 	{
@@ -366,15 +367,11 @@ void deInitServer(BridgeConnection* bridge)
 {
 	// Forcefully close all inputs and cleanup all the mess the - still open - services have malloced.
 	// We dont actually care if we could not send a EOF or CLOSE at this point. The connection might already be lost.
-	for(int i = 0; i<MAX_PORTS; i++)
+	for(int i = 3; i<MAX_PORTS; i++)
 	{
 		BridgeService* service = &bridge->services[i];
 		if(service->port != -1)
 		{
-			if(service->outputOpen)
-				sendEof(service);
-			if(service->inputOpen)
-				sendClose(service);
 			CleanupService(service);
 		}
 	}
