@@ -505,7 +505,7 @@ public class AccessoryBridge implements Channel
 	 */
 	public DbusMethods createDbus(DbusHandler dbushandler) throws IOException, ServiceRequestException
 	{
-		return new DbusMethods(dbushandler, this);
+		return new DbusMethods(this, dbushandler);
 	}
 	
 	/**
@@ -523,7 +523,7 @@ public class AccessoryBridge implements Channel
 			String interfaceName,
 			String memberName) throws IOException, ServiceRequestException
 	{
-		return new DbusSignals(dbusHandler, this, busname, objectpath, interfaceName, memberName);
+		return new DbusSignals(this, dbusHandler, busname, objectpath, interfaceName, memberName);
 	}
 	
 	/**

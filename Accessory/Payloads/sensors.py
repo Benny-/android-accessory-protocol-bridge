@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# Dependencies:
-# 1. dbus for python (Already installed on beaglebone)
-# 2. gobject for python (opkg install python-pygobject)
-
 from threading import Timer
 from pprint import pprint
 import gobject
@@ -16,11 +12,18 @@ DBusGMainLoop(set_as_default=True)
 gobject.threads_init() # Multithreaded python programs must call this before using threads.
 
 sensors_paths = glob.glob('/sys/devices/platform/omap/omap_i2c.3/i2c-3/*/*_input')
-bus = dbus.SystemBus()
+# bus = dbus.SystemBus()
+bus = dbus.SessionBus()
 
 class SensorService(dbus.service.Object):
     """
         The SensorService emits sensor data to the d-bus.
+        
+        This program is designed to be run on a beaglebone with a weathercape.
+        
+        Dependencies:
+        1. dbus for python (Already installed on beaglebone)
+        2. gobject for python (opkg install python-pygobject)
         
         bus-name:   nl.ict.sensors
         objectpath: /nl/ict/sensors

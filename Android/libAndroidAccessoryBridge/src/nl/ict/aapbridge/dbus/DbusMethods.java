@@ -91,7 +91,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 * @see {@link DbusHandler}
 	 * @see #methodCall(String, String, String, String, Object...)
 	 */
-	public DbusMethods(DbusHandler dbushandler, AccessoryBridge bridge) throws IOException, ServiceRequestException
+	public DbusMethods(AccessoryBridge bridge, DbusHandler dbushandler) throws IOException, ServiceRequestException
 	{
 		if(dbushandler == null)
 			throw new NullPointerException("Handler may not be null");
@@ -112,7 +112,7 @@ public class DbusMethods implements BridgeService, Closeable
 	 */
 	public DbusMethods(AccessoryBridge bridge) throws IOException, ServiceRequestException
 	{
-		this(DbusHandler.NullDbusHandler, bridge);
+		this(bridge, DbusHandler.NullDbusHandler);
 	}
 	
 	/**

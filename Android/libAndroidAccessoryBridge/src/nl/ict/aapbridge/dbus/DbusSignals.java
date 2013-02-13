@@ -35,26 +35,28 @@ public class DbusSignals implements BridgeService, Closeable {
 	private final ByteBuffer receiveBuffer = ByteBuffer.allocate(4000);
 	
 	/**
-	 * Create a Dbus signal watch on the remote device.
+	 * <p>Create a Dbus signal watch on the remote device.</p>
 	 * 
-	 * Dbus signals will start pouring to the handler once this object is created.
+	 * <p>Dbus signals will start pouring to the handler once this object is created.</p>
 	 * 
-	 * You must call {@link #close()} once you are done receiving dbus signals.
+	 * <p>You must call {@link #close()} once you are done receiving dbus signals.</p>
 	 * 
-	 * @param dbushandler
-	 * @param bridge
-	 * @param busname
-	 * @param objectpath
-	 * @param interfaceName
-	 * @param memberName
+	 * <p>You can match multiple different signals by passing null for some matching rules.</p>
+	 * 
+	 * @param dbushandler May not be null
+	 * @param bridge May not be null
+	 * @param busname Null is allowed
+	 * @param objectpath Null is allowed
+	 * @param interfaceName Null is allowed
+	 * @param memberName Null is allowed
 	 * 
 	 * @throws IOException If connection to host is lost
 	 * @throws BufferOverflowException If the combined byte size of all arguments (except dbushandler) exceed the internal send buffer. The internal send buffer is 3000 bytes.
 	 * @throws NullPointerException If dbushandler, busname, objectpath, interfaceName or memberName are null
 	 */
 	public DbusSignals(
-			DbusHandler dbushandler,
 			AccessoryBridge bridge,
+			DbusHandler dbushandler,
 			String busname,
 			String objectpath,
 			String interfaceName,

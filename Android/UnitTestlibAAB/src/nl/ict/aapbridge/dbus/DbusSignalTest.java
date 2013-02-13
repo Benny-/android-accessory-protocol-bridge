@@ -1,5 +1,6 @@
 package nl.ict.aapbridge.dbus;
 
+import android.R.integer;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.dbus.DbusMethodTest.SyncDbusHandler;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
@@ -10,7 +11,6 @@ public class DbusSignalTest extends android.test.AndroidTestCase  {
 	
 	private AccessoryBridge bridge;
 	private SyncDbusHandler synchandler = new SyncDbusHandler();
-	private DbusSignals signals;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -22,20 +22,66 @@ public class DbusSignalTest extends android.test.AndroidTestCase  {
 		}
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
-		if(signals != null)
-		{
-			signals.close();
-			signals = null;
-		}
-	}
-	
 	public void testSignal() throws Exception
 	{
-		signals = bridge.createDbusSignal(synchandler, "nl.ict.AABUnitTest","/nl/ict/AABUnitTest/C" ,"nl.ict.AABUnitTest.Signals" ,"StartEmittingSignals");
-		DbusMessage dbusmsg = synchandler.getDbusMessage();
-		synchandler.getDbusMessage().getValues();
+		DbusSignals signals = null;
+		DbusMethods methods = null;
+		try
+		{
+			signals = new DbusSignals(bridge,
+					synchandler,
+					"nl.ict.AABUnitTest",
+					"/nl/ict/AABUnitTest/C",
+					"nl.ict.AABUnitTest.Signals",
+					null);
+			
+			methods = new DbusMethods(bridge, synchandler);
+			methods.methodCall("nl.ict.AABUnitTest",
+					"/nl/ict/AABUnitTest/C",
+					"nl.ict.AABUnitTest.Signals",
+					"StartEmittingSignals");
+			
+			// This first message is the reply to the remote d-bus call.
+			// This is a sanity check. It will throw a exception if the teststub is not running.
+			DbusMessage dbusmsg = synchandler.getDbusMessage();
+			synchandler.getDbusMessage().getValues();
+			
+			// Now all the signals will follow. We all values in a array and assert it matches the expected values.
+			Object[] values;
+			
+			dbusmsg = synchandler.getDbusMessage();
+			values = synchandler.getDbusMessage().getValues();
+			assertEquals((byte)2, values[0]);
+			
+			dbusmsg = synchandler.getDbusMessage();
+			values = synchandler.getDbusMessage().getValues();
+			assertEquals((Boolean)true, values[0]);
+			
+			dbusmsg = synchandler.getDbusMessage();
+			values = synchandler.getDbusMessage().getValues();
+			assertEquals((Integer)3, values[0]);
+			
+			dbusmsg = synchandler.getDbusMessage();
+			values = synchandler.getDbusMessage().getValues();
+			assertEquals("The only real advantage to punk music is that nobody can whistle it.", values[0]);
+			
+			dbusmsg = synchandler.getDbusMessage();
+			values = synchandler.getDbusMessage().getValues();
+			assertEquals(5.5d, values[0]);
+			
+			dbusmsg = synchandler.getDbusMessage();
+			values = synchandler.getDbusMessage().getValues();
+			assertEquals("humidity1", values[0]);
+			assertEquals(9.923d, values[1]);
+			
+			dbusmsg = synchandler.getDbusMessage();
+			values = synchandler.getDbusMessage().getValues();
+			assertEquals((Integer)3, values[0]);
+		} finally
+		{
+			signals.close();
+			methods.close();
+		}
 	}
 	
 }

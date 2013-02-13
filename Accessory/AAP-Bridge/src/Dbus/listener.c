@@ -24,12 +24,13 @@ typedef struct Signals
 	 */
 	pthread_mutex_t dbus_mutex;
 	volatile int work;
+
 } Signals;
 
 /**
  * This function runs in a separate thread.
  *
- * It is started by initSignalWatcher()
+ * It is started in initSignalWatcher()
  *
  * @param user_data (Ignored)
  */
@@ -46,7 +47,8 @@ static void* signalWatch(void* user_data) {
 		if(m != NULL)
 		{
 			char* str = PrintDBusMessage(m);
-			//if(connectedToAndroid)
+
+			if(dbus_message_get_type(m) == DBUS_MESSAGE_TYPE_SIGNAL)
 			{
 				char* marshalled;
 				int size;
