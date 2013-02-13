@@ -82,11 +82,19 @@ int main (int argc, char *argv[])
 					"http://www.ict.nl",
 					"2254711");
 
+	if(accessory == NULL)
+	{
+		fprintf(stderr, "Something went wrong in libAndroidAccessory. Please try again later\n");
+		exit(EXIT_FAILURE);
+	}
+
 	while(1)
 	{
-		printf("Waiting for next connection\n");
+		printf("Waiting for (next) connection\n");
 		AapConnection* con = getNextAndroidConnection(accessory);
+		printf("Connection established. setting up bridge\n");
 		bridge = initServer(con);
+		printf("Bridge is setup. Going into messaging loop\n");
 
 		MultiplexedMessage *msg;
 		do {
@@ -104,5 +112,5 @@ int main (int argc, char *argv[])
 	}
 	deInitaccessory(accessory);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
