@@ -77,7 +77,7 @@ libusb_device_handle* findAndInitAccessory(
 					int errorCode = libusb_open(tmpdevice, &handle);
 					if ( errorCode != 0 )
 					{
-						fputs(libusb_error_name(errorCode), stderr);
+						fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(errorCode));
 					}
 					determineEndpoints(tmpdevice);
 					libusb_free_device_list(list, 1);
@@ -150,8 +150,6 @@ libusb_device_handle* reInitAccessory() {
 	for (i = 0; i < cnt; i++) {
 		libusb_device* tmpdevice = list[i];
 
-		printf("%p\n",tmpdevice);
-
 		if (libusb_get_device_descriptor(tmpdevice, desc) < 0) {
 			continue;
 		}
@@ -175,7 +173,7 @@ libusb_device_handle* reInitAccessory() {
 			}
 			else
 			{
-				fputs(libusb_error_name(errorCode), stderr);
+				fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(errorCode));
 			}
 			libusb_free_device_list(list, 1);
 			return handle;
@@ -267,7 +265,7 @@ libusb_device_handle* setupAccessory(
 	if ((response = libusb_control_transfer(handle,
 			LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR, 52, 0, 0,
 			(unsigned char*)MANUFACTURER, strlen(MANUFACTURER) + 1, 0)) < 0) {
-		fputs(libusb_error_name(response), stderr);
+		fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(response));
 		return NULL ;
 	}
 
@@ -335,10 +333,11 @@ libusb_device_handle* setupAccessory(
 	return handle;
 }
 
-/*
- * Has the Android device Android Accessory
+/**
+ * Has the Android device Android Accessory?
+ *
  * @param USB handle
- * @return 1 if it has android accessory device
+ * @return -1 if the device does not support the android accessory protocol OR return the supported version
  */
 int checkAndroid(libusb_device_handle* handle) {
 	unsigned char ioBuffer[2];
@@ -357,12 +356,10 @@ int checkAndroid(libusb_device_handle* handle) {
 
 	if (response < 0) {
 		if (response == LIBUSB_ERROR_TIMEOUT) {
-#ifdef DEBUG
-			printf("libAndroidAccessory: No Android Accessory support, continuing...\n");
-#endif
+			fprintf(stderr, "libAndroidAccessory: No Android Accessory support (TIMEOUT), continuing...\n");
 		}
 		else {
-			fputs(libusb_error_name(response), stderr);
+			fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(response));
 		}
 		return -1;
 	}

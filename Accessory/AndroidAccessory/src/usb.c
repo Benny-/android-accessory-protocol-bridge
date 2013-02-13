@@ -68,12 +68,12 @@ libusb_device_handle* openUsb(u_int16_t vid, u_int16_t pid) {
 		if (libusb_kernel_driver_active(handle, 0)) {
 			response = libusb_detach_kernel_driver(handle, 0);
 			if (response < 0) {
-				fputs(libusb_error_name(response), stderr);
+				fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(response));
 			}
 		}
 		response = libusb_claim_interface(handle, 0);
 		if (response < 0) {
-			fputs(libusb_error_name(response), stderr);
+			fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(response));
 		}
 
 		return handle;
@@ -89,7 +89,7 @@ void closeUsb(libusb_device_handle* handle) {
 	if(handle != NULL) {
 		response = libusb_release_interface(handle, 0);
 		if (response < 0) {
-			fputs(libusb_error_name(response), stderr);
+			fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(response));
 		}
 		libusb_attach_kernel_driver(handle, 0);
 		libusb_close(handle);
