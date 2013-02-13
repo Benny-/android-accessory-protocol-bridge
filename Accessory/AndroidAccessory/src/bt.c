@@ -48,7 +48,7 @@ static sdp_session_t* register_service(
     sdp_uuid128_create( &svc_class_custom_uuid, svc_uuid_int );
     svc_class_list = sdp_list_append(svc_class_list, &svc_class_custom_uuid);
     sdp_uuid2strn(&svc_class_custom_uuid, str, 256);
-    printf("libAndroidAccessory: Registering custom UUID %s\n", str);
+    printf("libAndroidAccessory: Registering custom UUID %s bluetooth's sdp\n", str);
     sdp_uuid16_create(&svc_class_uuid, SERIAL_PORT_SVCLASS_ID);
     svc_class_list = sdp_list_append(svc_class_list, &svc_class_uuid);
     sdp_set_service_classes(&record, svc_class_list);
@@ -142,7 +142,6 @@ BT_SERVICE* bt_listen(
     bt_service->sdp_session = register_service(service_name, svc_dsc, service_prov, svc_uuid_int, port);
     if(bt_service->sdp_session == NULL)
     {
-    	fprintf(stderr, "libAndroidAccessory: Could not register bluetooth service\n");
     	close(bt_service->fd);
     	free(bt_service);
     	return NULL;

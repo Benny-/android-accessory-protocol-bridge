@@ -125,7 +125,9 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 
 		if(accessory->fds[0].revents)
 		{
+#ifdef DEBUG
 			printf("libAndroidAccessory: UDEV descriptor ready\n");
+#endif
 			accessory->fds[0].revents = 0;
 
 			usb_device = tryGetNextUSB(accessory->udev_monitor);
@@ -169,7 +171,9 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 
 		if(accessory->fds[1].revents)
 		{
+#ifdef DEBUG
 			printf("libAndroidAccessory: BT server descriptor ready\n");
+#endif
 			accessory->fds[1].revents = 0;
 
 			int fd = accept(bt_getFD(accessory->bt_service),NULL,NULL);
