@@ -1,6 +1,7 @@
 package nl.ict.aapbridge.dbus;
 
 import android.R.integer;
+import android.util.Log;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.dbus.DbusMethodTest.SyncDbusHandler;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
@@ -41,13 +42,20 @@ public class DbusSignalTest extends android.test.AndroidTestCase  {
 					"nl.ict.AABUnitTest.Signals",
 					"StartEmittingSignals");
 			
+			Object[] values;
+			
 			// This first message is the reply to the remote d-bus call.
 			// This is a sanity check. It will throw a exception if the teststub is not running.
-			DbusMessage dbusmsg = synchandler.getDbusMessage();
-			synchandler.getDbusMessage().getValues();
+			DbusMessage dbusmsg;
+			do{
+			dbusmsg = synchandler.getDbusMessage();
+			Log.d(TAG, dbusmsg.toString());
+			}
+			while(dbusmsg.getInterfaceName() != null && !dbusmsg.getInterfaceName().equals("nl.ict.AABUnitTest.Signals"));
+			values = dbusmsg.getValues();
+			assertEquals(null,values);
 			
 			// Now all the signals will follow. We all values in a array and assert it matches the expected values.
-			Object[] values;
 			
 			dbusmsg = synchandler.getDbusMessage();
 			values = synchandler.getDbusMessage().getValues();
@@ -55,7 +63,7 @@ public class DbusSignalTest extends android.test.AndroidTestCase  {
 			
 			dbusmsg = synchandler.getDbusMessage();
 			values = synchandler.getDbusMessage().getValues();
-			assertEquals((Boolean)true, values[0]);
+			assertEquals(true, values[0]);
 			
 			dbusmsg = synchandler.getDbusMessage();
 			values = synchandler.getDbusMessage().getValues();
@@ -79,8 +87,15 @@ public class DbusSignalTest extends android.test.AndroidTestCase  {
 			assertEquals((Integer)3, values[0]);
 		} finally
 		{
-			signals.close();
-			methods.close();
+			try
+			{
+				signals.close();
+				methods.close();
+			}
+			catch(Exception e)
+			{
+				// Meh.
+			}
 		}
 	}
 	

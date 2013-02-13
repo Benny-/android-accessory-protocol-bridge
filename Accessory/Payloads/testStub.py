@@ -182,25 +182,24 @@ class AABUnitTestC(dbus.service.Object):
         pass
     
     def Emit(self):
-        time.sleep(1)
         self.Byte(2)
-        time.sleep(1)
+        time.sleep(5)
         self.Boolean(True)
-        time.sleep(1)
+        time.sleep(5)
         self.Int32(3)
-        time.sleep(1)
+        time.sleep(5)
         self.String("The only real advantage to punk music is that nobody can whistle it.")
-        time.sleep(1)
+        time.sleep(5)
         self.Double(5.5)
-        time.sleep(1)
+        time.sleep(5)
         self.Sensor("humidity1",9.923)
-        time.sleep(1)
+        time.sleep(5)
         self.Complex1(8,"Never do today what you can put off until tomorrow.",45.00000003,9,9084)
     
     @dbus.service.method(InterfaceC, in_signature='', out_signature='')
     def StartEmittingSignals(self):
         print("Starting to emit signals")
-        emitter = Timer(0, AABUnitTestC.Emit, [self])
+        emitter = Timer(5, AABUnitTestC.Emit, [self])
         emitter.start()
 
 bus_name = dbus.service.BusName('nl.ict.AABUnitTest', bus)

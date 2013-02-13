@@ -28,8 +28,8 @@ public class DbusMessage {
 	private String member;
 	private String errorName;
 	private int reply_serial = -1;
-	private String destination;
-	private String sender;
+	private String destinationBusname;
+	private String senderBusname;
 	private DbusSignature signature;
 	private int unix_fds = -1;
 	private DbusStruct arguments;
@@ -58,10 +58,10 @@ public class DbusMessage {
 					this.reply_serial = (Integer) variant.getEmbeddedThing();
 					break;
 				case 6:
-					this.destination = (String) variant.getEmbeddedThing();
+					this.destinationBusname = (String) variant.getEmbeddedThing();
 					break;
 				case 7:
-					this.sender = (String) variant.getEmbeddedThing();
+					this.senderBusname = (String) variant.getEmbeddedThing();
 					break;
 				case 8:
 					this.signature = (DbusSignature) variant.getEmbeddedThing();
@@ -207,6 +207,41 @@ public class DbusMessage {
 		return arguments;
 	}
 	
+	/**
+	 * @return the object path
+	 */
+	public DbusObjectPath getObjectPath() {
+		return objectPath;
+	}
+
+	/**
+	 * @return the interface name
+	 */
+	public String getInterfaceName() {
+		return interfaceName;
+	}
+
+	/**
+	 * @return the member name (This is a signal name or a method name)
+	 */
+	public String getMember() {
+		return member;
+	}
+
+	/**
+	 * @return the destination Busname
+	 */
+	public String getDestinationBusname() {
+		return destinationBusname;
+	}
+	
+	/**
+	 * @return the sender Busname
+	 */
+	public String getSenderBusname() {
+		return senderBusname;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -230,13 +265,13 @@ public class DbusMessage {
 		{
 			sb.append("Reply serial        : "); sb.append(reply_serial);  sb.append('\n');
 		}
-		if(destination != null)
+		if(destinationBusname != null)
 		{
-			sb.append("Destination busname : "); sb.append(destination);   sb.append('\n');
+			sb.append("Destination busname : "); sb.append(destinationBusname);   sb.append('\n');
 		}
-		if(sender != null)
+		if(senderBusname != null)
 		{
-			sb.append("Sender busname      : "); sb.append(sender);        sb.append('\n');
+			sb.append("Sender busname      : "); sb.append(senderBusname);        sb.append('\n');
 		}
 		if(signature != null)
 		{
@@ -247,7 +282,11 @@ public class DbusMessage {
 			sb.append("Unix FD             : "); sb.append(unix_fds);      sb.append('\n');
 		}
 		
-		sb.append(arguments.toString()); sb.append('\n');
+		if(arguments != null)
+		{
+			sb.append(arguments.toString()); sb.append('\n');
+		}
+		
 		return sb.toString();
 	}
 }

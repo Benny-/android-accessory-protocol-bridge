@@ -45,10 +45,10 @@ public class DbusSignals implements BridgeService, Closeable {
 	 * 
 	 * @param dbushandler May not be null
 	 * @param bridge May not be null
-	 * @param busname Null is allowed
-	 * @param objectpath Null is allowed
-	 * @param interfaceName Null is allowed
-	 * @param memberName Null is allowed
+	 * @param busname Null is allowed. Empty string functions the same as null.
+	 * @param objectpath Null is allowed. Empty string functions the same as null.
+	 * @param interfaceName Null is allowed. Empty string functions the same as null.
+	 * @param signalName Null is allowed. Empty string functions the same as null.
 	 * 
 	 * @throws IOException If connection to host is lost
 	 * @throws BufferOverflowException If the combined byte size of all arguments (except dbushandler) exceed the internal send buffer. The internal send buffer is 3000 bytes.
@@ -60,19 +60,22 @@ public class DbusSignals implements BridgeService, Closeable {
 			String busname,
 			String objectpath,
 			String interfaceName,
-			String memberName) throws IOException, ServiceRequestException
+			String signalName) throws IOException, ServiceRequestException
 	{
+		if(bridge == null)
+			throw new NullPointerException("bridge may not be null");
+		
 		if(busname == null)
-			throw new NullPointerException("Busname may not be null");
+			busname = "";
 		
 		if(objectpath == null)
-			throw new NullPointerException("Objectpath may not be null");
+			objectpath = "";
 		
 		if(interfaceName == null)
-			throw new NullPointerException("Interface name may not be null");
+			interfaceName = "";
 		
-		if(memberName == null)
-			throw new NullPointerException("Function name may not be null");
+		if(signalName == null)
+			signalName = "";
 		
 		if(dbushandler == null)
 			throw new NullPointerException("Handler may not be null");
@@ -87,7 +90,7 @@ public class DbusSignals implements BridgeService, Closeable {
 		bb.put((byte)0);
 		bb.put(interfaceName.getBytes(utf8));
 		bb.put((byte)0);
-		bb.put(memberName.getBytes(utf8));
+		bb.put(signalName.getBytes(utf8));
 		bb.put((byte)0);
 		bb.flip();
 		
