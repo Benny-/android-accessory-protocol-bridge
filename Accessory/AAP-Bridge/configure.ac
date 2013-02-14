@@ -14,7 +14,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_PROG_CC_C_O
 
 # Checks for packages.
-PKG_CHECK_MODULES(DEPENDENCIES, [dbus-1 >= 1.6.1, libandroidaccessory-1.0])
+PKG_CHECK_MODULES(DEPENDENCIES, [dbus-1 >= 1.6.1, libandroidaccessory-1.0, libconfig])
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdint.h stdlib.h string.h])

@@ -1,3 +1,5 @@
+#!/usr/bin/env sh
+
 # This file list the Ubuntu package dependencies for compilation.
 
 # General dependencies:
@@ -22,4 +24,7 @@ sudo apt-get install bluez libbluetooth-dev
 
 # Low-level d-bus communication
 sudo apt-get install libdbus-1-dev
+
+# Configuration file reading
+sudo apt-get install libconfig-dev
 
