@@ -92,7 +92,7 @@ int main (int argc, char *argv[])
 	if(!readConfig(&config))
 	{
 		// We could exit if no valid config is found or go into "demo" mode. In demo mode, some default values are assumed.
-		// exit(EXIT_FAILURE);
+		printf("No valid config file found. Resuming in demo mode\n");
 	}
 
 	const char* BUS = NULL;

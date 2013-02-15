@@ -11,7 +11,7 @@ PR = "r21"
 # Do a "make dist" in the AndroidAccessory/ subdirectory to create the source package.
 # This package will be used by bitbake.
 # Update checksum if package content changes.
-SRC_URI = "file://AndroidAccessory/${P}.tar.gz;md5=efae3e46ad2feaa6e9beaffd15598dbb"
+SRC_URI = "file://AndroidAccessory/${P}.tar.gz;md5=6179320a5583ff59bfc8a5589837a4d7"
 
 inherit autotools pkgconfig
 
