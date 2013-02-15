@@ -11,7 +11,7 @@ BT_SERVICE* bt_listen(
         const char* service_name,
         const char* svc_dsc,
         const char* service_prov,
-        uint32_t svc_uuid_int[4] );
+        const char* const* bt_uuids);
 /*
 Return a standard server socket. accept() from socket.h can be used to obtain connections.
 Close must never be called on this socket. Use close(BT_SERVICE* service) if you are done.

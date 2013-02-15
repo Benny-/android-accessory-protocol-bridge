@@ -85,8 +85,7 @@ Accessory* initAccessory(
 	accessory->udev_context = udev;
 	accessory->udev_monitor = udev_monitor;
 
-	uint32_t svc_uuid_int[] = { 0x505d8ea4, 0xca4f8b18, 0xc18961b2, 0x18e11439 };
-	accessory->bt_service = bt_listen(modelName, description, NULL, svc_uuid_int );
+	accessory->bt_service = bt_listen(modelName, description, NULL, accessory->bt_uuids );
 
 	accessory->fds[0].fd = udev_monitor_get_fd(accessory->udev_monitor);
 	accessory->fds[0].events = POLLIN;
