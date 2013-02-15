@@ -70,13 +70,27 @@ public class AccessoryBridge implements Channel
 			header.mark();
 		}
 		
+		/**
+		 * <p>Sends a CLOSE to the port on the accessory indicating you are not interested in any more data</p>
+		 * 
+		 * @throws IOException
+		 */
 		@Override
 		public void close() throws IOException {
+			if(!inputOpen)
+				throw new IOException("Input on this port is already closed");
 			inputOpen = false;
 			portStatusService.close(this);
 		}
 		
+		/**
+		 * <p>Sends a EOF to the port on the accessory indicating you will no longer send data</p>
+		 * 
+		 * @throws IOException
+		 */
 		public void eof() throws IOException {
+			if(!outputOpen)
+				throw new IOException("Output on this port is already closed");
 			outputOpen = false;
 			portStatusService.eof(this);
 		}
