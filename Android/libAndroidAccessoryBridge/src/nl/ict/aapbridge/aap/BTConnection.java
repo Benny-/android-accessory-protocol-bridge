@@ -27,6 +27,9 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 
 /**
  * <p>Creates a connection to a android accessory using a rfcomm bluetooth socket.</p>
@@ -54,15 +57,19 @@ public class BTConnection implements AccessoryConnection {
 	private static final UUID MY_UUID_INSECURE = UUID
 			.fromString("a48e5d50-188b-4fca-b261-89c13914e118");
 	
-	public BTConnection(BluetoothDevice device) throws IOException {
+	public BTConnection(Context context, BluetoothDevice device) throws IOException {
+		Resources resources = context.getResources();
+		XmlResourceParser xmlRP = resources.getXml(resources.getIdentifier("xml/accessory_filter.xml", null, null));
+		// TODO: Extract UUID out of "res/xml/accessory_filter.xml"
+		
 		mSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
 		mSocket.connect();
 		mInputStream = new BufferedInputStream(mSocket.getInputStream());
 		mOutputStream = new BufferedOutputStream(mSocket.getOutputStream());
 	}
 	
-	public BTConnection(String address) throws IOException {
-		this(BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address));
+	public BTConnection(Context context, String address) throws IOException {
+		this(context, BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address));
 	}
 
 	public InputStream getInputStream() throws IOException {

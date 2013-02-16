@@ -69,7 +69,7 @@ public class BluetoothAccessoryActivity extends ListActivity{
 		
 		try {
 			MainActivity.aapbridge = new AccessoryBridge(
-					new BTConnection(btArrayAdapter.getItem(position).getBtDevice()));
+					new BTConnection(BluetoothAccessoryActivity.this.getApplicationContext(), btArrayAdapter.getItem(position).getBtDevice()));
 			Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 			startActivity(intent);
 		} catch (IOException e) {
