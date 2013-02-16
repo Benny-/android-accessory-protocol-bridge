@@ -18,6 +18,7 @@ import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import nl.ict.aapbridge.aap.AccessoryConnection;
+import nl.ict.aapbridge.bulk.BulkTransfer;
 import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.DbusSignals;
@@ -47,13 +48,13 @@ import android.widget.Toast;
 public class AccessoryBridge implements Channel
 {
 	/**
-	 * NOT part of the public API.
+	 * <p>NOT part of the public API.</p>
 	 * 
-	 * The Port class multiplexes all data over the underlying connection by prepending all data with the port number and length of data.
+	 * <p>The Port class multiplexes all data over the underlying connection by prepending all data with the port number and length of data.</p>
 	 * 
-	 * Writing to the port is thread-safe and can be done at any time.
+	 * <p>Writing to the port is thread-safe and can be done at any time.</p>
 	 * 
-	 * Reading from the port works different. A service will be notified if data is ready to be received. The service MUST call {@link #readAll(ByteBuffer)} or {@link #skipRead(int)}.
+	 * <p>Reading from the port works different. A service will be notified if data is ready to be received. The service MUST call {@link #readAll(ByteBuffer)} or {@link #skipRead(int)}.</p>
 	 */
 	public class Port implements ByteChannel, ReadableByteChannel {
 		
@@ -546,9 +547,9 @@ public class AccessoryBridge implements Channel
 	 * @throws IOException If the connection to the accessory is severed
 	 * @throws ServiceRequestException If the remote host could not start the requested service
 	 */
-	public void createBulkTransfer() throws IOException, ServiceRequestException
+	public BulkTransfer createBulkTransfer(String busName, String objectPath, String arguments) throws IOException, ServiceRequestException
 	{
-		throw new ServiceRequestException("Bulk transfer not yet implemented");
+		return new BulkTransfer(this, busName, objectPath, arguments);
 	}
 
 	@Override

@@ -82,7 +82,7 @@ public class BulkTransfer implements BridgeService{
 	 * @throws IOException
 	 * @throws ServiceRequestException
 	 */
-	public BulkTransfer(AccessoryBridge bridge, String objectPath, String arguments) throws IOException, ServiceRequestException
+	public BulkTransfer(AccessoryBridge bridge, String busName, String objectPath, String arguments) throws IOException, ServiceRequestException
 	{
 		if(bridge == null)
 			throw new NullPointerException("bridge may not be null");
