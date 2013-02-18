@@ -72,7 +72,7 @@ public class BluetoothAccessoryActivity extends ListActivity{
 					new BTConnection(BluetoothAccessoryActivity.this.getApplicationContext(), btArrayAdapter.getItem(position).getBtDevice()));
 			Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 			startActivity(intent);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Log.e(TAG, "", e);
 			Toast.makeText(this, "Connection failed: "+e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 		}

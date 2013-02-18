@@ -16,6 +16,8 @@ package nl.ict.aapbridge.aap;
  */
 
 
+import static nl.ict.aapbridge.TAG.TAG;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -24,12 +26,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
+import android.util.Log;
 
 /**
  * <p>Creates a connection to a android accessory using a rfcomm bluetooth socket.</p>
@@ -48,27 +54,39 @@ import android.content.res.XmlResourceParser;
  * 
  */
 public class BTConnection implements AccessoryConnection {
-
+	
+	private static UUID uuid;
 	private InputStream mInputStream;
 	private OutputStream mOutputStream;
 	private BluetoothSocket mSocket;
 	private boolean disconnected = false;
-
-	private static final UUID MY_UUID_INSECURE = UUID
-			.fromString("a48e5d50-188b-4fca-b261-89c13914e118");
 	
-	public BTConnection(Context context, BluetoothDevice device) throws IOException {
-		Resources resources = context.getResources();
-		XmlResourceParser xmlRP = resources.getXml(resources.getIdentifier("accessory_filter", "xml", context.getPackageName()));
-		// TODO: Extract UUID out of "res/xml/accessory_filter.xml"
+	public BTConnection(Context context, BluetoothDevice device) throws IOException, XmlPullParserException {
 		
-		mSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
+		synchronized (BTConnection.class)
+		{
+			if(uuid == null)
+			{
+				Resources resources = context.getResources();
+				XmlResourceParser xmlPuller = resources.getXml(resources.getIdentifier("accessory_filter", "xml", context.getPackageName()));
+				do
+				{
+					if(xmlPuller.getEventType() == XmlPullParser.START_TAG && "bt-accessory".equals(xmlPuller.getName()))
+					{
+						String uuid_str = xmlPuller.getAttributeValue(null, "uuid");
+						uuid = UUID.fromString(uuid_str);
+					}
+				} while( xmlPuller.next() != XmlPullParser.END_DOCUMENT );
+			}
+		}
+		
+		mSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 		mSocket.connect();
 		mInputStream = new BufferedInputStream(mSocket.getInputStream());
 		mOutputStream = new BufferedOutputStream(mSocket.getOutputStream());
 	}
 	
-	public BTConnection(Context context, String address) throws IOException {
+	public BTConnection(Context context, String address) throws IOException, XmlPullParserException {
 		this(context, BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address));
 	}
 

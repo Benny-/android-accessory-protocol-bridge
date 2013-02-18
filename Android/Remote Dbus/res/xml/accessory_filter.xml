@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <usb-accessory model="AAP" manufacturer="ICT" version="1.0"/>
+    <bt-accessory uuid="a48e5d50-188b-4fca-b261-89c13914e118" />
 </resources>
