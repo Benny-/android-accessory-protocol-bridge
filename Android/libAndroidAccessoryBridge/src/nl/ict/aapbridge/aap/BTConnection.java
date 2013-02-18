@@ -59,7 +59,7 @@ public class BTConnection implements AccessoryConnection {
 	
 	public BTConnection(Context context, BluetoothDevice device) throws IOException {
 		Resources resources = context.getResources();
-		XmlResourceParser xmlRP = resources.getXml(resources.getIdentifier("xml/accessory_filter.xml", null, null));
+		XmlResourceParser xmlRP = resources.getXml(resources.getIdentifier("accessory_filter", "xml", context.getPackageName()));
 		// TODO: Extract UUID out of "res/xml/accessory_filter.xml"
 		
 		mSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_INSECURE);
