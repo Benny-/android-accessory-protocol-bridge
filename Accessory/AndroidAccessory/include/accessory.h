@@ -92,8 +92,6 @@ Accessory* initAccessory(
 		 * This value is used as identification for connecting Android applications and MUST be valid. Create a new random uuid using the `uuidgen` program (ubuntu) for every non-compatible application and use it as parameter.  This uuid should match on the Android device when connecting using [bluetooth](https://developer.android.com/reference/android/bluetooth/BluetoothDevice.html#createRfcommSocketToServiceRecord%28java.util.UUID%29)
 		 *
 		 * Expecting a pointer to a null terminated array of uuid string pointers. Multiple uuid's are allowed as bluetooth allows cascading services (first element should be most specific, the last element should be most general). You most likely only need one uuid.
-		 *
-		 * *This parameter is at this moment not implemented and does nothing.*
 		 */
 		const char* const* bt_uuids,
 		/**
