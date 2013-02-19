@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import time
 from threading import Timer
 from pprint import pprint
@@ -12,10 +13,16 @@ from dbus.mainloop.glib import DBusGMainLoop
 
 DBusGMainLoop(set_as_default=True)
 gobject.threads_init() # Multithreaded python programs must call this before using threads.
-
 bus = dbus.SessionBus()
+loop = gobject.MainLoop()
 
 InterfaceA = "nl.ict.AABUnitTest.A"
+
+"""
+Objects who have the InterfaceOnBulkTransfer interface must implement
+onBulkRequest(String fifoToPayload, String fifoToAndroid, String requestedBulkData)
+"""
+InterfaceOnBulkTransfer = "nl.ict.aapbridge.bulk"
 
 """
 bus-name   : nl.ict.AABUnitTest
@@ -202,11 +209,37 @@ class AABUnitTestC(dbus.service.Object):
         emitter = Timer(5, AABUnitTestC.Emit, [self])
         emitter.start()
 
+def onEchoIOReady(source, cb_condition, fifoToAndroid, fifoToPayload):
+
+    if(cb_condition is gobject.IO_HUP):
+        fifoToAndroid.close()
+        return False
+    
+    try:
+        fifoToAndroid.write(os.read(fifoToPayload, 5000))
+        fifoToAndroid.flush()
+    except:
+        fifoToAndroid.close()
+        return False
+    return True
+
+class BulkTransferEcho(dbus.service.Object):
+
+    def __init__(self, object_path, bus_name):
+        dbus.service.Object.__init__(self, bus_name, object_path)
+
+    @dbus.service.method(InterfaceOnBulkTransfer, in_signature='sss', out_signature='')
+    def onBulkRequest(self, fifoToPayloadPath, fifoToAndroidPath, requestedBulkData):
+        fifoToPayload = os.open(fifoToPayloadPath, os.O_RDONLY )
+        fifoToAndroid = open(fifoToAndroidPath, 'w')
+        gobject.io_add_watch(fifoToPayload, gobject.IO_IN | gobject.IO_HUP, onEchoIOReady, fifoToAndroid, fifoToPayload)
+        
 bus_name = dbus.service.BusName('nl.ict.AABUnitTest', bus)
 serviceB = AABUnitTestB('/nl/ict/AABUnitTest/B',bus_name)
 serviceC = AABUnitTestC('/nl/ict/AABUnitTest/C',bus_name)
+bulkEcho1 = BulkTransferEcho('/nl/ict/AABUnitTest/bulk/echo1',bus_name)
+bulkEcho2 = BulkTransferEcho('/nl/ict/AABUnitTest/bulk/echo2',bus_name)
 
 print("Starting event loop")
-loop = gobject.MainLoop()
 loop.run()
 
