@@ -209,7 +209,7 @@ class AABUnitTestC(dbus.service.Object):
         emitter = Timer(5, AABUnitTestC.Emit, [self])
         emitter.start()
 
-def onEchoIOReady(source, cb_condition, fifoToAndroid, fifoToPayload):
+def onEchoIOReady(source, cb_condition, fifoToPayload, fifoToAndroid):
 
     if(cb_condition is gobject.IO_HUP):
         fifoToAndroid.close()
@@ -230,9 +230,10 @@ class BulkTransferEcho(dbus.service.Object):
 
     @dbus.service.method(InterfaceOnBulkTransfer, in_signature='sss', out_signature='')
     def onBulkRequest(self, fifoToPayloadPath, fifoToAndroidPath, requestedBulkData):
+        print("onBulkRequest: "+fifoToPayloadPath+" "+fifoToAndroidPath+" "+requestedBulkData)
         fifoToPayload = os.open(fifoToPayloadPath, os.O_RDONLY )
         fifoToAndroid = open(fifoToAndroidPath, 'w')
-        gobject.io_add_watch(fifoToPayload, gobject.IO_IN | gobject.IO_HUP, onEchoIOReady, fifoToAndroid, fifoToPayload)
+        gobject.io_add_watch(fifoToPayload, gobject.IO_IN | gobject.IO_HUP, onEchoIOReady, fifoToPayload, fifoToAndroid)
         
 bus_name = dbus.service.BusName('nl.ict.AABUnitTest', bus)
 serviceB = AABUnitTestB('/nl/ict/AABUnitTest/B',bus_name)

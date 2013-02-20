@@ -25,13 +25,22 @@
             android:layout_below="@+id/button_rpc"
             android:text="Signals receive filter" />
         
+		<Button
+            android:id="@+id/button_bulk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/button_signals"
+            android:text="Bulk data" />
+        
         <Button
             android:id="@+id/button_keepalive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/button_signals"
+            android:layout_below="@+id/button_bulk"
             android:text="Keep alive" />
         
     </RelativeLayout>

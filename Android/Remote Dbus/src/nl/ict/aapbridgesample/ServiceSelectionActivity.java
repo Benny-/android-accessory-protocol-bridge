@@ -21,6 +21,7 @@ public class ServiceSelectionActivity extends Activity {
 	
 	private Button button_rpc;
 	private Button button_signals;
+	private Button button_bulk;
 	private Button button_keepalive;
 	
     @Override
@@ -30,6 +31,7 @@ public class ServiceSelectionActivity extends Activity {
         
         button_rpc = (Button) findViewById(R.id.button_rpc);
         button_signals = (Button) findViewById(R.id.button_signals);
+        button_bulk = (Button) findViewById(R.id.button_bulk);
         button_keepalive = (Button)findViewById(R.id.button_keepalive);
         
         button_rpc.setOnClickListener(new OnClickListener() {
@@ -58,6 +60,13 @@ public class ServiceSelectionActivity extends Activity {
 				finish();
 			}
         }
+        
+        button_bulk.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				Intent intent = new Intent(getApplicationContext(), BulkActivity.class);
+				ServiceSelectionActivity.this.startActivity(intent);
+			}
+		});
         
         button_keepalive.setOnClickListener(new OnClickListener() {
     		public void onClick(View v) {

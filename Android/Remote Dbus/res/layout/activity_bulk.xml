@@ -1,0 +1,83 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BulkActivity" >
+
+    <EditText
+        android:id="@+id/editText_busname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:ems="10"
+        android:text="nl.ict.AABUnitTest"
+        android:hint="Busname" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/editText_objectpath"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/editText_busname"
+        android:ems="10"
+        android:text="/nl/ict/AABUnitTest/bulk/echo1"
+        android:hint="Object path" />
+    
+    <EditText
+        android:id="@+id/editText_arguments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/editText_objectpath"
+        android:ems="10"
+        android:hint="Arguments" />
+    
+    <Button
+        android:id="@+id/button_bulk_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/editText_arguments"
+        android:text="Start bulk transfer" />
+
+    <EditText
+        android:id="@+id/editText_bulk_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/button_bulk_start"
+        android:ems="10"
+        android:hint="Input"
+        android:inputType="textMultiLine" />
+
+    <Button
+        android:id="@+id/button_bulk_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/editText_bulk_input"
+        android:text="Send" />
+
+    <EditText
+        android:id="@+id/editText_bulk_output"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/button_bulk_send"
+        android:ems="10"
+        android:editable="false"
+        android:hint="Output"
+        android:inputType="textMultiLine" />
+
+</RelativeLayout>
