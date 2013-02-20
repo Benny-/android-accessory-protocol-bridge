@@ -208,7 +208,8 @@ static void CleanupService(BridgeService* service)
 		printf("Cleanup for service on port %hi\n",service->port);
 #endif
 	}
-	service->onCleanupService(service->service_data, service);
+	if(service->onCleanupService != NULL)
+		service->onCleanupService(service->service_data, service);
 	service->port = -1;
 	service->inputOpen = 1;
 	service->outputOpen = 1;
@@ -387,5 +388,6 @@ void deInitServer(BridgeConnection* bridge)
 	deInitSendQueue();
 	deInitreceiveQueue();
 
+	closeAndroidConnection(bridge->con);
 	free(bridge);
 }

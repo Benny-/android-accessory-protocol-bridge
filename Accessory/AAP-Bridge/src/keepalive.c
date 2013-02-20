@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-const static char* const pong = "pong";
+const static char pong[] = "pong";
 
 void* KeepaliveInit(void)
 {

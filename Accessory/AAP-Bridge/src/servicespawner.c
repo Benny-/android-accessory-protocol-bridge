@@ -4,10 +4,11 @@
 #include <stdio.h>
 
 #include "BridgeService.h"
+#include "servicespawner.h"
 
+#include "bulkTransfer.h"
 #include "Dbus/method.h"
 #include "Dbus/listener.h"
-#include "servicespawner.h"
 
 #define STREAM_OPEN   0x01 //Port id field is the port associated with the new service
 #define STREAM_DENIED 0x02 //Port id field must be ignored
@@ -27,14 +28,29 @@ void ServiceSpawnerOnBytesReceived(void* service_data, BridgeService* service, v
 	BridgeConnection* bridge = service_data;
 	int8_t* requested_protocol = ((int8_t*)buffer)+1;
 	int16_t arguments_length = 0;
-	arguments_length = (*(requested_protocol+1)) || ( (*(requested_protocol+2)) << 8);
+	arguments_length = (*(requested_protocol+1)) | ( (*(requested_protocol+2)) << 8);
 	void* arguments = requested_protocol + 3;
 	printf("ServiceSpawner requested_protocol: %hhi\n", *requested_protocol);
+	printf("ServiceSpawner arguments_length: %hi\n", arguments_length);
 	switch(*requested_protocol)
 	{
 		case 1: // Bulk data
-			response[3] = STREAM_DENIED;
-			response[4] = 2; // The error.
+			new_service = openNewPort(bridge); // Fixme: leaking a open port if new_service->service_data is null
+			new_service->service_data = BulkInit(new_service, arguments);
+			if(new_service->service_data != NULL)
+			{
+				new_service->onBytesReceived = &BulkOnBytesReceived;
+				new_service->onCleanupService = &BulkCleanup;
+				new_service->onEof = &BulkOnEof;
+				response[3] = STREAM_OPEN;
+				response[1] = new_service->port;
+				response[2] = new_service->port >> 8;
+			}
+			else
+			{
+				response[3] = STREAM_DENIED;
+				response[4] = 2; // The error.
+			}
 			break;
 
 		case 2: // D-Bus function calls

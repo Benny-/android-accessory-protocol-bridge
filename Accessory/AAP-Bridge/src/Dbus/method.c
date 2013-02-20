@@ -70,6 +70,8 @@ void* MethodInit(BridgeService* service)
 	methods->con = dbus_bus_get(DBUS_BUS_SESSION, &dbusError);
 	methods->service = service;
 
+	dbus_threads_init_default();
+
 	if(dbus_error_is_set(&dbusError))
 	{
 		fprintf(stderr, "%s %d MethodInit Error occurred: %s %s\n", __FILE__, __LINE__,  dbusError.name, dbusError.message);
