@@ -5,9 +5,13 @@ import static nl.ict.aapbridge.test.TAG.TAG;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
+import nl.ict.aapbridge.aap.AccessoryConnection;
+import nl.ict.aapbridge.aap.BTConnection;
 import nl.ict.aapbridge.aap.UsbConnection;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import android.app.PendingIntent;
@@ -42,7 +46,20 @@ public class BridgeFactoryService extends Service {
     }
     
     private static AccessoryBridge aab = null;
-    public static AccessoryBridge getAAPBridge(Context context) throws InterruptedException, IOException
+    
+    public static AccessoryBridge getBtAAPBridge(Context context) throws InterruptedException, IOException, XmlPullParserException
+    {
+    	if(aab == null)
+    	{
+    		// The following bluetooth address is from a machine running the aab-bridge program and running the teststub.py.
+    		// Modify it if the unit test machine changes.
+    		AccessoryConnection connection = new BTConnection(context, "90:21:55:57:08:B6");
+			aab = new AccessoryBridge(connection);
+    	}
+    	return aab;
+    }
+    
+    public static AccessoryBridge getUsbAAPBridge(Context context) throws InterruptedException, IOException
     {
     	if(aab == null)
     	{
@@ -72,6 +89,18 @@ public class BridgeFactoryService extends Service {
 			Log.v(TAG, "" + connection);
 			
 			aab = new AccessoryBridge(connection);
+    	}
+    	return aab;
+    }
+    
+    public static AccessoryBridge getAAPBridge(Context context) throws InterruptedException, IOException
+    {
+    	try
+    	{
+    		getBtAAPBridge(context);
+    	} catch(Exception e)
+    	{
+    		getUsbAAPBridge(context);
     	}
     	return aab;
     }
