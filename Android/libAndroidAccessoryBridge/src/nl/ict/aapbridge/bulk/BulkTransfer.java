@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.ServiceRequestException;
@@ -22,9 +23,19 @@ public class BulkTransfer implements BridgeService{
 	public static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private final Port port;
+	
+	/**
+	 * <p>{@link #bulkInput} and {@link #toApp} are connected. The accessory bridge feeds data
+	 * into toApp and comes out of bulkInput. The user can obtain bulkInput by calling {@link #getInput()}</p>
+	 */
 	private PipedBulkInput bulkInput = new PipedBulkInput();
 	private PipedOutputStream toApp = new PipedOutputStream(bulkInput);
 	
+	/**
+	 * <p>{@link #bulkOutput} and {@link #toPayload} are connected. bulkOutput is visible to the
+	 * use by calling {@link #getOutput()}. toPayload has a overriden write() method which sends
+	 * the data directly to the accessory.</p>
+	 */
 	private BulkOutput toPayload = new BulkOutput();
 	private BufferedOutputStream bulkOutput = new BufferedOutputStream(toPayload);
 	
