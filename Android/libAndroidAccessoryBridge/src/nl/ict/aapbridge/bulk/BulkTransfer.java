@@ -78,6 +78,8 @@ public class BulkTransfer implements BridgeService{
 	 * <p></p>
 	 * 
 	 * @param bridge May not be null
+	 * @param busname May not be null
+	 * @param objectPath May not be null
 	 * @param arguments Null is allowed
 	 * @throws IOException
 	 * @throws ServiceRequestException
@@ -87,13 +89,23 @@ public class BulkTransfer implements BridgeService{
 		if(bridge == null)
 			throw new NullPointerException("bridge may not be null");
 		
+		if(busName == null)
+			throw new NullPointerException("busname may not be null");
+		
+		if(objectPath == null)
+			throw new NullPointerException("objectPath may not be null");
+		
 		if(arguments == null)
 			arguments = "";
+		
+		Log.v(TAG, "BulkTransfer requested for busname "+busName+" objectpath "+objectPath+" amd arguments "+arguments);
 		
 		ByteBuffer bb = ByteBuffer.allocate(3000);
 		bb.order(ByteOrder.LITTLE_ENDIAN);
 		
 		bb.clear();
+		bb.put(busName.getBytes(utf8));
+		bb.put((byte)0);
 		bb.put(objectPath.getBytes(utf8));
 		bb.put((byte)0);
 		bb.put(arguments.getBytes(utf8));
