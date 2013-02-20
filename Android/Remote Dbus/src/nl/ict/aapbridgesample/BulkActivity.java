@@ -96,6 +96,7 @@ public class BulkActivity extends Activity {
 			public void onClick(View v) {
 				try {
 					output.write( text_input.getText().toString().getBytes(utf8) );
+					output.flush();
 				} catch (Exception e) {
 					String error = "Could not start bulk transfer: "+e.getLocalizedMessage();
 					Log.e(TAG, error, e);

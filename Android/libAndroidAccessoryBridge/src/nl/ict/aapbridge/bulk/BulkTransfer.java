@@ -22,9 +22,12 @@ public class BulkTransfer implements BridgeService{
 	public static final Charset utf8 = Charset.forName("UTF-8");
 	
 	private final Port port;
-	private BulkInput bulkInput = new BulkInput();
-	private BulkOutput bulkOutput = new BulkOutput();
-	private PipedOutputStream outputStream = new PipedOutputStream(bulkInput);
+	private PipedBulkInput bulkInput = new PipedBulkInput();
+	private PipedOutputStream toApp = new PipedOutputStream(bulkInput);
+	
+	private BulkOutput toPayload = new BulkOutput();
+	private BufferedOutputStream bulkOutput = new BufferedOutputStream(toPayload);
+	
 	/**
 	 * Maximum size port message is 4000 bytes, so we match that.
 	 */
@@ -50,7 +53,8 @@ public class BulkTransfer implements BridgeService{
 		public void write(byte[] buffer, int offset, int count)
 				throws IOException {
 			ByteBuffer bb = ByteBuffer.wrap(buffer, offset, count);
-			port.write(bb);
+			while (bb.hasRemaining())
+				port.write(bb);
 		}
 		
 		@Override
@@ -59,7 +63,7 @@ public class BulkTransfer implements BridgeService{
 		}
 	}
 	
-	class BulkInput extends PipedInputStream
+	class PipedBulkInput extends PipedInputStream
 	{
 		@Override
 		public synchronized void close() throws IOException {
@@ -115,11 +119,21 @@ public class BulkTransfer implements BridgeService{
 		this.port = bridge.requestService((byte)1, bb, this);
 	}
 	
+	/**
+	 * Returns a buffered outputstream.
+	 * 
+	 * @return
+	 */
 	public OutputStream getOutput()
 	{
 		return this.bulkOutput;
 	}
 	
+	/**
+	 * Returns a buffered inputsteam.
+	 * 
+	 * @return
+	 */
 	public InputStream getInput()
 	{
 		return this.bulkInput;
@@ -131,7 +145,7 @@ public class BulkTransfer implements BridgeService{
 		receiverBuffer.limit(length);
 		port.readAll(receiverBuffer);
 		receiverBuffer.flip();
-		this.outputStream.write(receiverBuffer.array(), receiverBuffer.arrayOffset() + receiverBuffer.position(), receiverBuffer.remaining());
+		this.toApp.write(receiverBuffer.array(), receiverBuffer.arrayOffset() + receiverBuffer.position(), receiverBuffer.remaining());
 	}
 
 	@Override
@@ -142,7 +156,7 @@ public class BulkTransfer implements BridgeService{
 	@Override
 	public void onEof() {
 		try {
-			this.outputStream.close();
+			this.toApp.close();
 		} catch (IOException e) {
 			Log.e(TAG, "");
 		}
