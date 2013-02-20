@@ -5,7 +5,7 @@ import android.util.Log;
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.dbus.DbusMethodTest.SyncDbusHandler;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
-import nl.ict.aapbridge.test.UsbConnectorService;
+import nl.ict.aapbridge.test.BridgeFactoryService;
 import static nl.ict.aapbridge.test.TAG.TAG;
 
 public class DbusSignalTest extends android.test.AndroidTestCase  {
@@ -19,7 +19,7 @@ public class DbusSignalTest extends android.test.AndroidTestCase  {
 		
 		if(bridge == null)
 		{
-			bridge = UsbConnectorService.getAAPBridge(getContext());
+			bridge = BridgeFactoryService.getAAPBridge(getContext());
 		}
 	}
 	

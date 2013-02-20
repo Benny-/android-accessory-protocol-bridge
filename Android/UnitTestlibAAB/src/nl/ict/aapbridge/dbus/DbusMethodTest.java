@@ -7,7 +7,7 @@ import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
 import nl.ict.aapbridge.dbus.message.DbusMessage;
-import nl.ict.aapbridge.test.UsbConnectorService;
+import nl.ict.aapbridge.test.BridgeFactoryService;
 
 import org.freedesktop.DBus.Python.TypeError;
 
@@ -43,7 +43,7 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 		
 		if(dbus == null)
 		{
-			dbus = UsbConnectorService.getAAPBridge(getContext()).createDbus(synchandler);
+			dbus = BridgeFactoryService.getAAPBridge(getContext()).createDbus(synchandler);
 		}
 	}
 	

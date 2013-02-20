@@ -17,7 +17,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class UsbConnectorService extends Service {
+public class BridgeFactoryService extends Service {
 	
 	public static UsbConnection usb_connection;
 	public static final Semaphore usb_connections = new Semaphore(0);
@@ -29,7 +29,7 @@ public class UsbConnectorService extends Service {
 	 * But a aap can only be started using a pendingIntent, which requires a Service, Activity or Broadcast receiver.
 	 * @throws IOException 
 	 */
-    public UsbConnectorService() throws IOException {
+    public BridgeFactoryService() throws IOException {
     	super();
     	usb_connection = UsbConnection.easyConnect(this);
     	usb_connections.release();
@@ -52,7 +52,7 @@ public class UsbConnectorService extends Service {
 			UsbAccessory accessory = (accessories == null ? null
 					: accessories[0]);
 			
-			Intent intent = new Intent(context, UsbConnectorService.class);
+			Intent intent = new Intent(context, BridgeFactoryService.class);
 			PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
 			
 			UsbConnection connection;
@@ -61,8 +61,8 @@ public class UsbConnectorService extends Service {
 				Log.i(TAG, "No permission to operate on accessory, requesting permission");
 				mUSBManager.requestPermission(accessory, pendingIntent);
 				
-				UsbConnectorService.usb_connections.acquire();
-				connection = UsbConnectorService.usb_connection;
+				BridgeFactoryService.usb_connections.acquire();
+				connection = BridgeFactoryService.usb_connection;
 			}
 			else
 			{

@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.ServiceRequestException;
-import nl.ict.aapbridge.test.UsbConnectorService;
+import nl.ict.aapbridge.test.BridgeFactoryService;
 import android.test.AndroidTestCase;
 
 public class BulkTransferTest extends AndroidTestCase {
@@ -19,7 +19,7 @@ public class BulkTransferTest extends AndroidTestCase {
 		
 		if(bridge == null)
 		{
-			bridge = UsbConnectorService.getAAPBridge(getContext());
+			bridge = BridgeFactoryService.getAAPBridge(getContext());
 		}
 	}
 	
@@ -28,7 +28,7 @@ public class BulkTransferTest extends AndroidTestCase {
 		BulkTransfer transfer = null;
 		try
 		{
-			transfer = bridge.createBulkTransfer("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/Bulk1", "Memory/File/Anything");
+			transfer = bridge.createBulkTransfer("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/bulk/echo1", "Memory/File/Anything");
 		}
 		catch(ServiceRequestException e)
 		{

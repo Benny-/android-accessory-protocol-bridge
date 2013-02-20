@@ -18,7 +18,7 @@
             android:required="true" />
 
         <service
-            android:name=".UsbConnectorService"
+            android:name=".BridgeFactoryService"
             android:enabled="true"
             android:exported="false" >
         </service>
