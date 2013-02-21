@@ -223,6 +223,13 @@ def onEchoIOReady(source, cb_condition, fifoToPayload, fifoToAndroid):
         return False
     return True
 
+def onBulkEchoRequest(fifoToPayloadPath, fifoToAndroidPath, requestedBulkData):
+    print("Opening fifo's")
+    fifoToPayload = os.open(fifoToPayloadPath, os.O_RDONLY )
+    fifoToAndroid = open(fifoToAndroidPath, 'w')
+    print("Fifo's are open")
+    gobject.io_add_watch(fifoToPayload, gobject.IO_IN | gobject.IO_HUP, onEchoIOReady, fifoToPayload, fifoToAndroid)
+
 class BulkTransferEcho(dbus.service.Object):
 
     def __init__(self, object_path, bus_name):
@@ -231,9 +238,7 @@ class BulkTransferEcho(dbus.service.Object):
     @dbus.service.method(InterfaceOnBulkTransfer, in_signature='sss', out_signature='')
     def onBulkRequest(self, fifoToPayloadPath, fifoToAndroidPath, requestedBulkData):
         print("onBulkRequest: "+fifoToPayloadPath+" "+fifoToAndroidPath+" "+requestedBulkData)
-        fifoToPayload = os.open(fifoToPayloadPath, os.O_RDONLY )
-        fifoToAndroid = open(fifoToAndroidPath, 'w')
-        gobject.io_add_watch(fifoToPayload, gobject.IO_IN | gobject.IO_HUP, onEchoIOReady, fifoToPayload, fifoToAndroid)
+        gobject.idle_add(onBulkEchoRequest, fifoToPayloadPath, fifoToAndroidPath, requestedBulkData)
         
 bus_name = dbus.service.BusName('nl.ict.AABUnitTest', bus)
 serviceB = AABUnitTestB('/nl/ict/AABUnitTest/B',bus_name)
