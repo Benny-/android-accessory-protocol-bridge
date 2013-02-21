@@ -58,7 +58,8 @@ void addSendQueue(MultiplexedMessage *message)
 
 	if(messages == MESSAGEQUEMAX)
 	{
-		// This code will silently drop a message if the queue is full
+		// FIXME: This code will silently drop a message if the queue is full
+		fprintf(stderr, "A message to Android designated for port %i was dropped\n", message->port);
 		free(message->data);
 		free(message);
 	}
