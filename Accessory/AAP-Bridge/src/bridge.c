@@ -11,6 +11,7 @@
 #include "keepalive.h"
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
+#include "Dbus/dbuslib.h"
 
 #define MAX_PORTS 400
 
@@ -200,7 +201,8 @@ static void CleanupService(BridgeService* service)
 {
 	if(service->inputOpen || service->outputOpen)
 	{
-		fprintf(stderr, "WARNING: cleaning up a service who's input or output are still open on port %hi\n",service->port);
+		fprintf(stderr, "WARNING: cleaning up a service which is still open on port %hi. Input: %s Output: %s\n",
+				service->port, service->inputOpen ? "open":"closed", service->outputOpen ? "open":"closed");
 	}
 	else
 	{
@@ -231,11 +233,11 @@ static void PortStatusOnBytesReceived(void* service_data, BridgeService* service
 	if(size != 4)
 		fprintf(stderr, "Port status messages should be 4 bytes, but received one of %i",size);
 
-	port = casted_buffer[0] + (casted_buffer[1] << 8);
+	port = casted_buffer[0] | (casted_buffer[1] << 8);
 	BridgeService* target_service = &service->bridge->services[port];
 	if(target_service->port == -1)
 	{
-		fprintf(stderr, "PORT_STATUS ignoring new status for cleaned up port: %hi \n",port);
+		fprintf(stderr, "PORT_STATUS: ignoring new status for cleaned up port: %hi \n",port);
 	}
 	else
 	{
@@ -278,10 +280,13 @@ static void PortStatusCleanup(void* service_data, BridgeService* service)
 void sendEof		(BridgeService* service)
 {
 	int8_t buffer[4];
+
+	printf("PORT %i: sendEof() - output will now close\n", service->port);
+
 	buffer[0] = service->port;
 	buffer[1] = service->port >> 8;
-	buffer[3] = STREAM_EOF;
-	buffer[4] = 0;
+	buffer[2] = STREAM_EOF;
+	buffer[3] = 0;
 	service->outputOpen = 0;
 	writeAllPort(service->bridge->portStatusService, buffer, sizeof(buffer));
 
@@ -294,10 +299,13 @@ void sendEof		(BridgeService* service)
 void sendClose	(BridgeService* service)
 {
 	int8_t buffer[4];
+
+	printf("PORT %i: sendClose() - output will now close\n", service->port);
+
 	buffer[0] = service->port;
 	buffer[1] = service->port >> 8;
-	buffer[3] = STREAM_CLOSE;
-	buffer[4] = 0;
+	buffer[2] = STREAM_CLOSE;
+	buffer[3] = 0;
 	service->inputOpen = 0;
 	writeAllPort(service->bridge->portStatusService, buffer, sizeof(buffer));
 
