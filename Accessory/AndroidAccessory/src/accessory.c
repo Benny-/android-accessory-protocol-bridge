@@ -20,6 +20,7 @@ int readAllAccessory(AapConnection* con, void* buffer, int size)
 	{
 		response = readAccessory(con, buffer, size);
 		size -= response;
+		buffer += response;
 	}
 	return response < 0 ? response : 0;
 }
@@ -36,6 +37,7 @@ int writeAllAccessory(AapConnection* con, const void* buffer, int size)
 	{
 		response = writeAccessory(con, buffer, size);
 		size -= response;
+		buffer += response;
 	}
 	return response < 0 ? response : 0;
 }
