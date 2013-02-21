@@ -122,7 +122,7 @@ public class AccessoryBridge implements Channel
 			header.putShort(writeAmount);
 			synchronized (AccessoryBridge.this) {
 				outputStream.write(header.array(), header.arrayOffset(), header.capacity());
-				outputStream.write(buffer.array(), buffer.arrayOffset(), writeAmount);
+				outputStream.write(buffer.array(), buffer.arrayOffset() + buffer.position(), writeAmount);
 				outputStream.flush();
 			}
 			buffer.position(buffer.position() + writeAmount);

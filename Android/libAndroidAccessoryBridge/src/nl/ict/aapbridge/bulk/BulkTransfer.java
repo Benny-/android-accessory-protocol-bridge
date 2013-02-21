@@ -82,6 +82,10 @@ public class BulkTransfer implements BridgeService{
 			{
 				port.close();
 			}
+			catch (IOException e)
+			{
+				// Meh. port is already closed. Who cares?
+			}
 			finally
 			{
 				super.close();

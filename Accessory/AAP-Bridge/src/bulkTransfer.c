@@ -138,6 +138,12 @@ static void* BulkInitInternal(BridgeService* service, char* busname, char* objec
 		return NULL;
 	}
 
+	if (checkPayloadResponse(pending))
+	{
+		BulkCleanup(bulk, NULL);
+		return NULL;
+	}
+
 	bulk->fifoToPayloadFD = open(fifoToPayloadPath, O_WRONLY);
 	if(bulk->fifoToPayloadFD == -1)
 	{
@@ -147,12 +153,6 @@ static void* BulkInitInternal(BridgeService* service, char* busname, char* objec
 
 	bulk->fifoToAndroidFD = open(fifoToAndroidPath, O_RDONLY);
 	if(bulk->fifoToAndroidFD == -1)
-	{
-		BulkCleanup(bulk, NULL);
-		return NULL;
-	}
-
-	if (checkPayloadResponse(pending))
 	{
 		BulkCleanup(bulk, NULL);
 		return NULL;
