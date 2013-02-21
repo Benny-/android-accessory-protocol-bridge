@@ -23,7 +23,7 @@ public class BulkTransferTest extends AndroidTestCase {
 		}
 	}
 	
-	public void testApi() throws IOException
+	public void testShortString() throws IOException
 	{
 		BulkTransfer transfer = null;
 		try
@@ -37,9 +37,57 @@ public class BulkTransferTest extends AndroidTestCase {
 		InputStream input = transfer.getInput();
 		OutputStream output = transfer.getOutput();
 		
-		output.write(5);
+		output.write('h');
+		output.write('e');
+		output.write('l');
+		output.write('l');
+		output.write('o');
 		output.close();
-		assertEquals(5, input.read());
+		assertEquals('h', input.read());
+		assertEquals('e', input.read());
+		assertEquals('l', input.read());
+		assertEquals('l', input.read());
+		assertEquals('o', input.read());
+		assertEquals(-1, input.read());
+		input.close();
+	}
+	
+	public void testEof() throws IOException
+	{
+		BulkTransfer transfer = null;
+		try
+		{
+			transfer = bridge.createBulkTransfer("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/bulk/echo1", "Memory/File/Anything");
+		}
+		catch(ServiceRequestException e)
+		{
+			fail();
+		}
+		InputStream input = transfer.getInput();
+		OutputStream output = transfer.getOutput();
+		
+		output.close();
+		assertEquals(-1, input.read());
+		input.close();
+	}
+	
+	public void testOneByte() throws IOException
+	{
+		BulkTransfer transfer = null;
+		try
+		{
+			transfer = bridge.createBulkTransfer("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/bulk/echo1", "Memory/File/Anything");
+		}
+		catch(ServiceRequestException e)
+		{
+			fail();
+		}
+		InputStream input = transfer.getInput();
+		OutputStream output = transfer.getOutput();
+		
+		output.write('h');
+		output.close();
+		assertEquals('h', input.read());
 		assertEquals(-1, input.read());
 		input.close();
 	}
