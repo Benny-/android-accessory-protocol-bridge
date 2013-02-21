@@ -27,10 +27,12 @@ public class BridgeFactoryService extends Service {
 	public static final Semaphore usb_connections = new Semaphore(0);
 	
 	/**
-	 * This class's only purpose is to connect to a accessory.
+	 * <p>This class's only purpose is to connect to a accessory.</p>
 	 * 
-	 * The test cases need a accessory to test the aab.
-	 * But a aap can only be started using a pendingIntent, which requires a Service, Activity or Broadcast receiver.
+	 * <p>The test cases need a accessory to test the aab.
+	 * But a aap can only be started using a pendingIntent,
+	 * which requires a Service, Activity or Broadcast receiver.</p>
+	 * 
 	 * @throws IOException 
 	 */
     public BridgeFactoryService() throws IOException {
@@ -53,7 +55,7 @@ public class BridgeFactoryService extends Service {
     	{
     		// The following bluetooth address is from a machine running the aab-bridge program and running the teststub.py.
     		// Modify it if the unit test machine changes.
-    		AccessoryConnection connection = new BTConnection(context, "90:21:55:57:08:B6");
+    		AccessoryConnection connection = new BTConnection(context, "00:1A:6B:FE:B2:BF");
 			aab = new AccessoryBridge(connection);
     	}
     	return aab;
@@ -95,12 +97,17 @@ public class BridgeFactoryService extends Service {
     
     public static AccessoryBridge getAAPBridge(Context context) throws InterruptedException, IOException
     {
-    	try
+    	if(aab == null || !aab.isOpen())
     	{
-    		getBtAAPBridge(context);
-    	} catch(Exception e)
-    	{
-    		getUsbAAPBridge(context);
+    		aab = null;
+	    	try
+	    	{
+	    		getBtAAPBridge(context);
+	    	} catch(Exception e)
+	    	{
+	    		Log.v(TAG, e.getLocalizedMessage(), e);
+	    		getUsbAAPBridge(context);
+	    	}
     	}
     	return aab;
     }
