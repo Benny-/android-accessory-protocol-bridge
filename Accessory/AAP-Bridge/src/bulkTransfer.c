@@ -32,7 +32,10 @@ static void* bulkTransferThread(void* user_data)
 		if(rd >= 1)
 			writeAllPort(bulk->service, buffer, rd);
 		else
+		{
+			fprintf(stderr, "bulk-> bulkTransferThread going to stop due to read error %i\n",rd);
 			error = 1;
+		}
 	}
 
 	sendEof(bulk->service);
@@ -83,7 +86,7 @@ static int checkPayloadResponse( DBusPendingCall* pending)
 
 	if(dbus_message_get_error_name(dbus_msg) != NULL)
 	{
-		fprintf(stderr, "Bulk transfer could not be started: %s\n", dbus_message_get_error_name(dbus_msg));
+		fprintf(stderr, "bulk-> transfer could not be started due to payload response: %s\n", dbus_message_get_error_name(dbus_msg));
 		PrintDBusMessage(dbus_msg);
 		dbus_message_unref(dbus_msg);
 		return 1;
@@ -101,10 +104,6 @@ static void* BulkInitInternal(BridgeService* service, char* busname, char* objec
 	bulk->fifoToPayloadFD = -1;
 	bulk->fifoToAndroidFD = -1;
 	bulk->threadStarted = 0;
-
-	printf("bulk-> busname               : %s\n",busname);
-	printf("bulk-> objectpath            : %s\n",objectpath);
-	printf("bulk-> arguments_for_payload : %s\n",arguments_for_payload);
 
 	mkdir("/tmp/aap-bridge", S_IRWXU);
 	mkdir("/tmp/aap-bridge/bulk", S_IRWXU);
