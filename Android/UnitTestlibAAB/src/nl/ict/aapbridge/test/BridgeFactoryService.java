@@ -95,6 +95,15 @@ public class BridgeFactoryService extends Service {
     	return aab;
     }
     
+    /**
+     * <p>This function will first try to connect using bluetooth. If that fails,
+     * it will try to connect using usb accessory protocol</p>
+     * 
+     * @param context
+     * @return
+     * @throws InterruptedException
+     * @throws IOException
+     */
     public static AccessoryBridge getAAPBridge(Context context) throws InterruptedException, IOException
     {
     	if(aab == null || !aab.isOpen())

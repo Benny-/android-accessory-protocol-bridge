@@ -120,13 +120,18 @@ public class AccessoryBridge implements Channel
 			header.reset();
 			short writeAmount = (short) (buffer.remaining() > 4000 ? 4000 : buffer.remaining());
 			header.putShort(writeAmount);
+			StringBuilder sb = new StringBuilder(8000);
 			synchronized (AccessoryBridge.this) {
 				outputStream.write(header.array(), header.arrayOffset(), header.capacity());
 				outputStream.write(buffer.array(), buffer.arrayOffset() + buffer.position(), writeAmount);
+				for(int i = 0; i<writeAmount; i++)
+				{
+					sb.append( Integer.toHexString( buffer.array()[i] ) ) ;
+				}
 				outputStream.flush();
 			}
 			buffer.position(buffer.position() + writeAmount);
-			Log.d(TAG, "PORT "+portNr+": wrote "+writeAmount+" bytes");
+			Log.d(TAG, "PORT "+portNr+": wrote "+writeAmount+" bytes");  //: "+sb.toString());
 			return writeAmount;
 		}
 
@@ -192,11 +197,11 @@ public class AccessoryBridge implements Channel
 	public interface BridgeService {
 
 		/**
-		 * NOT part of the public API.
+		 * <p>NOT part of the public API.</p>
 		 * 
-		 * Called from the ReceiverThread if bytes must be read.
+		 * <p>Called from the ReceiverThread if bytes must be read.</p>
 		 * 
-		 * The bytes MUST be read from the port before this function call returns. Use the read or skip functions on the {@link Port}
+		 * <p>The bytes MUST be read from the port before this function call returns. Use the read or skip functions on the {@link Port}</p>
 		 * 
 		 * @param length
 		 * @throws IOException
@@ -206,7 +211,7 @@ public class AccessoryBridge implements Channel
 		void onDataReady(int length) throws IOException;
 		
 		/**
-		 * NOT part of public API.
+		 * <p>NOT part of public API.</p>
 		 * 
 		 * @return The Port object associated with this service.
 		 */
