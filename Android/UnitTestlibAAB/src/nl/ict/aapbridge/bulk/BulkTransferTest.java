@@ -54,7 +54,7 @@ public class BulkTransferTest extends AndroidTestCase {
 		input.close();
 	}
 	
-	public void testEof() throws IOException
+	public BulkTransfer echo1() throws IOException
 	{
 		BulkTransfer transfer = null;
 		try
@@ -65,6 +65,12 @@ public class BulkTransferTest extends AndroidTestCase {
 		{
 			fail();
 		}
+		return transfer;
+	}
+	
+	public void testEof() throws IOException
+	{
+		BulkTransfer transfer = echo1();
 		InputStream input = transfer.getInput();
 		OutputStream output = transfer.getOutput();
 		
@@ -106,15 +112,7 @@ public class BulkTransferTest extends AndroidTestCase {
 	
 	public void testOneByte() throws IOException
 	{
-		BulkTransfer transfer = null;
-		try
-		{
-			transfer = bridge.createBulkTransfer("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/bulk/echo1", "Memory/File/Anything");
-		}
-		catch(ServiceRequestException e)
-		{
-			fail();
-		}
+		BulkTransfer transfer = echo1();
 		InputStream input = transfer.getInput();
 		OutputStream output = transfer.getOutput();
 		
@@ -125,17 +123,9 @@ public class BulkTransferTest extends AndroidTestCase {
 		input.close();
 	}
 	
-	public void testAllot() throws IOException
+	public void testAllot1() throws IOException
 	{
-		BulkTransfer transfer = null;
-		try
-		{
-			transfer = bridge.createBulkTransfer("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/bulk/echo1", "Memory/File/Anything");
-		}
-		catch(ServiceRequestException e)
-		{
-			fail();
-		}
+		BulkTransfer transfer = echo1();
 		InputStream input = transfer.getInput();
 		final OutputStream output = transfer.getOutput();
 		
@@ -170,6 +160,47 @@ public class BulkTransferTest extends AndroidTestCase {
 				increasingNr++;
 				increasingNr %= 16;
 				bytesLeft--;
+			}
+			assertEquals(-1, input.read());
+		} catch (IOException e) {
+			fail(e.getStackTrace().toString());
+		}
+	}
+	
+	public void testAllot2() throws IOException
+	{
+		BulkTransfer bulk = echo1();
+		InputStream input = bulk.getInput();
+		final OutputStream output = bulk.getOutput();
+		
+		final byte[] bytes = new byte[1000];
+		final long transfers = 500;
+		Log.v(TAG, "Transferring "+transfers+" blocks of bytes");
+		new Thread(new Runnable() {
+			public void run() {
+				long transfer = transfers;
+				try {
+					while(transfer > 0)
+					{
+						output.write(bytes);
+						transfer--;
+					}
+					output.close();
+				} catch (IOException e) {
+					fail(e.getStackTrace().toString());
+				}
+			}
+		}).start();
+		
+		long transfer = transfers;
+		try {
+			byte[] received_bytes = new byte[1000];
+			while(transfer > 0)
+			{
+				int read = 0;
+				while(read != 1000)
+					read += input.read(received_bytes, read, 1000-read);
+				transfer--;
 			}
 			assertEquals(-1, input.read());
 		} catch (IOException e) {
