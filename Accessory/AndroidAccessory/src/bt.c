@@ -81,8 +81,8 @@ static sdp_session_t* register_service(
     int i = 0;
     while(bt_uuids[i] != NULL)
     {
-    	int errorcode = 0;
-    	if (errorcode = sdp_strn2uuid(&custom_uuids[i], bt_uuids[i], strlen(bt_uuids[i])))
+    	int errorcode = sdp_strn2uuid(&custom_uuids[i], bt_uuids[i], strlen(bt_uuids[i]));
+    	if (errorcode)
     	{
     		fprintf(stderr, "libAndroidAccessory: Could not parse UUID: %36s due to error code %i\n", bt_uuids[i], errorcode);
     	}
@@ -217,7 +217,8 @@ void bt_close(BT_SERVICE* service)
 
 int readAccessoryBT(AapConnection* con, void* buffer, int size)
 {
-	return read(con->physicalConnection.btConnection.fd, buffer, size);
+	int rd = read(con->physicalConnection.btConnection.fd, buffer, size);
+	return rd;
 }
 
 int writeAccessoryBT(AapConnection* con, const void* buffer, int size)
