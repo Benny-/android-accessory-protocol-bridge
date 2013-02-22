@@ -12,14 +12,16 @@ static int messages; // The amount of messages in the above queue
 static int writePosition;
 static int readPosition;
 static pthread_mutex_t lock;
-static sem_t sem;
+static sem_t message_sem;	// The amount of messages in the queue.
+static sem_t space_sem;		// The amount of free space for messages.
 
 void initreceiveQueue(void)
 {
 	messages = 0;
 	writePosition = 0;
 	readPosition = 0;
-	sem_init(&sem, 0, 0);
+	sem_init(&message_sem, 0, 0);
+	sem_init(&space_sem, 0, MESSAGEQUEMAX);
 	pthread_mutex_init(&lock, NULL);
 }
 
@@ -41,12 +43,15 @@ void deInitreceiveQueue(void)
 	}
 	pthread_mutex_unlock(&lock);
 
-	sem_destroy(&sem);
+
+	sem_destroy(&message_sem);
+	sem_destroy(&space_sem);
 	pthread_mutex_destroy(&lock);
 }
 
 void addreceivequeue(MultiplexedMessage *message)
 {
+	sem_wait(&space_sem);
 	pthread_mutex_lock(&lock);
 	if (writePosition >= MESSAGEQUEMAX) {
 		writePosition -= MESSAGEQUEMAX;
@@ -54,7 +59,7 @@ void addreceivequeue(MultiplexedMessage *message)
 
 	if(messages == MESSAGEQUEMAX)
 	{
-		// FIXME: This code will silently drop a message if the queue is full
+		// This should never happen.
 		fprintf(stderr, "A message from Android designated for port %i was dropped\n", message->port);
 		free(message->data);
 		free(message);
@@ -64,7 +69,7 @@ void addreceivequeue(MultiplexedMessage *message)
 		queue[writePosition] = message;
 		writePosition++;
 		messages++;
-		sem_post(&sem);
+		sem_post(&message_sem);
 	}
 	pthread_mutex_unlock(&lock);
 }
@@ -72,7 +77,7 @@ void addreceivequeue(MultiplexedMessage *message)
 MultiplexedMessage* pollReceiveQueue(void)
 {
 	MultiplexedMessage* retval;
-	sem_wait(&sem);
+	sem_wait(&message_sem);
 	pthread_mutex_lock(&lock);
 	if (readPosition >= MESSAGEQUEMAX) {
 		readPosition -= MESSAGEQUEMAX;
@@ -80,6 +85,7 @@ MultiplexedMessage* pollReceiveQueue(void)
 	retval = queue[readPosition];
 	readPosition++;
 	messages--;
+	sem_post(&space_sem);
 	pthread_mutex_unlock(&lock);
 	return retval;
 }
