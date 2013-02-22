@@ -17,6 +17,7 @@ typedef struct BulkTransfer{
 	int		fifoToPayloadFD;
 	int 	fifoToAndroidFD;
 	pthread_t bulkTransferThread;
+	pthread_mutex_t* startLock;
 	char threadStarted;
 } BulkTransfer;
 
@@ -25,6 +26,9 @@ static void* bulkTransferThread(void* user_data)
 	BulkTransfer* bulk = user_data;
 	int error = 0;
 	char buffer[1024];
+
+	pthread_mutex_lock(bulk->startLock);
+	pthread_mutex_unlock(bulk->startLock);
 
 	while(!error)
 	{
@@ -96,7 +100,7 @@ static int checkPayloadResponse( DBusPendingCall* pending)
 	return 0;
 }
 
-static void* BulkInitInternal(BridgeService* service, char* busname, char* objectpath, char* arguments_for_payload)
+static void* BulkInitInternal(BridgeService* service, pthread_mutex_t* startLock, char* busname, char* objectpath, char* arguments_for_payload)
 {
 	BulkTransfer* bulk = malloc(sizeof(BulkTransfer));
 	bulk->service = service;
@@ -104,6 +108,7 @@ static void* BulkInitInternal(BridgeService* service, char* busname, char* objec
 	bulk->fifoToPayloadFD = -1;
 	bulk->fifoToAndroidFD = -1;
 	bulk->threadStarted = 0;
+	bulk->startLock = startLock;
 
 	mkdir("/tmp/aap-bridge", S_IRWXU);
 	mkdir("/tmp/aap-bridge/bulk", S_IRWXU);
@@ -164,12 +169,12 @@ static void* BulkInitInternal(BridgeService* service, char* busname, char* objec
 	return bulk;
 }
 
-void* BulkInit(BridgeService* service, char* arguments)
+void* BulkInit(BridgeService* service, pthread_mutex_t* startLock, char* arguments)
 {
 	char* busname = arguments;
 	char* objectpath = busname + strlen(busname) + 1;
 	char* arguments_for_payload = objectpath + strlen(objectpath) + 1;
-	return BulkInitInternal(service, busname, objectpath, arguments_for_payload);
+	return BulkInitInternal(service, startLock, busname, objectpath, arguments_for_payload);
 }
 
 void BulkOnBytesReceived(void* service_data, BridgeService* service, void* buffer, int size)

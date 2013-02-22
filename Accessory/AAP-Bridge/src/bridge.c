@@ -375,8 +375,8 @@ BridgeConnection* initServer(AapConnection* con){
 void deInitServer(BridgeConnection* bridge)
 {
 	// Forcefully close all inputs and cleanup all the mess the - still open - services have malloced.
-	// We dont actually care if we could not send a EOF or CLOSE at this point. The connection might already be lost.
-	for(int i = 3; i<MAX_PORTS; i++)
+	// We don't actually care if we could not send a EOF or CLOSE at this point. The connection might already be lost.
+	for(int i = 0; i<MAX_PORTS; i++)
 	{
 		BridgeService* service = &bridge->services[i];
 		if(service->port != -1)

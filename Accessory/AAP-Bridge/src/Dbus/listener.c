@@ -24,7 +24,7 @@ typedef struct Signals
 	 */
 	pthread_mutex_t dbus_mutex;
 	volatile int work;
-
+	pthread_mutex_t* startLock;
 } Signals;
 
 /**
@@ -37,6 +37,9 @@ typedef struct Signals
 static void* signalWatch(void* user_data) {
 	Signals* signals = user_data;
 	DBusMessage* m;
+
+	pthread_mutex_lock(signals->startLock);
+	pthread_mutex_unlock(signals->startLock);
 
 	while(signals->work)
 	{
@@ -180,7 +183,7 @@ void removeSignalWatch(
 	bdestroy(rule);
 }
 
-void* SignalsInit(BridgeService* service, char* compressed_rule)
+void* SignalsInit(BridgeService* service, pthread_mutex_t* startLock, char* compressed_rule)
 {
 	DBusError dbusError;
 	dbus_error_init(&dbusError);
@@ -188,6 +191,7 @@ void* SignalsInit(BridgeService* service, char* compressed_rule)
 	Signals* signals = malloc(sizeof(Signals));
 	signals->con = dbus_bus_get_private(DBUS_BUS_SESSION, &dbusError);
 	signals->service = service;
+	signals->startLock = startLock;
 
 	if(dbus_error_is_set(&dbusError))
 	{
