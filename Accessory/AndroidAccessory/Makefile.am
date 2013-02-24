@@ -11,6 +11,31 @@ lib_LTLIBRARIES = libandroidaccessory-@ANDROIDACCESSORY_API_VERSION@.la
 
 EXTRA_DIST = src/*.h
 
+# Doxygen (Documentation: man pages, html and more)
+if HAVE_DOXYGEN
+
+# For some reason manual pages are not installed. This line does nothing.
+dist_libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_MANS = $(top_srcdir)/doc/man/man3/accessory.h.3
+$(top_srcdir)/doc/man/man3/accessory.h.3: $(top_srcdir)/doc/doxyfile.stamp
+
+$(top_srcdir)/doc/doxyfile.stamp: $(top_srcdir)/doc/Doxyfile $(top_srcdir)/include/accessory.h $(top_srcdir)/doc/echo.c
+	$(DOXYGEN) $(top_srcdir)/doc/Doxyfile
+	echo Timestamp > $(top_srcdir)/doc/doxyfile.stamp
+
+CLEANFILES = $(top_srcdir)/doc/doxyfile.stamp
+
+# Installing man pages does not work (see above). doxygen is never invoked.
+# We force execution of doxygen here.
+all-local: $(top_srcdir)/doc/doxyfile.stamp
+
+clean-local:
+	rm -rf $(top_srcdir)/doc/man
+	rm -rf $(top_srcdir)/doc/rtf
+	rm -rf $(top_srcdir)/doc/latex
+	rm -rf $(top_srcdir)/doc/html
+
+endif
+
 # Sources for libandroidaccessory
 libandroidaccessory_@ANDROIDACCESSORY_API_VERSION@_la_SOURCES = $(libandroidaccessory_la_HEADERS) \
                         src/accessory.c \

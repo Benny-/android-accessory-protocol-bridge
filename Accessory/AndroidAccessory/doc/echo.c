@@ -6,7 +6,7 @@
 // There is no associated Android application to test this, you will have to write that yourself.
 
 // Compile this program using:
-// gcc example.c -o example $(pkg-config --libs --cflags libandroidaccessory-1.0)
+// gcc echo.c -o echo $(pkg-config --libs --cflags libandroidaccessory-1.0)
 
 int main (int argc, char *argv[])
 {
@@ -28,7 +28,7 @@ int main (int argc, char *argv[])
         "1.0",
         // I diddent actually test if blueterm can communicate to libAndroidAccessory
         "https://play.google.com/store/apps/details?id=es.pymasde.blueterm",
-        "5890699");
+        "");
     
     printf("Waiting for new connection\n");
     con = getNextAndroidConnection(accessory);

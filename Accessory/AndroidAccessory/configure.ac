@@ -25,9 +25,8 @@ if test -z "$DOXYGEN";
 fi
 
 # Disabled Doxyfile for the moment.
-#AM_CONDITIONAL([HAVE_DOXYGEN],[test -n "$DOXYGEN"])
-#AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile
-#                            doc/Makefile])])
+AM_CONDITIONAL([HAVE_DOXYGEN],[test -n "$DOXYGEN"])
+AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h stdlib.h string.h unistd.h])

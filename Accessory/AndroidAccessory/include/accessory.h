@@ -58,7 +58,7 @@ typedef struct AapConnection AapConnection;
  * 
  * Read https://developer.android.com/guide/topics/connectivity/usb/accessory.html if you wish to connect using the usb accessory protocol.
  *
- * \example example.c
+ * \example echo.c
  * 
  */
 
@@ -129,13 +129,22 @@ AapConnection* getNextAndroidConnection(Accessory* accessory);
 
 /**
  * Release internal buffers and system resources associated with this connection.
- *
- * The argument may not be used once this function is called.
+ * 
+ * Android accessory protocol over usb does not have a way to actually close the connection. The connection
+ * is considered open until the devices are physically disconnected. This function should only be called when
+ * a error occurred during a read or write. Calling this function in any other case may cause the Android app
+ * to send data to this device while nothing is actively reading from the buffer. This causes all the buffers
+ * to fill up. Once the buffers are full, the threads writing threads on Android will block. The app will
+ * freeze if this thread is the ui-thread.
+ * 
+ * The AapConnection may not be used once this function is called.
  */
 void closeAndroidConnection(AapConnection* con);
 
 /**
  * Read a number of bytes from the Android application.
+ *
+ * This is a blocking function.
  *
  * Returns bytes read or a non-positive value in case of error.
  */
@@ -144,12 +153,18 @@ int readAccessory		(AapConnection* con, void* buffer, int size_max);
 /**
  * Repeatebly read from the Android application untill 'size' bytes have been read.
  *
+ * This is a blocking function.
+ *
+ * This function is not thread-safe. If two or more threads call this function, the data might be intermingled.
+ *
  * Return zero on success (if all bytes have been writen) or a non-zero value in case of error.
  */
 int readAllAccessory	(AapConnection* con, void* buffer, int size);
 
 /**
  * Write a number of bytes to the Android application.
+ *
+ * This is a blocking function.
  *
  * Returns bytes read or a non-positive value in case of error.
  */
@@ -158,9 +173,11 @@ int writeAccessory		(AapConnection* con, const void* buffer, int size_max);
 /**
  * Repeatebly write untill all the bytes have been send to the Android application.
  *
- * Return zero on success (if requested numbers of bytes have been read) or a non-zero value in case of error.
+ * This is a blocking function.
  *
  * This function is not thread-safe. If two or more threads call this function, the data might be intermingled.
+ *
+ * Return zero on success (if requested numbers of bytes have been read) or a non-zero value in case of error.
  */
 int writeAllAccessory	(AapConnection* con, const void* buffer, int size);
 
