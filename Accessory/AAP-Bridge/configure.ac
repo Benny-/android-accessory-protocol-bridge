@@ -13,6 +13,13 @@ AC_CONFIG_MACRO_DIR([m4])
 # Checks for programs.
 AM_PROG_CC_C_O
 
+# Pandoc is used for the documentation
+AC_CHECK_PROGS([PANDOC], [pandoc])
+if test -z "$PANDOC";
+   then AC_MSG_WARN([Pandoc not found - continuing without Pandoc support. No man pages output])
+fi
+AM_CONDITIONAL([HAVE_PANDOC],[test -n "$PANDOC"])
+
 # Checks for packages.
 PKG_CHECK_MODULES(DEPENDENCIES, [dbus-1 >= 1.6.1, libandroidaccessory-1.0, libconfig])
 
