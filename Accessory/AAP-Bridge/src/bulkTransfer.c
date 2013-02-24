@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <fcntl.h>
 
 #include "Dbus/dbuslib.h"
 #include "bulkTransfer.h"
@@ -149,6 +150,18 @@ static void* BulkInitInternal(BridgeService* service, pthread_mutex_t* startLock
 		return NULL;
 	}
 
+	// Normally the open() function will block until the other end is opened too.
+	// This could lead to a deathlock if the fifo's are not opened in correct order.
+	// As a solution, we could open the fifo we will read in a non-blocking way.
+	// And put it back into blocking mode. This allows the payload to open the
+	// fifo's in any order.
+	bulk->fifoToAndroidFD = open(fifoToAndroidPath, O_RDONLY | O_NONBLOCK);
+	if(bulk->fifoToAndroidFD == -1)
+	{
+		BulkCleanup(bulk, NULL);
+		return NULL;
+	}
+
 	bulk->fifoToPayloadFD = open(fifoToPayloadPath, O_WRONLY);
 	if(bulk->fifoToPayloadFD == -1)
 	{
@@ -156,12 +169,9 @@ static void* BulkInitInternal(BridgeService* service, pthread_mutex_t* startLock
 		return NULL;
 	}
 
-	bulk->fifoToAndroidFD = open(fifoToAndroidPath, O_RDONLY);
-	if(bulk->fifoToAndroidFD == -1)
-	{
-		BulkCleanup(bulk, NULL);
-		return NULL;
-	}
+	// Here we put the fifo we are reading back into blocking mode.
+	int flags = fcntl( bulk->fifoToAndroidFD, F_GETFL );
+	fcntl(bulk->fifoToAndroidFD, F_SETFL, flags & ~O_NONBLOCK);
 
 	pthread_create(&bulk->bulkTransferThread, NULL, bulkTransferThread, bulk);
 	bulk->threadStarted = 1;
