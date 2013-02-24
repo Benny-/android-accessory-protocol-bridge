@@ -2,7 +2,7 @@
 
 # NAME
 
-AAP-Bridge - Communicate to a remote d-bus from a Android, server.
+AAP-Bridge - Allows communication between a Android device and the local d-bus.
 
 # SYNOPSIS
 
