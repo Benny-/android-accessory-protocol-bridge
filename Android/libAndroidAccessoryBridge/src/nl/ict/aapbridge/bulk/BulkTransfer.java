@@ -19,6 +19,11 @@ import nl.ict.aapbridge.bridge.AccessoryBridge.BridgeService;
 import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
 import static nl.ict.aapbridge.TAG.TAG;
 
+/**
+ * <p>Bulk transfer is more efficient compared to d-bus for sending a lot of data</p>
+ * 
+ * 
+ */
 public class BulkTransfer implements BridgeService{
 	public static final Charset utf8 = Charset.forName("UTF-8");
 	

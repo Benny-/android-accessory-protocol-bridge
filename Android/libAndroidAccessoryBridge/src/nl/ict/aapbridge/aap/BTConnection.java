@@ -48,9 +48,27 @@ import android.util.Log;
  * }
  * </pre>
  * 
- * <p>There are multiple ways to connect to a bluetooth device.
- * You could enumerate all paired devices and let the user pick or
- * scan the local bluez for new bluetooth devices or a combination of both.</p>
+ * <p>You should enable bluetooth and enumerate all paired devices and let the user pick or
+ * scan the local bluetooths for new bluetooth devices or a combination of both.</p>
+ * 
+ * <p>Your project needs to contain a res/xml/accessory_filter.xml file. In this file the tag
+ * bt-accessory should exit, this file contains the service uuid to connect to on the bluetooth device.
+ * Failure to do so will result in a error at runtime. The uuid should be the same on the accessory.
+ * This is a example accessory_filter.xml:</p>
+ * 
+ * <pre>
+ * {@code
+ * <?xml version="1.0" encoding="utf-8"?>
+ * <resources>
+ *    <usb-accessory model="Wearable computer" manufacturer="ICT" version="1.0"/>
+ *    <bt-accessory uuid="6310aca5-d1e3-42cb-bfe1-c296112d8a01" />
+ * </resources>
+ * }
+ * </pre>
+ * 
+ * <p>Do NOT use the above uuid. You must generate your own uuid. Generate one yourself using the program
+ * uuidgen (availeble on ubuntu). The uuid identifies your service. Using the same uuid for multiple
+ * application/services will result in the application connecting to the wrong service</p>
  * 
  */
 public class BTConnection implements AccessoryConnection {
@@ -79,6 +97,9 @@ public class BTConnection implements AccessoryConnection {
 				} while( xmlPuller.next() != XmlPullParser.END_DOCUMENT );
 			}
 		}
+		
+		if(uuid == null)
+			throw new Error("Could not read UUID from res/xml/accessory_filter.xml");
 		
 		mSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 		mSocket.connect();
