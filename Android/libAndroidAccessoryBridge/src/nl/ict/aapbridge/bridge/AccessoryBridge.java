@@ -295,7 +295,7 @@ public class AccessoryBridge implements Channel
 			ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
 			if(length != 4)
-				throw new Error("Port status messages should be 4 bytes");
+				throw new Error("Port status messages should be 4 bytes"); // There is no sensible way we can continue. The connection to the accessory is most likely corrupted.
 			port.readAll(bb);
 			bb.rewind();
 			
@@ -303,7 +303,7 @@ public class AccessoryBridge implements Channel
 			byte status = bb.get();
 			if(activeServices[port] == null)
 			{
-				Log.w(TAG, "PORT_STATUS ignoring new status for closed port: "+port);
+				Log.w(TAG, "PORT_STATUS: ignoring new status for closed port: "+port);
 			}
 			else
 			{
@@ -312,7 +312,7 @@ public class AccessoryBridge implements Channel
 					case 3: // STREAM_EOF
 						Log.i(TAG, "PORT "+port+" received EOF");
 						if(activeServices[port].getPort().inputOpen)
-							Log.e(TAG, "PORT "+port+" received a double EOF");
+							Log.e(TAG, "PORT "+port+" received a unexpected EOF (input already closed)");
 						activeServices[port].getPort().inputOpen = false;
 						activeServices[port].onEof();
 						break;
@@ -320,7 +320,7 @@ public class AccessoryBridge implements Channel
 					case 4: // STREAM_CLOSE
 						Log.i(TAG, "PORT "+port+" received CLOSE");
 						if(activeServices[port].getPort().outputOpen)
-							Log.e(TAG, "PORT "+port+" received a double CLOSE");
+							Log.e(TAG, "PORT "+port+" received a unexpected CLOSE (output already closed)");
 						activeServices[port].getPort().outputOpen = false;
 						break;
 						
@@ -344,14 +344,17 @@ public class AccessoryBridge implements Channel
 		}
 	}
 	
-	private PortStatus portStatusService			= new PortStatus	(new Port( (short) 0 ) );
+	private PortStatus portStatusService	= new PortStatus	(new Port( (short) 0 ) );
 	private ServiceSpawner serviceSpawner	= new ServiceSpawner(new Port( (short) 1 ) );
 	private Keepalive keepAlive				= new Keepalive		(new Port( (short) 2 ), keepAliveFailureHandler);
 	
 	private static final ByteBuffer portRequest = ByteBuffer.allocate(4);
 	
 	/**
-	 * NOT part of public API. This method exist for testing purposes only and should never be called.
+	 * <p>NOT part of public API.</p>
+	 * 
+	 * <p>This method exist for testing purposes only and should never be called.</p>
+	 * 
 	 * @throws IOException 
 	 * 
 	 */
@@ -396,9 +399,10 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * NOT part of the public API.
+	 * <p>NOT part of the public API.</p>
 	 * 
-	 * Sends a request to the accessory for the requested service.
+	 * <p>Sends a request to the accessory to open a port and start a service on that port.
+	 * The serviceIdentifier determines what service should be started</p>
 	 * 
 	 * @param serviceIdentifier
 	 * @param arguments
@@ -431,7 +435,7 @@ public class AccessoryBridge implements Channel
 	 * <p>Thread who receive the data from Android Accessory bus, decodes it and sends the data to the relevant service.</p>
 	 * 
 	 * <p>The received data is a multiplexed message. The header is 4 bytes.
-	 * The first two bytes desginate the port it should arrive on
+	 * The first two bytes designate the port it should arrive on
 	 * and the last two indicate the length of the data which follows.</p>
 	 * 
 	 * <p>It uses the {@link AccessoryBridge#activeServices} to lookup the service which should
@@ -547,10 +551,11 @@ public class AccessoryBridge implements Channel
 	}
 	
 	/**
-	 * TODO: Implement createBulkTransfer
+	 * <p>Creates a new {@link BulkTransfer} object. This is the same as <code>new {@link BulkTransfer#BulkTransfer(AccessoryBridge, String, String, String)}</code></p>
 	 * 
 	 * @throws IOException If the connection to the accessory is severed
 	 * @throws ServiceRequestException If the remote host could not start the requested service
+	 * @see BulkTransfer
 	 */
 	public BulkTransfer createBulkTransfer(String busName, String objectPath, String arguments) throws IOException, ServiceRequestException
 	{

@@ -20,8 +20,54 @@ import nl.ict.aapbridge.bridge.AccessoryBridge.Port;
 import static nl.ict.aapbridge.TAG.TAG;
 
 /**
- * <p>Bulk transfer is more efficient compared to d-bus for sending a lot of data</p>
+ * <p>Bulk transfer is more efficient compared to d-bus for sending a lot of data. Bulk
+ * transfer uses fifo's on the remote accessory to transfer data between the bridge and the
+ * payload.</p>
  * 
+ * <p>Bulk transfer requires the payload to adhere to a protocol before bulk data can transfer.
+ * The payload needs to implement a d-bus method:</p>
+ * 
+ * <pre>onBulkRequest(String fifoToPayload, String fifoToAndroid, String requestedBulkData)}</pre>
+ * 
+ * <p>This function belongs to the interface:</p>
+ * 
+ * <pre>nl.ict.aapbridge.bulk</pre>
+ * 
+ * <p>The objectpath is not specified, this is for the developer to decide.</p>
+ * 
+ * <p>The bulk transfer is on the payload side visible as two fifo's. On the Android side
+ * this is visible as a input/output stream pair. Both streams must be closed for all resources
+ * related to the bulk transfer to clean up. The inputStream will be automatically closed
+ * once it receives a end of file from the payload. The payload can send a end of file by
+ * closing the output fifo.</p>
+ * 
+ * <p>Example:</p>
+ * 
+ * <pre>
+ * {@code 
+InputStream input;
+OutputStream output;
+{
+	BulkTransfer transfer = bridge.createBulkTransfer("nl.ict.AABUnitTest", "/nl/ict/AABUnitTest/bulk/echo1", "Memory/File/Anything");
+	input = transfer.getInput();
+	output = transfer.getOutput();
+}
+
+output.write('h');
+output.write('e');
+output.write('l');
+output.write('l');
+output.write('o');
+output.close();
+assertEquals('h', input.read());
+assertEquals('e', input.read());
+assertEquals('l', input.read());
+assertEquals('l', input.read());
+assertEquals('o', input.read());
+assertEquals(-1, input.read());
+input.close();
+}
+ * </pre>
  * 
  */
 public class BulkTransfer implements BridgeService{
@@ -99,14 +145,16 @@ public class BulkTransfer implements BridgeService{
 	}
 	
 	/**
-	 * <p></p>
+	 * <p>Request a bulk transfer to a remote payload.</p>
+	 * 
+	 * <p>The argument 'arguments' is passed to the payload.</p>
 	 * 
 	 * @param bridge May not be null
 	 * @param busname May not be null
 	 * @param objectPath May not be null
 	 * @param arguments Null is allowed
-	 * @throws IOException
-	 * @throws ServiceRequestException
+	 * @throws IOException If connnection to the remote accessory has been severed
+	 * @throws ServiceRequestException If the payload refused the bulk transfer or if the busname didden't exist or if something horrible happened to the d-bus
 	 */
 	public BulkTransfer(AccessoryBridge bridge, String busName, String objectPath, String arguments) throws IOException, ServiceRequestException
 	{
@@ -178,7 +226,7 @@ public class BulkTransfer implements BridgeService{
 		try {
 			this.toApp.close();
 		} catch (IOException e) {
-			Log.e(TAG, "");
+			Log.e(TAG, "", e);
 		}
 	}
 

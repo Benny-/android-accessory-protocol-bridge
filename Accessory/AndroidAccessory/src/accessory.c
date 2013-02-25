@@ -16,7 +16,7 @@ int readAccessory(AapConnection* con, void* buffer, int size_max)
 int readAllAccessory(AapConnection* con, void* buffer, int size)
 {
 	int response = 0;
-	while(size > 1 && response >= 0)
+	while(size > 0 && response >= 0)
 	{
 		response = readAccessory(con, buffer, size);
 		size -= response;

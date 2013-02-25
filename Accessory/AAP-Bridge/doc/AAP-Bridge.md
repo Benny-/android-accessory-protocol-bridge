@@ -2,7 +2,7 @@
 
 # NAME
 
-AAP-Bridge - Allows communication between a Android device and the local d-bus.
+AAP-Bridge - Server allowing communication between a Android device and the local d-bus.
 
 # SYNOPSIS
 
@@ -20,38 +20,89 @@ Only a subset of d-bus is implemented. The manager is only allowed to invoke d-b
 methods or listen to signals. It is not possible for the manager to have invokable d-bus
 methods or emit signals. Please refer to the libAndroidAccessoryBridge documentation for more information about the limits of the implementation and how to invoke d-bus methods or listen to d-bus signals from Android.
 
-## Configuration
+Once the bridge is running, it will allow Android device to connect to the bridge using usb or bluetooth. You need to have the proper permissions to have bluetooth work correctly. This might involve adding the user to the bluetooth group. For proper usb communication you need to write a udev rule and place it in `/etc/udev/rules.d/`. You can sidestep both permission requirements if you run the program as root. You should ensure the AAP-Bridge connects to the correct d-bus if you run as root.
+
+Example udev rule (This rule might not include all Android devices):
+
+    #Acer
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0502", MODE="0666", GROUP="plugdev"
+    #Dell
+    SUBSYSTEM=="usb", ATTR{idVendor}=="413c", MODE="0666", GROUP="plugdev"
+    #Foxconn
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0489", MODE="0666", GROUP="plugdev"
+    #Garmin-Asus
+    SUBSYSTEM=="usb", ATTR{idVendor}=="091E", MODE="0666", GROUP="plugdev"
+    #Google
+    SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", GROUP="plugdev"
+    #HTC
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", GROUP="plugdev"
+    #Huawei
+    SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", GROUP="plugdev"
+    #Kyocera
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0482", MODE="0666", GROUP="plugdev"
+    #LG
+    SUBSYSTEM=="usb", ATTR{idVendor}=="1004", MODE="0666", GROUP="plugdev"
+    #Motorola
+    SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", MODE="0666", GROUP="plugdev"
+    #Nvidia
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0955", MODE="0666", GROUP="plugdev"
+    #Pantech
+    SUBSYSTEM=="usb", ATTR{idVendor}=="10A9", MODE="0666", GROUP="plugdev"
+    #Samsung
+    SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666", GROUP="plugdev"
+    #Sharp
+    SUBSYSTEM=="usb", ATTR{idVendor}=="04dd", MODE="0666", GROUP="plugdev"
+    #Sony Ericsson
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0fce", MODE="0666", GROUP="plugdev"
+    #ZTE
+    SUBSYSTEM=="usb", ATTR{idVendor}=="19D2", MODE="0666", GROUP="plugdev"
+
+# CONFIGURATION
 
 The server does not accept any command line arguments. Any configuration should be in a configuration file. The program looks for this file in the working directory and /etc/AAP-Bridge/. The name of the file should be "AAP-Bridge.config" to be properly found.
 
-## Example config file
+Here is a example configuration file:
 
-	# This file is used by the AAP-Brdige program.
-	# The program searches in the following paths for this configuration file (The first configuration file found is used):
-	# 1 ./AAP-Bridge.config
-	# 2 /etc/AAP-Bridge/AAP-Bridge.config
+    # This file is used by the AAP-Brdige program.
+    # The program searches in the following paths for this
+    # configuration file (The first configuration file found is used):
+    # 1 ./AAP-Bridge.config
+    # 2 /etc/AAP-Bridge/AAP-Bridge.config
 
-	# This variable is not used at the moment of writing.
-	BUS = "DBUS_BUS_SESSION"
+    # This variable is not used at the moment of writing.
+    # The AAP-Bridge will always use the session bus for all d-bus activity.
+    BUS = "DBUS_BUS_SESSION"
 
-	# UUID's are used for bluetooth identification. You could have multiple cascading uuid classes. Most of the time, you will only need one. If you use multiple ones, put the most specific service uuid on top and least specific one last. Don't use these uuid's! Generate your own using the program "uuidgen"
-	UUIDS = [
-		"681c4035-8ac3-464a-bf5e-8672833ed8b9",
-		"562f2ea2-db6b-45b3-9e9a-d5bd5ff01ede",
-		"61bb8e93-a18f-4ac3-90bf-e38a7d79a4c1",
-		"a48e5d50-188b-4fca-b261-89c13914e118"
-	]
+    # UUID's are used for bluetooth identification. You could have
+    # multiple cascading uuid classes. Most of the time, you will
+    # only need one. If you use multiple ones, put the most specific
+    # service uuid on top and least specific one last. Don't use these
+    # uuid's! Generate your own using the program "uuidgen"
+    UUIDS = [
+        "681c4035-8ac3-464a-bf5e-8672833ed8b9",
+        "562f2ea2-db6b-45b3-9e9a-d5bd5ff01ede",
+        "61bb8e93-a18f-4ac3-90bf-e38a7d79a4c1",
+        "a48e5d50-188b-4fca-b261-89c13914e118"
+    ]
 
-	# The following fields are used for identification on USB. Android will start a application which contains the same information when the Android device is connected to this accessory using usb. You should explicitly set the variables to a empty string if you don't use that variable. Otherwise default values will be used.
-	manufacturer    = "Paling & Ko"
-	modelName       = "Atromotron 2000"
-	# The description will be visible to the user when there is no manager for this accessory on the Android phone.
-	description     = "Control this atromotron using your mobile phone"
-	version         = "1.0"
-	uri             = "http://ict.eu/"
-	serialNumber    = ""
+    # The following fields are used for identification on USB.
+    # Android will start a application which contains the same
+    # information when the Android device is connected to this
+    # accessory using usb. You should explicitly set the variables
+    # to a empty string if you don't use that variable.Otherwise
+    # default values will be used.
+    manufacturer    = "Paling & Ko"
+    modelName       = "Atromotron 2000"
+    description     = "Control this atromotron using your mobile phone"
+    version         = "1.0"
+    uri             = "http://ict.eu/"
+    serialNumber    = ""
+    
+    # The description variable will be visible to the user when there is
+    # no manager for this accessory on the Android phone.
+    # The uri must be fully qualified (protocol prepended, http or https for example)
 
-## Bulk transfer
+# BULK TRANSFER
 
 Bulk transfer is a additional protocol to allow mass transfer of data. The data is not send over the d-bus and therefore does not suffer from the negative drawbacks of using d-bus for mass transfer of data (context switches and additional copying). Bulk transfer relies on fifo's to transfer the data between the bridge and the payload.
 
