@@ -19,6 +19,9 @@ sudo apt-get install libusb-1.0-0-dev
 # bluetooth communication
 sudo apt-get install bluez libbluetooth-dev
 
+# Documentation (optional)
+sudo apt-get install doxygen
+
 # ----------- AAP-Bridge dependencies
 # AAP-Bridge depends on AndroidAccessory (all of the above)
 
@@ -27,4 +30,7 @@ sudo apt-get install libdbus-1-dev
 
 # Configuration file reading
 sudo apt-get install libconfig-dev
+
+# Documentation (man page) (optional)
+sudo apt-get install pandoc
 
