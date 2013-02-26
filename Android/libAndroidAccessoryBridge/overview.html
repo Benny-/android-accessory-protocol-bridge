@@ -12,6 +12,136 @@
         <p>Dbus methods can be invoked using a {@link nl.ict.aapbridge.dbus.DbusMethods}. Dbus signals can be received using a {@link nl.ict.aapbridge.dbus.DbusSignals} object.</p>
         
         <p>The mapping between d-bus types and java types can be found in {@link nl.ict.aapbridge.dbus.message.DbusMessage#getValues() }.</p>
+
+        <p>Below follows a tiny example to start/pause the Rythmbox music player using a remote d-bus call. This includes a activity and a manifest. You should reference the libAndroidAccessoryBridge library from the project.</p>
+
+<table id="overviewExample" style="padding:0; width:100%; vertical-align:baseline; margin:0; border:none" width="100%"><tr style="padding:0; vertical-align:baseline; border:none; margin:0">
+<td style="vertical-align:baseline; color:#aaaaaa; margin:0; padding:0; padding-right:4px; border-right:1px solid #aaaaaa; text-align:right; border:none; padding-left:4px" align="right"><pre>
+</pre></td>
+<td style="padding:0; margin:0; vertical-align:baseline; border:none; padding-left:5px"><pre><code><span style="color:#007020; font-weight:bold">package nl.ict.MediaRemote;</span>
+
+<span style="color:#007020; font-weight:bold">import java.io.IOException;</span>
+
+<span style="color:#007020; font-weight:bold">import nl.ict.aapbridge.aap.UsbConnection;</span>
+<span style="color:#007020; font-weight:bold">import nl.ict.aapbridge.bridge.AccessoryBridge;</span>
+<span style="color:#007020; font-weight:bold">import nl.ict.aapbridge.dbus.DbusHandler;</span>
+<span style="color:#007020; font-weight:bold">import nl.ict.aapbridge.dbus.DbusMethods;</span>
+<span style="color:#007020; font-weight:bold">import nl.ict.aapbridge.dbus.message.DbusMessage;</span>
+
+<span style="color:#007020; font-weight:bold">import android.os.Bundle;</span>
+<span style="color:#007020; font-weight:bold">import android.os.Message;</span>
+<span style="color:#007020; font-weight:bold">import android.app.Activity;</span>
+<span style="color:#007020; font-weight:bold">import android.util.Log;</span>
+<span style="color:#007020; font-weight:bold">import android.view.View;</span>
+<span style="color:#007020; font-weight:bold">import android.view.View.OnClickListener;</span>
+<span style="color:#007020; font-weight:bold">import android.widget.Button;</span>
+<span style="color:#007020; font-weight:bold">import android.widget.Toast;</span>
+
+<span style="color:#007020; font-weight:bold">public</span> <span style="color:#007020; font-weight:bold">class</span> MainActivity <span style="color:#007020; font-weight:bold">extends</span> Activity {
+    
+    <span style="color:#007020; font-weight:bold">public</span> <span style="color:#902000">static</span> <span style="color:#902000">final</span> String TAG = MainActivity.<span style="color:#06287e">class</span>.<span style="color:#06287e">getName</span>();
+    <span style="color:#007020; font-weight:bold">public</span> <span style="color:#902000">static</span> AccessoryBridge aapbridge;
+    
+    <span style="color:#007020; font-weight:bold">private</span> DbusMethods dbusMethods;
+    <span style="color:#007020; font-weight:bold">private</span> Button play;
+    
+    <span style="color:#60a0b0; font-style:italic">/**</span>
+<span style="color:#60a0b0; font-style:italic">     </span>*<span style="color:#60a0b0; font-style:italic"> This dbushandler only shows remote exceptions. We are not </span>
+<span style="color:#60a0b0; font-style:italic">     * actually interested in anything the remote system sends</span>.<span style="color:#60a0b0; font-style:italic"> Only</span>
+<span style="color:#60a0b0; font-style:italic">     * error conditions</span>.
+<span style="color:#60a0b0; font-style:italic">     */</span>
+    <span style="color:#007020; font-weight:bold">private</span> DbusHandler dbusHandler = <span style="color:#007020; font-weight:bold">new</span> <span style="color:#06287e">DbusHandler</span>() {
+        
+        <span style="color:#007020; font-weight:bold">public</span> <span style="color:#902000">void</span> <span style="color:#06287e">handleMessage</span>(Message msg) {
+            DbusMessage dbusMessage = (DbusMessage) msg.<span style="color:#06287e">obj</span>;
+            <span style="color:#007020; font-weight:bold">try</span> {
+                dbusMessage.<span style="color:#06287e">getValues</span>();
+            } <span style="color:#007020; font-weight:bold">catch</span> (Exception e) {
+                String exMsg = <span style="color:#4070a0">"Exception: "</span>+e.<span style="color:#06287e">getLocalizedMessage</span>();
+                Log.<span style="color:#06287e">e</span>(TAG, exMsg, e);
+                Toast.<span style="color:#06287e">makeText</span>(MainActivity.<span style="color:#06287e">this</span>, exMsg, Toast.<span style="color:#06287e">LENGTH_LONG</span>).<span style="color:#06287e">show</span>();
+            }
+        }
+    };
+    
+    
+    <span style="color:#007020; font-weight:bold">protected</span> <span style="color:#902000">void</span> <span style="color:#06287e">onCreate</span>(Bundle savedInstanceState) {
+        <span style="color:#007020; font-weight:bold">super</span>.<span style="color:#06287e">onCreate</span>(savedInstanceState);
+        <span style="color:#06287e">setContentView</span>(R.<span style="color:#06287e">layout</span>.<span style="color:#06287e">activity_main</span>);
+        
+        play = (Button) <span style="color:#06287e">findViewById</span>(R.<span style="color:#06287e">id</span>.<span style="color:#06287e">button_play</span>);
+        
+        <span style="color:#007020; font-weight:bold">if</span>(aapbridge == <span style="color:#007020; font-weight:bold">null</span> || !aapbridge.<span style="color:#06287e">isOpen</span>())
+        {
+            <span style="color:#007020; font-weight:bold">try</span> {
+                aapbridge = <span style="color:#007020; font-weight:bold">new</span> <span style="color:#06287e">AccessoryBridge</span>(UsbConnection.<span style="color:#06287e">easyConnect</span>(<span style="color:#06287e">getApplicationContext</span>()));
+            } <span style="color:#007020; font-weight:bold">catch</span> (IOException e) {
+                Log.<span style="color:#06287e">e</span>(TAG, <span style="color:#4070a0">"Could not setup aapbridge"</span>, e);
+                Toast.<span style="color:#06287e">makeText</span>(<span style="color:#007020; font-weight:bold">this</span>, <span style="color:#4070a0">"Could not setup aapbridge: "</span>+e.<span style="color:#06287e">getLocalizedMessage</span>(), Toast.<span style="color:#06287e">LENGTH_LONG</span>).<span style="color:#06287e">show</span>();
+                <span style="color:#06287e">finish</span>();
+            }
+        }
+        
+        <span style="color:#007020; font-weight:bold">try</span> {
+            dbusMethods = aapbridge.<span style="color:#06287e">createDbus</span>(dbusHandler);
+        } <span style="color:#007020; font-weight:bold">catch</span> (Exception e) {
+            Log.<span style="color:#06287e">e</span>(TAG, <span style="color:#4070a0">"Could not setup dbusMethods"</span>, e);
+            Toast.<span style="color:#06287e">makeText</span>(<span style="color:#007020; font-weight:bold">this</span>, <span style="color:#4070a0">"Could not setup dbusMethods: "</span>+e.<span style="color:#06287e">getLocalizedMessage</span>(), Toast.<span style="color:#06287e">LENGTH_LONG</span>).<span style="color:#06287e">show</span>();
+            <span style="color:#06287e">finish</span>();
+        }
+        
+        play.<span style="color:#06287e">setOnClickListener</span>(<span style="color:#007020; font-weight:bold">new</span> <span style="color:#06287e">OnClickListener</span>() {
+            
+            <span style="color:#007020; font-weight:bold">public</span> <span style="color:#902000">void</span> <span style="color:#06287e">onClick</span>(View v) {
+                <span style="color:#007020; font-weight:bold">try</span> {
+                    dbusMethods.<span style="color:#06287e">methodCall</span>(<span style="color:#4070a0">"org.gnome.Rhythmbox3"</span>, <span style="color:#4070a0">"/org/mpris/MediaPlayer2"</span>, <span style="color:#4070a0">"org.mpris.MediaPlayer2.Player"</span>, <span style="color:#4070a0">"PlayPause"</span>);
+                } <span style="color:#007020; font-weight:bold">catch</span> (IOException e) {
+                    String msg = <span style="color:#4070a0">"Could not send 'play/pause' command: "</span> + e.<span style="color:#06287e">getLocalizedMessage</span>();
+                    Log.<span style="color:#06287e">e</span>(TAG, msg, e);
+                    Toast.<span style="color:#06287e">makeText</span>(MainActivity.<span style="color:#06287e">this</span>, msg, Toast.<span style="color:#06287e">LENGTH_LONG</span>).<span style="color:#06287e">show</span>();
+                }
+            }
+        });
+    }
+}</code></pre></td>
+</tr></table>
+
+
+<p>The manifest:</p>
+
+<pre id="manifest"><code><span style="color:#007020; font-weight:bold">&lt;?xml</span> version="1.0" encoding="utf-8"<span style="color:#007020; font-weight:bold">?&gt;</span>
+<span style="color:#007020; font-weight:bold">&lt;manifest</span><span style="color:#007020"> xmlns:android=</span><span style="color:#4070a0">"http://schemas.android.com/apk/res/android"</span>
+<span style="color:#007020">    package=</span><span style="color:#4070a0">"nl.ict.MediaRemote"</span>
+<span style="color:#007020">    android:versionCode=</span><span style="color:#4070a0">"1"</span>
+<span style="color:#007020">    android:versionName=</span><span style="color:#4070a0">"1.0"</span> <span style="color:#007020; font-weight:bold">&gt;</span>
+    
+    <span style="color:#007020; font-weight:bold">&lt;uses-permission</span><span style="color:#007020"> android:name=</span><span style="color:#4070a0">"android.permission.BLUETOOTH"</span> <span style="color:#007020; font-weight:bold">/&gt;</span>
+    
+    <span style="color:#007020; font-weight:bold">&lt;uses-feature</span><span style="color:#007020"> android:name=</span><span style="color:#4070a0">"com.android.future.usb.accessory"</span><span style="color:#007020"> android:required=</span><span style="color:#4070a0">"false"</span><span style="color:#007020; font-weight:bold">/&gt;</span>
+    <span style="color:#007020; font-weight:bold">&lt;uses-sdk</span>
+<span style="color:#007020">        android:minSdkVersion=</span><span style="color:#4070a0">"10"</span>
+<span style="color:#007020">        android:targetSdkVersion=</span><span style="color:#4070a0">"17"</span> <span style="color:#007020; font-weight:bold">/&gt;</span>
+
+    <span style="color:#007020; font-weight:bold">&lt;application</span>
+<span style="color:#007020">        android:allowBackup=</span><span style="color:#4070a0">"true"</span>
+<span style="color:#007020">        android:icon=</span><span style="color:#4070a0">"@drawable/ic_launcher"</span>
+<span style="color:#007020">        android:label=</span><span style="color:#4070a0">"@string/app_name"</span>
+<span style="color:#007020">        android:theme=</span><span style="color:#4070a0">"@style/AppTheme"</span> <span style="color:#007020; font-weight:bold">&gt;</span>
+        <span style="color:#007020; font-weight:bold">&lt;uses-library</span><span style="color:#007020"> android:name=</span><span style="color:#4070a0">"com.android.future.usb.accessory"</span><span style="color:#007020"> android:required=</span><span style="color:#4070a0">"false"</span><span style="color:#007020; font-weight:bold">/&gt;</span>
+        <span style="color:#007020; font-weight:bold">&lt;activity</span>
+<span style="color:#007020">            android:name=</span><span style="color:#4070a0">".MainActivity"</span>
+<span style="color:#007020">            android:label=</span><span style="color:#4070a0">"@string/app_name"</span> <span style="color:#007020; font-weight:bold">&gt;</span>
+            <span style="color:#007020; font-weight:bold">&lt;intent-filter&gt;</span>
+                 <span style="color:#007020; font-weight:bold">&lt;action</span><span style="color:#007020"> android:name=</span><span style="color:#4070a0">"android.hardware.usb.action.USB_ACCESSORY_ATTACHED"</span> <span style="color:#007020; font-weight:bold">/&gt;</span>
+            <span style="color:#007020; font-weight:bold">&lt;/intent-filter&gt;</span>
+            <span style="color:#007020; font-weight:bold">&lt;meta-data</span>
+<span style="color:#007020">                android:name=</span><span style="color:#4070a0">"android.hardware.usb.action.USB_ACCESSORY_ATTACHED"</span>
+<span style="color:#007020">                android:resource=</span><span style="color:#4070a0">"@xml/accessory_filter"</span> <span style="color:#007020; font-weight:bold">/&gt;</span>
+        <span style="color:#007020; font-weight:bold">&lt;/activity&gt;</span>
+    <span style="color:#007020; font-weight:bold">&lt;/application&gt;</span>
+
+<span style="color:#007020; font-weight:bold">&lt;/manifest&gt;</span></code></pre>
+
     </body>
 </html>
 
