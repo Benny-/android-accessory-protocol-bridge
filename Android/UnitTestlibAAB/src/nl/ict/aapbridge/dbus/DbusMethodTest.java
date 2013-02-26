@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
+import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
 import nl.ict.aapbridge.test.BridgeFactoryService;
 
@@ -34,6 +35,7 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 		}
 	}
 	
+	private AccessoryBridge bridge;
 	private DbusMethods dbus;
 	private SyncDbusHandler synchandler = new SyncDbusHandler();
 	
@@ -43,7 +45,8 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 		
 		if(dbus == null)
 		{
-			dbus = BridgeFactoryService.getAAPBridge(getContext()).createDbus(synchandler);
+			bridge = BridgeFactoryService.getAAPBridge(getContext());
+			dbus = bridge.createDbus(synchandler);
 		}
 	}
 	
@@ -207,6 +210,72 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 		{
 			Log.e(TAG, "Wrong exception thrown: " + e.getTrueType(), e);
 			fail("Wrong exception thrown");
+		}
+	}
+	
+	public void testConvenient1() throws Exception
+	{
+		DbusMethods dbus = bridge.createDbus(synchandler);
+		try{
+			dbus.setBusname("nl.ict.AABUnitTest");
+			dbus.methodCall("/nl/ict/AABUnitTest/B" ,"nl.ict.AABUnitTest.Methods" ,"ExpectingByte", (byte) 3 );
+			Object[] retvals = synchandler.getDbusMessage().getValues();
+			assertEquals((byte) 3, retvals[0]);
+		}
+		finally
+		{
+			dbus.close();
+		}
+	}
+	
+	public void testConvenient2() throws Exception
+	{
+		DbusMethods dbus = bridge.createDbus(synchandler);
+		try{
+			dbus.setBusname("nl.ict.AABUnitTest");
+			dbus.setObjectpath("/nl/ict/AABUnitTest/B");
+			dbus.methodCall("nl.ict.AABUnitTest.Methods" ,"ExpectingByte", (byte) 3 );
+			Object[] retvals = synchandler.getDbusMessage().getValues();
+			assertEquals((byte) 3, retvals[0]);
+		}
+		finally
+		{
+			dbus.close();
+		}
+	}
+	
+	public void testConvenient3() throws Exception
+	{
+		DbusMethods dbus = bridge.createDbus(synchandler);
+		try{
+			dbus.setBusname("nl.ict.AABUnitTest");
+			dbus.setObjectpath("/nl/ict/AABUnitTest/B");
+			dbus.setInterfaceName("nl.ict.AABUnitTest.Methods");
+			dbus.methodCall("ExpectingByte", (byte) 3 );
+			Object[] retvals = synchandler.getDbusMessage().getValues();
+			assertEquals((byte) 3, retvals[0]);
+		}
+		finally
+		{
+			dbus.close();
+		}
+	}
+	
+	public void testConvenient4() throws Exception
+	{
+		DbusMethods dbus = bridge.createDbus(synchandler);
+		try{
+			dbus.setBusname("nl.ict.AABUnitTest");
+			dbus.setObjectpath("/nl/ict/AABUnitTest/B");
+			dbus.setInterfaceName("nl.ict.AABUnitTest.Methods");
+			dbus.setFunctionName("ExpectingByte");
+			dbus.methodCall((byte) 3 );
+			Object[] retvals = synchandler.getDbusMessage().getValues();
+			assertEquals((byte) 3, retvals[0]);
+		}
+		finally
+		{
+			dbus.close();
 		}
 	}
 }
