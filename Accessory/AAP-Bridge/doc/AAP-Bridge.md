@@ -20,7 +20,7 @@ Only a subset of d-bus is implemented. The manager is only allowed to invoke d-b
 methods or listen to signals. It is not possible for the manager to have invokable d-bus
 methods or emit signals. Please refer to the libAndroidAccessoryBridge documentation for more information about the limits of the implementation and how to invoke d-bus methods or listen to d-bus signals from Android.
 
-Once the bridge is running, it will allow Android device to connect to the bridge using usb or bluetooth. You need to have the proper permissions to have bluetooth work correctly. This might involve adding the user to the bluetooth group. For proper usb communication you need to write a udev rule and place it in `/etc/udev/rules.d/`. You can sidestep both permission requirements if you run the program as root. You should ensure the AAP-Bridge connects to the correct d-bus if you run as root.
+Once the bridge is running, it will allow Android device to connect to the bridge using usb or bluetooth. You need to have the proper permissions to have bluetooth work correctly. This might involve adding the user to the bluetooth group. For proper usb communication you need to write a udev rule and place it in */etc/udev/rules.d/*. You can sidestep both permission requirements if you run the program as root. You should ensure the AAP-Bridge connects to the correct d-bus if you run as root.
 
 Example udev rule (This rule might not include all Android devices):
 
@@ -59,7 +59,7 @@ Example udev rule (This rule might not include all Android devices):
 
 # CONFIGURATION
 
-The server does not accept any command line arguments. Any configuration should be in a configuration file. The program looks for this file in the working directory and /etc/AAP-Bridge/. The name of the file should be "AAP-Bridge.config" to be properly found.
+The server does not accept any command line arguments. Any configuration should be in a configuration file. The program looks for this file in the working directory and */etc/AAP-Bridge/*. The name of the file should be *AAP-Bridge.config* to be properly found.
 
 Here is a example configuration file:
 
@@ -106,9 +106,9 @@ Here is a example configuration file:
 
 Bulk transfer is a additional protocol to allow mass transfer of data. The data is not send over the d-bus and therefore does not suffer from the negative drawbacks of using d-bus for mass transfer of data (context switches and additional copying). Bulk transfer relies on fifo's to transfer the data between the bridge and the payload.
 
-In contract to the d-bus methods and d-bus signals, the payload needs to adhere to a strict protocol to use bulk transfer. Bulk transfer is alway initiated from the manager app. The bridge will create a fifo pair and issue a d-bus request to the payload. The d-bus message will contain paths to the fifo's. The payload has at this moment the chance to deny the request for bulk transfer by replying using a error. The payload should open the fifo's AFTER the d-bus method is finished. These fifo's are connected to input and output streams in the manager.
+In contract to the d-bus methods and d-bus signals, the payload needs to adhere to a strict protocol to use bulk transfer. Bulk transfer is always initiated from the manager app. The bridge will create a fifo pair and issue a d-bus request to the payload. The d-bus message will contain paths to the fifo's. The payload has at this moment the chance to deny the request for bulk transfer by replying using a error. The payload should open the fifo's AFTER the d-bus method is finished. These fifo's are connected to input and output streams in the manager.
 
-The payload should implement the `nl.ict.aapbridge.bulk` d-bus interface. This interface has one callable function:
+The payload should implement the *nl.ict.aapbridge.bulk* d-bus interface. This interface must have one callable function:
 
     onBulkRequest(String fifoToPayload, String fifoToAndroid, String requestedBulkData)
 
