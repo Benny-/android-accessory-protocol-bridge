@@ -33,9 +33,9 @@ public abstract class DbusHandler extends Handler{
 	/**
 	 * <p>Sometime you wish to do a d-bus call, but you are not interested if it fails or succeeds.</p>
 	 * 
-	 * <p>Our engeneers have anticipated this and created the "NullDbusHandler".
+	 * <p>Our engineers have anticipated this and created the "NullDbusHandler".
 	 * It is a one of a kind d-bus handler which throws the received d-bus *woosh*
-	 * out of the computah memories. This allows you to have 5 lines of code less in
+	 * out of the computer memories. This allows you to have 5 lines of code less in
 	 * your code. Amazing!</p>
 	 */
 	static DbusHandler NullDbusHandler = new DbusHandler() {
