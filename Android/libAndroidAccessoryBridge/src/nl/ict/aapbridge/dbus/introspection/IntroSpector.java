@@ -33,11 +33,22 @@ public class IntroSpector implements Closeable{
 	
 	// The following 3 variables are used to store data between the recursive introspection calls
 	private String busname;
+	/**
+	 * The current nodename (objectpath). This changes as we recursively introspect all objects.
+	 */
 	private String nodeName;
 	private List<String> objectPathsToIntrospect = new ArrayList<String>();
 	
 	private DbusMethods introSpectionhGetter;
 	private DbusMethods busNameGetter;
+	/**
+	 * We are doing only one introspection call at a time. This might be sped up
+	 * if we do them concurrently.
+	 * 
+	 * The response does not contain the original node (or full object path). So we
+	 * need to keep track of it. One will need to keep this in mind if introspection
+	 * needs to happen concurrently.
+	 */
 	private DbusHandler introSpectionHandler = new DbusHandler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -48,6 +59,21 @@ public class IntroSpector implements Closeable{
 				Xml.parse(xml_str, new DbusIntrospectionContentHandler() );
 			} catch (Exception e) {
 				Log.e(TAG, "", e);
+			}
+			objectPathsToIntrospect.remove(nodeName);
+			if(!objectPathsToIntrospect.isEmpty())
+			{
+				try {
+					nodeName = objectPathsToIntrospect.get(0);
+					Log.v(TAG, "Recursive async introspection on "+nodeName);
+					introSpectionhGetter.methodCall(
+							busname,
+							nodeName,
+							"org.freedesktop.DBus.Introspectable",
+							"Introspect");
+				} catch (IOException e) {
+					Log.e(TAG, "", e);
+				}
 			}
 		}
 	};
@@ -78,6 +104,9 @@ public class IntroSpector implements Closeable{
 				{
 					String subnode = attributes.getValue("name");
 					Log.v(TAG, "Found subnode: "+subnode);
+					String fullPathSubnode = nodeName+"/"+subnode;
+					objectPathsToIntrospect.add(fullPathSubnode);
+					Log.v(TAG, "Added "+fullPathSubnode+" for recursive introspection");
 				}
 			}
 			
@@ -154,6 +183,9 @@ public class IntroSpector implements Closeable{
 	 */
 	synchronized public void startIntrospection(String busname) throws IOException
 	{
+		this.busname = busname;
+		this.nodeName = "";
+		objectPathsToIntrospect.add(nodeName);
 		introSpectionhGetter.methodCall(
 				busname,
 				"/",
