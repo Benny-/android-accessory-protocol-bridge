@@ -16,6 +16,9 @@ gobject.threads_init() # Multithreaded python programs must call this before usi
 bus = dbus.SessionBus()
 loop = gobject.MainLoop()
 
+"""
+This is a shared interface between two objects.
+"""
 InterfaceA = "nl.ict.AABUnitTest.A"
 
 """
@@ -25,9 +28,17 @@ onBulkRequest(String fifoToPayload, String fifoToAndroid, String requestedBulkDa
 InterfaceOnBulkTransfer = "nl.ict.aapbridge.bulk"
 
 """
-bus-name   : nl.ict.AABUnitTest
-objectpaths: /nl/ict/AABUnitTestB /nl/ict/AABUnitTestC
-interfaces : nl.ict.AABUnitTest.B nl.ict.AABUnitTest.Methods nl.ict.AABUnitTest.Signals
+bus-name   :    nl.ict.AABUnitTest
+
+objectpaths:    /nl/ict/AABUnitTestB
+                /nl/ict/AABUnitTestC
+                /nl/ict/AABUnitTest/bulk/echo1
+                /nl/ict/AABUnitTest/bulk/echo2
+                
+interfaces :    nl.ict.AABUnitTest.B
+                nl.ict.AABUnitTest.Methods
+                nl.ict.AABUnitTest.Signals
+                nl.ict.aapbridge.bulk
 """
 
 class AABUnitTestB(dbus.service.Object):

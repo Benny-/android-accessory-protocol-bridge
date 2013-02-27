@@ -20,7 +20,7 @@ public class DbusMethodTest extends android.test.AndroidTestCase  {
 	static class SyncDbusHandler extends DbusHandler{
 		
 		private Queue<DbusMessage> messages = new LinkedList<DbusMessage>();
-		private Semaphore lock = new Semaphore(0);
+		private Semaphore lock = new Semaphore(0, true);
 		
 		@Override
 		public void handleMessage(Message msg) {
