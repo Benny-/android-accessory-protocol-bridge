@@ -33,7 +33,7 @@ int writeAccessory(AapConnection* con, const void* buffer, int size_max)
 int writeAllAccessory(AapConnection* con, const void* buffer, int size)
 {
 	int response = 0;
-	while(size > 1 && response >= 0)
+	while(size > 0 && response >= 0)
 	{
 		response = writeAccessory(con, buffer, size);
 		size -= response;
