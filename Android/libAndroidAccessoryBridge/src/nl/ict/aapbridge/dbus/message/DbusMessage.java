@@ -251,7 +251,7 @@ public class DbusMessage {
 		}
 		if(interfaceName != null)
 		{
-			sb.append("Interface name      : "); sb.append(interfaceName); sb.append('\n');
+			sb.append("DbusInterface name      : "); sb.append(interfaceName); sb.append('\n');
 		}
 		if(member != null)
 		{

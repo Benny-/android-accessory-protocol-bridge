@@ -171,7 +171,7 @@ public class DbusMethods implements BridgeService, Closeable
 			throw new NullPointerException("Objectpath may not be null");
 		
 		if(interfaceName == null)
-			throw new NullPointerException("Interface name may not be null");
+			throw new NullPointerException("DbusInterface name may not be null");
 		
 		if(functionName == null)
 			throw new NullPointerException("Function name may not be null");

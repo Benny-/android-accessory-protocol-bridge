@@ -1,8 +1,10 @@
-package nl.ict.aapbridge.dbus;
+package nl.ict.aapbridge.dbus.introspection;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
@@ -10,6 +12,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import android.os.Handler;
 import android.os.Message;
@@ -18,11 +21,20 @@ import android.util.Xml;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.ServiceRequestException;
+import nl.ict.aapbridge.dbus.DbusHandler;
+import nl.ict.aapbridge.dbus.DbusMethods;
+import nl.ict.aapbridge.dbus.RemoteDbusException;
+import nl.ict.aapbridge.dbus.RemotePayloadException;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import static nl.ict.aapbridge.TAG.TAG;
 
 public class IntroSpector implements Closeable{
+	
+	// The following 3 variables are used to store data between the recursive introspection calls
+	private String busname;
+	private String nodeName;
+	private List<String> objectPathsToIntrospect = new ArrayList<String>();
 	
 	private DbusMethods introSpectionhGetter;
 	private DbusMethods busNameGetter;
@@ -33,7 +45,7 @@ public class IntroSpector implements Closeable{
 			try {
 				String xml_str = dbusMessage.getValues()[0].toString();
 				Log.v(TAG, "Got xml: "+xml_str);
-				Xml.parse(xml_str, null );
+				Xml.parse(xml_str, new DbusIntrospectionContentHandler() );
 			} catch (Exception e) {
 				Log.e(TAG, "", e);
 			}
@@ -41,6 +53,55 @@ public class IntroSpector implements Closeable{
 	};
 	private SyncDbusHandler busnameHandler = new SyncDbusHandler();
 	private ObjectPathHandler objectPathHandler;
+	
+	class DbusIntrospectionContentHandler extends DefaultHandler {
+		
+		/**
+		 * There are only 2 node depths.
+		 * 
+		 * 1 is the root node. 2 is a subnode.
+		 */
+		int depth = 0;
+		
+		/**
+		 * This variable will only be used if the node contains a interface.
+		 */
+		ObjectPath objectPath = null;
+		
+		@Override
+		public void startElement(String uri, String localName, String qName,
+				Attributes attributes) throws SAXException {
+			if (localName.equals("node")) {
+				depth++;
+				
+				if(depth == 2)
+				{
+					String subnode = attributes.getValue("name");
+					Log.v(TAG, "Found subnode: "+subnode);
+				}
+			}
+			
+			if(localName.equals("interface"))
+			{
+				assert(depth == 1);
+				String interfaceName = attributes.getValue("name");
+				Log.v(TAG, "Found interface: "+interfaceName);
+				
+				if (objectPath == null)
+					objectPath = new ObjectPath(nodeName);
+				
+				objectPath.addInterface(new DbusInterface(interfaceName));
+			}
+		}
+		
+		@Override
+		public void endElement(String uri, String localName, String qName)
+				throws SAXException {
+			if (localName.equals("node")) {
+				depth--;
+			}
+		}
+	}
 	
 	static class SyncDbusHandler extends DbusHandler{
 		private Queue<DbusMessage> messages = new LinkedList<DbusMessage>();

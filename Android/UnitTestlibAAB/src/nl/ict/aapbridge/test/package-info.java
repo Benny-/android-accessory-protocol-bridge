@@ -10,5 +10,7 @@
  * requesting permission to acces to the usb accessory.
  * Press YES and the unit test results begin showing up in eclipse.</p>
  * 
+ * <p>You could run the unit test over bluetooth as a alternative to usb. To do this, you need to change the bluetooth
+ * address in {@link nl.ict.aapbridge.test.BridgeFactoryService#getBtAAPBridge(android.content.Context)}</p>
  */
 package nl.ict.aapbridge.test;

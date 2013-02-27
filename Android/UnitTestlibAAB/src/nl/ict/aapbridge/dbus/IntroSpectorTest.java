@@ -1,6 +1,5 @@
 package nl.ict.aapbridge.dbus;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
@@ -10,8 +9,7 @@ import android.os.Message;
 import android.util.Log;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
-import nl.ict.aapbridge.dbus.IntroSpector.ObjectPathHandler;
-import nl.ict.aapbridge.dbus.message.DbusMessage;
+import nl.ict.aapbridge.dbus.introspection.IntroSpector;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import nl.ict.aapbridge.test.BridgeFactoryService;
 import static nl.ict.aapbridge.test.TAG.TAG;
@@ -110,6 +108,7 @@ public class IntroSpectorTest extends android.test.AndroidTestCase
 	public void testObjectPathGetter() throws Exception
 	{
 		introSpector.startIntrospection("nl.ict.AABUnitTest");
+		Thread.sleep(1000);
 	}
 	
 }
