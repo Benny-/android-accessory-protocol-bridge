@@ -1,6 +1,8 @@
 package nl.ict.aapbridge.dbus;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
@@ -10,6 +12,7 @@ import android.util.Log;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.dbus.introspection.IntroSpector;
+import nl.ict.aapbridge.dbus.introspection.ObjectPath;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import nl.ict.aapbridge.test.BridgeFactoryService;
 import static nl.ict.aapbridge.test.TAG.TAG;
@@ -19,25 +22,25 @@ public class IntroSpectorTest extends android.test.AndroidTestCase
 	private AccessoryBridge bridge;
 	private Looper looper;
 	private IntroSpector introSpector;
-	private SyncObjectPathHandler objectPathHandler = new SyncObjectPathHandler();
+	private collectingObjectPathHandler objpathhandler = new collectingObjectPathHandler();
 	
-	static class SyncObjectPathHandler extends DbusHandler{
+	private static class collectingObjectPathHandler extends IntroSpector.ObjectPathHandler
+	{
 		
-		private Queue<Message> messages = new LinkedList<Message>();
-		private Semaphore lock = new Semaphore(0, true);
+		public List<ObjectPath> objectpaths = new ArrayList<ObjectPath>();
 		
 		@Override
 		public void handleMessage(Message msg) {
-			messages.add(Message.obtain(msg));
-			lock.release();
+			objectpaths.add((ObjectPath) msg.obj);
 		}
 		
-		public Message getDbusMessage() throws InterruptedException
+		List<ObjectPath> flush()
 		{
-			lock.acquire();
-			return messages.poll();
+			List<ObjectPath> tmp = objectpaths;
+			objectpaths = new ArrayList<ObjectPath>();
+			return tmp;
 		}
-	}
+	};
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -62,7 +65,7 @@ public class IntroSpectorTest extends android.test.AndroidTestCase
 					IntroSpector localRef = null;
 					try {
 						synchronized (IntroSpectorTest.this) {
-							introSpector = new IntroSpector(bridge, null);
+							introSpector = new IntroSpector(bridge, objpathhandler);
 							localRef = introSpector;
 							IntroSpectorTest.this.notifyAll();
 						}
@@ -105,10 +108,23 @@ public class IntroSpectorTest extends android.test.AndroidTestCase
 		}
 	}
 	
-	public void testObjectPathGetter() throws Exception
+	public void testIntrospection() throws Exception
 	{
 		introSpector.startIntrospection("nl.ict.AABUnitTest");
-		Thread.sleep(1000);
+		introSpector.waitForIntrospection();
+		List<ObjectPath> objectpaths = objpathhandler.flush();
+		assertTrue(objectpaths.size() >= 4);
+		ObjectPath echo1 = null;
+		for(ObjectPath object : objectpaths)
+		{
+			Log.v(TAG, object.toString());
+			if(object.getName().equals("/nl/ict/AABUnitTest/bulk/echo1"))
+			{
+				echo1 = object;
+			}
+		}
+		assertNotNull(echo1);
+		
 	}
 	
 }

@@ -39,6 +39,7 @@ public class IntroSpector implements Closeable{
 	private String nodeName;
 	private List<String> objectPathsToIntrospect = new ArrayList<String>();
 	
+	private boolean introspecting = false;
 	private DbusMethods introSpectionhGetter;
 	private DbusMethods busNameGetter;
 	/**
@@ -75,6 +76,14 @@ public class IntroSpector implements Closeable{
 					Log.e(TAG, "", e);
 				}
 			}
+			else
+			{
+				synchronized (IntroSpector.this)
+				{
+					introspecting = false;
+					IntroSpector.this.notifyAll();
+				}
+			}
 		}
 	};
 	private SyncDbusHandler busnameHandler = new SyncDbusHandler();
@@ -93,6 +102,8 @@ public class IntroSpector implements Closeable{
 		 * This variable will only be used if the node contains a interface.
 		 */
 		ObjectPath objectPath = null;
+		DbusInterface dbusInterface = null;
+		String member = null;
 		
 		@Override
 		public void startElement(String uri, String localName, String qName,
@@ -117,9 +128,31 @@ public class IntroSpector implements Closeable{
 				Log.v(TAG, "Found interface: "+interfaceName);
 				
 				if (objectPath == null)
-					objectPath = new ObjectPath(nodeName);
+					objectPath = new ObjectPath( nodeName.equals("")?"/":nodeName );
 				
-				objectPath.addInterface(new DbusInterface(interfaceName));
+				dbusInterface = new DbusInterface(interfaceName);
+				objectPath.addInterface(dbusInterface);
+			}
+			
+			if(localName.equals("method"))
+			{
+				member = attributes.getValue("name");
+			}
+			
+			if(localName.equals("signal"))
+			{
+				member = attributes.getValue("name");
+			}
+			
+			if(localName.equals("property"))
+			{
+				member = attributes.getValue("name");
+			}
+			
+			// The arg tag can appear on methods and signals.
+			if(localName.equals("arg"))
+			{
+				member = member + " " + attributes.getValue("name") + " " + attributes.getValue("type") + " " + attributes.getValue("direction");
 			}
 		}
 		
@@ -128,6 +161,26 @@ public class IntroSpector implements Closeable{
 				throws SAXException {
 			if (localName.equals("node")) {
 				depth--;
+				
+				if(objectPath != null && !objectPath.isEmpty())
+				{
+					Message.obtain(objectPathHandler, 0, objectPath).sendToTarget();
+				}
+			}
+			
+			if(localName.equals("method"))
+			{
+				dbusInterface.addMethod(member);
+			}
+			
+			if(localName.equals("signal"))
+			{
+				dbusInterface.addSignal(member);
+			}
+			
+			if(localName.equals("property"))
+			{
+				dbusInterface.addProperty(member);
 			}
 		}
 	}
@@ -153,7 +206,7 @@ public class IntroSpector implements Closeable{
 		}
 	}
 	
-	abstract static class ObjectPathHandler extends Handler
+	abstract public static class ObjectPathHandler extends Handler
 	{
 		@Override
 		abstract public void handleMessage(Message msg);
@@ -183,6 +236,7 @@ public class IntroSpector implements Closeable{
 	 */
 	synchronized public void startIntrospection(String busname) throws IOException
 	{
+		this.introspecting = true;
 		this.busname = busname;
 		this.nodeName = "";
 		objectPathsToIntrospect.add(nodeName);
@@ -191,6 +245,22 @@ public class IntroSpector implements Closeable{
 				"/",
 				"org.freedesktop.DBus.Introspectable",
 				"Introspect");
+	}
+	
+	public boolean introspecting()
+	{
+		return introspecting;
+	}
+	
+	/**
+	 * Blocks until the introspection is done.
+	 * 
+	 * @throws InterruptedException 
+	 */
+	synchronized public void waitForIntrospection() throws InterruptedException
+	{
+		while(introspecting())
+			wait();
 	}
 	
 	@Override
