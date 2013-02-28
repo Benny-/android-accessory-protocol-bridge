@@ -22,6 +22,8 @@ import nl.ict.aapbridge.bulk.BulkTransfer;
 import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.DbusSignals;
+import nl.ict.aapbridge.dbus.introspection.IntroSpector;
+import nl.ict.aapbridge.dbus.introspection.IntroSpector.ObjectPathHandler;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
@@ -560,6 +562,11 @@ public class AccessoryBridge implements Channel
 	public BulkTransfer createBulkTransfer(String busName, String objectPath, String arguments) throws IOException, ServiceRequestException
 	{
 		return new BulkTransfer(this, busName, objectPath, arguments);
+	}
+	
+	public IntroSpector createIntroSpector(ObjectPathHandler objectPathHandler) throws IOException, ServiceRequestException
+	{
+		return new IntroSpector(this, objectPathHandler);
 	}
 
 	@Override

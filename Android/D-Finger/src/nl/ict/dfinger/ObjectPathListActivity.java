@@ -7,7 +7,11 @@ import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.bridge.ServiceRequestException;
 import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.DbusHandler;
+import nl.ict.aapbridge.dbus.introspection.IntroSpector;
+import nl.ict.aapbridge.dbus.introspection.IntroSpector.ObjectPathHandler;
+import nl.ict.aapbridge.dbus.introspection.ObjectPath;
 import android.os.Bundle;
+import android.os.Message;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.util.Log;
@@ -21,13 +25,13 @@ public class ObjectPathListActivity extends ListActivity
 	
 	private String busname;
 	private AccessoryBridge bridge;
-	private DbusMethods dbus;
+	private IntroSpector introspector;
 	private ObjectPathAdapter objectpathadapter;
-	private DbusHandler dbushandler = new DbusHandler() {
-		public void handleMessage(android.os.Message msg)
-		{
-			Log.d(TAG, msg.toString());
-		};
+	private ObjectPathHandler objectPathHandler = new ObjectPathHandler() {
+		@Override
+		public void handleMessage(Message msg) {
+			objectpathadapter.add((ObjectPath) msg.obj);
+		}
 	};
 	
 	@Override
@@ -52,11 +56,10 @@ public class ObjectPathListActivity extends ListActivity
 		}
 		
 		try {
-			dbus = bridge.createDbus(dbushandler);
-			// dbus.methodCall(busname, "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects");
-			dbus.methodCall(busname, "/", "org.freedesktop.DBus.Introspectable", "Introspect");
+			introspector = new IntroSpector(bridge, objectPathHandler);
+			introspector.startIntrospection(busname);
 		} catch (Exception e) {
-			String msg = "Could not setup dbus service: "+e.getLocalizedMessage();
+			String msg = "Could not start introspection: "+e.getLocalizedMessage();
 			Log.e(TAG, msg, e);
 			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 			finish();
@@ -66,7 +69,7 @@ public class ObjectPathListActivity extends ListActivity
 	@Override
 	protected void onDestroy() {
 		try {
-			dbus.close();
+			introspector.close();
 		} catch (Exception e) {
 			// Meh.
 		}

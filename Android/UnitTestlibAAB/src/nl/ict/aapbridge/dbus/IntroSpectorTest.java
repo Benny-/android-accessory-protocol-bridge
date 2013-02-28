@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 
 import nl.ict.aapbridge.bridge.AccessoryBridge;
+import nl.ict.aapbridge.dbus.introspection.DbusInterface;
 import nl.ict.aapbridge.dbus.introspection.IntroSpector;
 import nl.ict.aapbridge.dbus.introspection.ObjectPath;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
@@ -20,7 +21,6 @@ import static nl.ict.aapbridge.test.TAG.TAG;
 public class IntroSpectorTest extends android.test.AndroidTestCase
 {
 	private AccessoryBridge bridge;
-	private Looper looper;
 	private IntroSpector introSpector;
 	private collectingObjectPathHandler objpathhandler = new collectingObjectPathHandler();
 	
@@ -50,40 +50,10 @@ public class IntroSpectorTest extends android.test.AndroidTestCase
 		{
 			bridge = BridgeFactoryService.getAAPBridge(getContext());
 		}
+		
 		if(introSpector == null)
 		{
-			// You might be thinking what might be happening here.
-			// IntroSpector uses a internal Handler. It will use the
-			// event loop of the thread who created the Handler.
-			// In the unit test we block a lot. This is bad for the
-			// event loop. To ensure we dont wait on the event loop and cause a
-			// deathlock we start the IntroSpector in its own event loop thread.
-			new Thread(new Runnable() {
-				public void run() {
-					Looper.prepare();
-					looper = Looper.myLooper();
-					IntroSpector localRef = null;
-					try {
-						synchronized (IntroSpectorTest.this) {
-							introSpector = new IntroSpector(bridge, objpathhandler);
-							localRef = introSpector;
-							IntroSpectorTest.this.notifyAll();
-						}
-					} catch (Exception e) {
-						Log.e(TAG, "", e);
-					}
-					Looper.loop();
-					try {
-						localRef.close();
-					} catch (Exception e) {
-						Log.e(TAG, "", e);
-					}
-				}
-			}).start();
-			synchronized (this) {
-				while(introSpector == null)
-					wait();
-			}
+			introSpector = new IntroSpector(bridge, objpathhandler);
 		}
 	}
 	
@@ -91,9 +61,8 @@ public class IntroSpectorTest extends android.test.AndroidTestCase
 	protected void tearDown() throws Exception {
 		if(introSpector != null)
 		{
-			looper.quit();
+			introSpector.close();
 			introSpector = null;
-			looper = null;
 		}
 		super.tearDown();
 	}
@@ -111,7 +80,7 @@ public class IntroSpectorTest extends android.test.AndroidTestCase
 	public void testIntrospection() throws Exception
 	{
 		introSpector.startIntrospection("nl.ict.AABUnitTest");
-		introSpector.waitForIntrospection();
+		Thread.sleep(1000);
 		List<ObjectPath> objectpaths = objpathhandler.flush();
 		assertTrue(objectpaths.size() >= 4);
 		ObjectPath echo1 = null;
@@ -124,7 +93,19 @@ public class IntroSpectorTest extends android.test.AndroidTestCase
 			}
 		}
 		assertNotNull(echo1);
-		
+		List<DbusInterface> interfaces = echo1.getInterfaces();
+		assertTrue(interfaces.size() > 0);
+		DbusInterface dbusInterface = null;
+		for(DbusInterface iter : interfaces)
+		{
+			if(iter.getName().equals("nl.ict.aapbridge.bulk"))
+			{
+				dbusInterface = iter;
+			}
+		}
+		assertNotNull(dbusInterface);
+		assertTrue(dbusInterface.getMethods().size() > 0);
+		assertTrue(dbusInterface.getMethods().get(0).startsWith("onBulkRequest"));
 	}
 	
 }

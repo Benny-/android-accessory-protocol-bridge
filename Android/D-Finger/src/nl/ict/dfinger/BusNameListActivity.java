@@ -7,6 +7,7 @@ import nl.ict.aapbridge.bridge.AccessoryBridge;
 import nl.ict.aapbridge.dbus.DbusMethods;
 import nl.ict.aapbridge.dbus.DbusHandler;
 import nl.ict.aapbridge.dbus.RemoteException;
+import nl.ict.aapbridge.dbus.introspection.IntroSpector;
 import nl.ict.aapbridge.dbus.message.DbusMessage;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import android.app.ListActivity;
@@ -23,23 +24,8 @@ public class BusNameListActivity extends ListActivity {
 	public static AccessoryBridge staticBridge;
 	
 	private AccessoryBridge bridge;
-	private DbusMethods dbus;
+	private IntroSpector introSpector;
 	private BusnameAdapter busnameadapter;
-	private DbusHandler dbushandler = new DbusHandler() {
-		public void handleMessage(android.os.Message msg)
-		{
-			DbusMessage dbusmsg = (DbusMessage) msg.obj;
-			try {
-				Object[] objects = dbusmsg.getValues();
-				DbusArray dbusArray = (DbusArray) objects[0];
-				busnameadapter.setList(dbusArray);
-			} catch (RemoteException e) {
-				String error_msg = "Something went wrong when trying to get busnames";
-				Log.e(TAG, error_msg, e);
-				Toast.makeText(BusNameListActivity.this, error_msg, Toast.LENGTH_LONG).show();
-			}
-		};
-	};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,24 +53,23 @@ public class BusNameListActivity extends ListActivity {
 		}
 		
 		try {
-			dbus = bridge.createDbus(dbushandler);
-			dbus.methodCall("org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames");
+			introSpector = new IntroSpector(bridge);
+			busnameadapter.setList(introSpector.getBusnames());
 		} catch (Exception e) {
-			String msg = "Could not setup aapbridge: "+e.getLocalizedMessage();
+			String msg = "Could not setup introSpector: "+e.getLocalizedMessage();
 			Log.e(TAG, msg, e);
 			Toast.makeText(BusNameListActivity.this, msg, Toast.LENGTH_SHORT).show();
 			finish();
+		} finally {
+			try {
+				introSpector.close();
+			} catch (IOException e) {
+				String msg = "Could not close introSpector: "+e.getLocalizedMessage();
+				Log.e(TAG, msg, e);
+				Toast.makeText(BusNameListActivity.this, msg, Toast.LENGTH_SHORT).show();
+				finish();
+			}
 		}
-	}
-	
-	@Override
-	protected void onDestroy() {
-		try {
-			dbus.close();
-		} catch (Exception e) {
-			// Meh..
-		}
-		super.onDestroy();
 	}
 	
 	@Override
@@ -92,5 +77,18 @@ public class BusNameListActivity extends ListActivity {
 		Intent intent = new Intent(getApplicationContext(), ObjectPathListActivity.class);
 		intent.putExtra(ObjectPathListActivity.EXTRA_BUSNAME, busnameadapter.getList().get(position).toString());
 		startActivity(intent);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		try 
+		{
+			introSpector.close();
+		} catch (Exception e)
+		{
+			// meh.
+		}
+		
+		super.onDestroy();
 	}
 }

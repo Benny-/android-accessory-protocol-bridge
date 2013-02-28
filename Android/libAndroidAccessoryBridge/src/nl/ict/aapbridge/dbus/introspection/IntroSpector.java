@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.util.Xml;
@@ -50,7 +51,9 @@ public class IntroSpector implements Closeable{
 	 * need to keep track of it. One will need to keep this in mind if introspection
 	 * needs to happen concurrently.
 	 */
-	private DbusHandler introSpectionHandler = new DbusHandler() {
+	private DbusHandler introSpectionHandler;
+	
+	private class IntroSpectionDbusHandler extends DbusHandler {
 		@Override
 		public void handleMessage(Message msg) {
 			DbusMessage dbusMessage = (DbusMessage) msg.obj;
@@ -86,10 +89,11 @@ public class IntroSpector implements Closeable{
 			}
 		}
 	};
-	private SyncDbusHandler busnameHandler = new SyncDbusHandler();
+	private Looper busnameHandlerLoop;
+	private SyncDbusHandler busnameHandler;
 	private ObjectPathHandler objectPathHandler;
 	
-	class DbusIntrospectionContentHandler extends DefaultHandler {
+	private class DbusIntrospectionContentHandler extends DefaultHandler {
 		
 		/**
 		 * There are only 2 node depths.
@@ -212,8 +216,60 @@ public class IntroSpector implements Closeable{
 		abstract public void handleMessage(Message msg);
 	}
 	
-	public IntroSpector(AccessoryBridge bridge, ObjectPathHandler handler) throws IOException, ServiceRequestException {
-		objectPathHandler = handler;
+	static final ObjectPathHandler nullHandler = new ObjectPathHandler() {
+		@Override
+		public void handleMessage(Message msg) {
+			// This handler does nothing at all.
+		}
+	};
+	
+	/**
+	 * <p>Use this constructor if you are not interested in any introspection data,
+	 * only in the busnames.</p>
+	 * 
+	 * <p>The function {@link #startIntrospection(String)} should not be called on
+	 * a IntroSpector created this way.</p>
+	 * 
+	 * @param bridge
+	 * @throws IOException
+	 * @throws ServiceRequestException
+	 */
+	public IntroSpector(AccessoryBridge bridge) throws IOException, ServiceRequestException
+	{
+		this(bridge, nullHandler);
+	}
+	
+	public IntroSpector(AccessoryBridge bridge, ObjectPathHandler objectPathHandler) throws IOException, ServiceRequestException {
+		if(objectPathHandler == null)
+			throw new NullPointerException("objectPathHandler may not be null");
+		
+		// Here we start all the handlers in there own event loops.
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Looper.prepare();
+				synchronized (IntroSpector.this) {
+					busnameHandlerLoop = Looper.myLooper();
+					busnameHandler = new SyncDbusHandler();
+					introSpectionHandler = new IntroSpectionDbusHandler();
+					IntroSpector.this.notifyAll();
+				}
+				Looper.loop();
+			}
+		}).start();
+		
+		synchronized (this) {
+			while(introSpectionHandler == null)
+			{
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
+		
+		this.objectPathHandler = objectPathHandler;
 		introSpectionhGetter = bridge.createDbus(introSpectionHandler);
 		busNameGetter = bridge.createDbus(busnameHandler);
 	}
@@ -236,6 +292,9 @@ public class IntroSpector implements Closeable{
 	 */
 	synchronized public void startIntrospection(String busname) throws IOException
 	{
+		if(busname == null)
+			throw new NullPointerException("busname may not be null");
+		
 		this.introspecting = true;
 		this.busname = busname;
 		this.nodeName = "";
@@ -265,6 +324,7 @@ public class IntroSpector implements Closeable{
 	
 	@Override
 	public void close() throws IOException {
+		busnameHandlerLoop.quit();
 		introSpectionhGetter.close();
 		busNameGetter.close();
 	}
