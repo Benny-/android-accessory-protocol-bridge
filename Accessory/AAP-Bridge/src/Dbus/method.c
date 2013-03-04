@@ -158,7 +158,25 @@ void MethodOnBytesReceived(void* service_data, BridgeService* service, void* buf
 			char* marshalled;
 			int marshalled_size;
 			dbus_message_marshal(message,&marshalled,&marshalled_size);
-			writeAllPort(service, marshalled, marshalled_size);
+			// Our little protocol can only handle dbus messages of
+			// 4000 bytes or less.
+			if(marshalled_size > 4000)
+			{
+				char* marshalled_error;
+				int marshalled_error_size;
+				DBusMessage* error = dbus_message_new_error_printf(
+						NULL,
+						"nl.ict.aab.dbus.messageTooLong",
+						"The reply is %i bytes",
+						marshalled_size);
+				dbus_message_marshal(error, &marshalled_error, &marshalled_error_size);
+				writeAllPort(service, marshalled_error, marshalled_error_size);
+				free(marshalled_error);
+			}
+			else
+			{
+				writeAllPort(service, marshalled, marshalled_size);
+			}
 			free(marshalled);
 		}
 		else
