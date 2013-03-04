@@ -320,7 +320,7 @@ libusb_device_handle* setupAccessory(
 		libusb_close(handle);
 	}
 
-	//@todo automatic detection of reconnecting phone
+	// TODO: automatic detection of reconnecting phone
 	sleep(5);
 
 

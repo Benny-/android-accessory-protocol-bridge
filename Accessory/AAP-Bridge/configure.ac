@@ -21,7 +21,7 @@ fi
 AM_CONDITIONAL([HAVE_PANDOC],[test -n "$PANDOC"])
 
 # Checks for packages.
-PKG_CHECK_MODULES(DEPENDENCIES, [dbus-1 >= 1.6.1, libandroidaccessory-1.0, libconfig])
+PKG_CHECK_MODULES(DEPENDENCIES, [dbus-1 >= 1.6.1, libandroidaccessory-1.0, libconfig, libpulse])
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdint.h stdlib.h string.h])

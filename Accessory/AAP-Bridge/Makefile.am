@@ -15,6 +15,7 @@ AAP_bridge_SOURCES= \
     src/Dbus/listener.c \
     src/Dbus/method.c \
     src/bulkTransfer.c \
+    src/accessoryAudio.c \
     src/Message/receivequeue.c \
     src/Message/sendqueue.c 
 

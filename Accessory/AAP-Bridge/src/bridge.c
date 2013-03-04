@@ -12,6 +12,7 @@
 #include "Message/receivequeue.h"
 #include "Message/sendqueue.h"
 #include "Dbus/dbuslib.h"
+#include "accessoryAudio.h"
 
 #define MAX_PORTS 400
 
@@ -324,6 +325,13 @@ BridgeConnection* initServer(AapConnection* con){
 	bridge->work = 1;
 	bridge->connectedToAndroid = 0;
 	bridge->con = con;
+
+	static int accessoryStarted = 0;
+	if(!accessoryStarted)
+	{
+		accessoryStarted = 1;
+		accessory_audio_start();
+	}
 
 	for(int i = 0; i < (sizeof(bridge->services) / sizeof(bridge->services[0])); i++)
 	{
