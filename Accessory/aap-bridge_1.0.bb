@@ -4,7 +4,7 @@ HOMEPAGE = "ict.nl"
 SECTION = "base"
 LICENSE = "Idk"
 
-DEPENDS = "dbus libandroidaccessory-1.0 libconfig"
+DEPENDS = "dbus libandroidaccessory-1.0 libconfig libpulse"
 
 # Update checksum if license file changes.
 LIC_FILES_CHKSUM = "file://COPYING;md5=4347375aa52ecf07c16943db6168fc19"

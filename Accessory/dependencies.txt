@@ -31,6 +31,9 @@ sudo apt-get install libdbus-1-dev
 # Configuration file reading
 sudo apt-get install libconfig-dev
 
+# Accessory audio support
+sudo apt-get install libpulse-dev
+
 # Documentation (man page) (optional)
 sudo apt-get install pandoc
 
