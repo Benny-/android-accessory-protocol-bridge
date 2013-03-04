@@ -30,6 +30,9 @@ import nl.ict.aapbridge.dbus.message.DbusMessage;
 import nl.ict.aapbridge.dbus.message.types.DbusArray;
 import static nl.ict.aapbridge.TAG.TAG;
 
+/**
+ * <p>The Introspector is used to collect information about the busnames and objectpaths on the remote d-bus</p>
+ */
 public class IntroSpector implements Closeable{
 	
 	// The following 3 variables are used to store data between the recursive introspection calls
@@ -91,6 +94,10 @@ public class IntroSpector implements Closeable{
 	};
 	private Looper busnameHandlerLoop;
 	private SyncDbusHandler busnameHandler;
+	
+	/**
+	 * <p>This handler will receive the {@link ObjectPath}'s</p>
+	 */
 	private ObjectPathHandler objectPathHandler;
 	
 	private class DbusIntrospectionContentHandler extends DefaultHandler {
@@ -210,8 +217,16 @@ public class IntroSpector implements Closeable{
 		}
 	}
 	
+	/**
+	 * <p>This class wil receive the {@link ObjectPath} objects</p>
+	 * 
+	 * @see IntroSpector#startIntrospection(String)
+	 */
 	abstract public static class ObjectPathHandler extends Handler
 	{
+		/**
+		 * <p>{@link Message#obj} will be a {@link ObjectPath} object. You should cast it.</p>
+		 */
 		@Override
 		abstract public void handleMessage(Message msg);
 	}
@@ -283,10 +298,14 @@ public class IntroSpector implements Closeable{
 	}
 	
 	/**
-	 * <p>This object can only introspect one busname at a time. If you
+	 * <p>Start scanning the remote busname. All results will be send to {@link IntroSpector#objectPathHandler}</p>
+	 * 
+	 * <p>A IntroSpector can only introspect one busname at a time. If you
 	 * need to introspect more busnames at the same time, please create another
 	 * IntroSpector object.</p>
 	 * 
+	 * @see ObjectPathHandler
+	 * @see ObjectPath
 	 * @param busname
 	 * @throws IOException 
 	 */

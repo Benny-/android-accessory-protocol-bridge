@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * <p>Represents a remote d-bus path</p>
+ */
 public class ObjectPath {
 	
 	private String name;
