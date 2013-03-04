@@ -141,31 +141,29 @@ void MethodOnBytesReceived(void* service_data, BridgeService* service, void* buf
 
 		dbus_connection_flush(methods->con);
 
-		// free the message
-		dbus_message_unref(message);
-
 		// block until we receive a reply
 		dbus_pending_call_block(pending);
 
 		// get the reply message
-		message = dbus_pending_call_steal_reply(pending);
+		DBusMessage* reply = dbus_pending_call_steal_reply(pending);
 
 		// free the pending message handle
 		dbus_pending_call_unref(pending);
 
-		if(message != NULL)
+		if(reply != NULL)
 		{
 			char* marshalled;
 			int marshalled_size;
-			dbus_message_marshal(message,&marshalled,&marshalled_size);
+			dbus_message_marshal(reply,&marshalled,&marshalled_size);
 			// Our little protocol can only handle dbus messages of
 			// 4000 bytes or less.
 			if(marshalled_size > 4000)
 			{
+				fprintf(stderr,"Could not send a d-bus reply back (It is too big: %i bytes). Sending a exception back.\n", marshalled_size);
 				char* marshalled_error;
 				int marshalled_error_size;
 				DBusMessage* error = dbus_message_new_error_printf(
-						NULL,
+						message,
 						"nl.ict.aab.dbus.messageTooLong",
 						"The reply is %i bytes",
 						marshalled_size);
@@ -186,6 +184,7 @@ void MethodOnBytesReceived(void* service_data, BridgeService* service, void* buf
 		}
 
 		dbus_message_unref(message);
+		dbus_message_unref(reply);
 	}
 }
 
