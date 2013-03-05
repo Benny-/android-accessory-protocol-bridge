@@ -20,6 +20,7 @@ static void on_new_source(pa_context *c, const pa_source_info *i, int eol, void 
 	printf("pa_source_info: %p eol: %i\n", i, eol);
 	if(!eol && i->index > lastIndexChecked)
 	{
+		printf("%s",pa_proplist_to_string(i->proplist));
 		if(pa_proplist_contains(i->proplist,"device.vendor.id") && pa_proplist_contains(i->proplist,"device.product.id"))
 		{
 			printf("This might be a usb accessory audio source. Lets check it.\n");

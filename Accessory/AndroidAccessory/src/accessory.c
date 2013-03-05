@@ -139,6 +139,7 @@ AapConnection* getNextAndroidConnection(Accessory* accessory)
 			else
 			{
 				libusb_device_handle* dev_handle = findAndInitAccessory(
+						accessory->usb_context,
 						accessory->manufacturer,
 						accessory->modelName,
 						accessory->description,

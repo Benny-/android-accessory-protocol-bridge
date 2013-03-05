@@ -55,16 +55,14 @@ const char *libusb_error_name(int error_code)
  * tries to open the usbdevice with pid and pid
  * @param vid vendor id of the usb device
  * @param pid product id of the usb device
- * @return handle of the given pid and vid
+ * @return handle of the given pid and vid or NULL on error
  */
-libusb_device_handle* openUsb(u_int16_t vid, u_int16_t pid) {
+libusb_device_handle* openUsb(libusb_context *ctx, u_int16_t vid, u_int16_t pid) {
 	libusb_device_handle* handle = NULL;
 	int response = -1;
 
-	handle = libusb_open_device_with_vid_pid(NULL, vid, pid);
-	if (handle == NULL) {
-		return handle;
-	} else {
+	handle = libusb_open_device_with_vid_pid(ctx, vid, pid);
+	if (handle != NULL) {
 		if (libusb_kernel_driver_active(handle, 0)) {
 			response = libusb_detach_kernel_driver(handle, 0);
 			if (response < 0) {
@@ -75,9 +73,8 @@ libusb_device_handle* openUsb(u_int16_t vid, u_int16_t pid) {
 		if (response < 0) {
 			fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(response));
 		}
-
-		return handle;
 	}
+	return handle;
 }
 
 /**

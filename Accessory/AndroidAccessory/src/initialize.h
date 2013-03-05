@@ -5,6 +5,7 @@
 
 extern const int vendors[];
 libusb_device_handle*  findAndInitAccessory(
+		libusb_context* ctx,
 		const char* manufacturer,
 		const char* modelName,
 		const char* description,

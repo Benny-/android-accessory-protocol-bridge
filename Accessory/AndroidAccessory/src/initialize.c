@@ -30,6 +30,7 @@ void debugDescriptor(struct libusb_device_descriptor* desc)
  * @return handle of the accessory device, or null if none are found.
  */
 libusb_device_handle* findAndInitAccessory(
+		libusb_context* ctx,
 		const char* manufacturer,
 		const char* modelName,
 		const char* description,
@@ -62,32 +63,37 @@ libusb_device_handle* findAndInitAccessory(
 				printf("libAndroidAccessory: Supported vendor Id found: %04hx\n", desc.idVendor);
 #endif
 				// Check to see if the device is already in accessory mode
-				switch(desc.idProduct)
+				if(desc.idVendor == GOOGLE)
 				{
-				case ACCESSORY:
-				case ACCESSORY_ADB:
-				case AUDIO:
-				case AUDIO_ADB:
-				case ACCESSORY_AUDIO:
-				case ACCESSORY_AUDIO_ADB:
-#ifdef DEBUG
-					printf("libAndroidAccessory: Connected device already in accessory mode, continuing!\n");
-#endif
-					; // Do not remove this empty statement. Removing it might make gcc refuse to compile our project.
-					int errorCode = libusb_open(tmpdevice, &handle);
-					if ( errorCode != 0 )
+					switch(desc.idProduct)
 					{
-						fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(errorCode));
+						case ACCESSORY:
+						case ACCESSORY_ADB:
+						case AUDIO:
+						case AUDIO_ADB:
+						case ACCESSORY_AUDIO:
+						case ACCESSORY_AUDIO_ADB:
+#ifdef DEBUG
+							printf("libAndroidAccessory: Connected device already in accessory mode, continuing!\n");
+#endif
+							; // Do not remove this empty statement. Removing it might make gcc refuse to compile our project.
+							int errorCode = libusb_open(tmpdevice, &handle);
+							if ( errorCode != 0 )
+							{
+								fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(errorCode));
+							}
+							determineEndpoints(tmpdevice);
+							libusb_release_interface(handle, 0);
+							libusb_release_interface(handle, 1);
+							libusb_free_device_list(list, 1);
+							return handle;
+						default:
+							break;
 					}
-					determineEndpoints(tmpdevice);
-					libusb_free_device_list(list, 1);
-					return handle;
-				default:
-					break;
 				}
 
 				// We're not already in accessory mode, try to send configuration commands.
-				handle = openUsb(desc.idVendor, desc.idProduct); //try to open the USB interface
+				handle = openUsb(ctx, desc.idVendor, desc.idProduct); //try to open the USB interface
 				if (handle != NULL) {
 					int version_supported = -1;
 
@@ -114,13 +120,15 @@ libusb_device_handle* findAndInitAccessory(
 								serialNumber,
 								handle); //try to set-up Accessory
 						libusb_free_device_list(list, 1);
-						return handle;
+						closeUsb(handle);
+						return handle = NULL;
 						break;
 					default:
 #ifdef DEBUG
 						printf("libAndroidAccessory: Unsupported or no Android device support\n");
 #endif
 						closeUsb(handle);
+						handle = NULL;
 						break;
 
 					}
@@ -132,59 +140,6 @@ libusb_device_handle* findAndInitAccessory(
 
 	// Upon reaching this location we didn't find any supported android device, so we return NULL
 	return NULL;
-}
-
-libusb_device_handle* reInitAccessory() {
-	libusb_device** list;
-	ssize_t cnt = libusb_get_device_list(NULL, &list);
-
-	int i;
-	struct libusb_device_descriptor* desc;
-	desc = (struct libusb_device_descriptor*) malloc(
-			sizeof(struct libusb_device_descriptor));
-	libusb_device_handle* handle = NULL;
-
-#ifdef DEBUG
-	printf("libAndroidAccessory: Attempting to re-open device as Accessory Device...\n");
-#endif
-	for (i = 0; i < cnt; i++) {
-		libusb_device* tmpdevice = list[i];
-
-		if (libusb_get_device_descriptor(tmpdevice, desc) < 0) {
-			continue;
-		}
-
-		debugDescriptor(desc);
-
-		int errorCode;
-		switch (desc->idProduct)
-		{
-		case ACCESSORY:
-		case ACCESSORY_ADB:
-		case ACCESSORY_AUDIO:
-		case ACCESSORY_AUDIO_ADB:
-#ifdef DEBUG
-			printf("libAndroidAccessory: Found a accessory device descriptor\n");
-#endif
-			errorCode = libusb_open(tmpdevice,&handle);
-			if ( errorCode == 0 ) {
-				// We have our handle, lets begin by determining our endpoints
-				determineEndpoints(tmpdevice);
-			}
-			else
-			{
-				fprintf(stderr, "libAndroidAccessory: %s %d -> %s\n",__FILE__, __LINE__, libusb_error_name(errorCode));
-			}
-			libusb_free_device_list(list, 1);
-			return handle;
-		default:
-			break;
-		}
-	}
-
-	libusb_free_device_list(list, 1);
-	// Upon reaching this location we didn't find any supported android device, so we return NULL
-	return NULL ;
 }
 
 /**
@@ -318,13 +273,8 @@ libusb_device_handle* setupAccessory(
 	if (handle != NULL) {
 		libusb_release_interface(handle, 0);
 		libusb_close(handle);
+		handle = NULL;
 	}
-
-	// TODO: automatic detection of reconnecting phone
-	sleep(5);
-
-
-	handle = reInitAccessory();
 
 #ifdef DEBUG
 	printf("libAndroidAccessory: Interface claimed, ready to transfer data\n");
