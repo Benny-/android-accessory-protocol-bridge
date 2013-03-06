@@ -69,8 +69,6 @@ libusb_device_handle* findAndInitAccessory(
 					{
 						case ACCESSORY:
 						case ACCESSORY_ADB:
-						case AUDIO:
-						case AUDIO_ADB:
 						case ACCESSORY_AUDIO:
 						case ACCESSORY_AUDIO_ADB:
 #ifdef DEBUG
