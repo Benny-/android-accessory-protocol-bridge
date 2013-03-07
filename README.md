@@ -19,5 +19,12 @@ AAP-Bridge managed the communication from android and the d-bus on the local sys
 
 - /Android/libAndroidAccessoryBridge/
 - /Android/Remote Dbus/
+- /Android/MediaRemote/
+- /Android/WeatherCapeReader/
+- /Android/D-Finger/
+- /Android/UnitTestlibAAB/
 
-The Accessory map contains the library for communicating to the remote d-bus. In addition to this it contains the "Remote Dbus" project. This Android application uses the library to send arbitrary d-bus function calls and listen to arbitrary d-bus signals.
+The Accessory map contains the library for communicating to the remote d-bus. In addition to this it contains several example projects. All examples use the libAndroidAccessoryBridge library to call d-bus function and listen to d-bus signals.
+
+All examples use the default configuration for AAP-Bridge except for MediaRemote. Use the AAP-Bridge configuration file found in `/Accessory/AAP-Bridge/AAP-Bridge.MediaRemote.config`. MediaRemote connects to Rhythmbox using a d-bus interface. Rhythmbox is the payload in this situation and should be running beforehand. D-finger tries to mimic D-feet's ability to query the d-bus and view all object paths. "Remote Dbus" can be used to send arbitrary d-bus function calls and listen to arbitrary d-bus signals. WeatherCapeReader is designed to read the sensor values from a beaglebone's weathercape. The payload `/AAP-Bridge/Accessory/Payloads/sensors.py` should be running on the beaglebone. The UnitTestlibAAB project is used for unit testing. The payload `/AAP-Bridge/Accessory/Payloads/testStub.py` should be running for all unit tests to pass. More information about unit testing can be found in the package description for `nl.ict.aapbridge.test`.
+
