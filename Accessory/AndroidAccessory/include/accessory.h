@@ -44,7 +44,7 @@ typedef struct AapConnection AapConnection;
  *
  * It is a autotools project and detailed instructions for compilation can be read in INSTALL.
  *
- * \subsection step1 Accept incoming android connections
+ * \subsection step1 Accept incoming Android connections
  *
  * Briefly: Call `initAccessory()` to start listening. Call `getNextAndroidConnection()` to accept a new connection. Now use any of the read/write functions on the `::AapConnection`. Call `closeAndroidConnection()` when you are done.
  *
