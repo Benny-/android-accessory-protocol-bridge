@@ -9,7 +9,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 # in the $(libdir) directory. For example /usr/lib
 lib_LTLIBRARIES = libandroidaccessory-@ANDROIDACCESSORY_API_VERSION@.la
 
-EXTRA_DIST = src/*.h
+EXTRA_DIST = src/*.h doc/echo.c
 
 # Doxygen (Documentation: man pages, html and more)
 if HAVE_DOXYGEN

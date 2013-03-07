@@ -142,7 +142,6 @@ void accessory_audio_start(void)
 	pa_operation* subscribe_operation;
 
 	pa_mainloop = pa_threaded_mainloop_new();
-	pa_threaded_mainloop_start(pa_mainloop);
 
 	pa_ctx = pa_context_new(
 		pa_threaded_mainloop_get_api(pa_mainloop),
@@ -161,6 +160,8 @@ void accessory_audio_start(void)
 		0,		// Flags
 		NULL	// pa_spawn_api. May be NULL if we dont use fork()
 	);
+
+	pa_threaded_mainloop_start(pa_mainloop);
 
 	//pa_context_disconnect(pa_ctx);
 }
