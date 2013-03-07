@@ -7,6 +7,7 @@
 #include <sched.h>
 #include "dbuslib.h"
 
+#include "../flags.h"
 #include "bstrlib.h"
 #include "../Message/AccessoryMessage.h"
 #include "../bridge.h"
@@ -189,7 +190,7 @@ void* SignalsInit(BridgeService* service, pthread_mutex_t* startLock, char* comp
 	dbus_error_init(&dbusError);
 
 	Signals* signals = malloc(sizeof(Signals));
-	signals->con = dbus_bus_get_private(DBUS_BUS_SESSION, &dbusError);
+	signals->con = dbus_bus_get_private(FLAGS_bustype, &dbusError);
 	signals->service = service;
 	signals->startLock = startLock;
 

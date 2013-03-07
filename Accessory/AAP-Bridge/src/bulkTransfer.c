@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <fcntl.h>
 
+#include "flags.h"
 #include "Dbus/dbuslib.h"
 #include "bulkTransfer.h"
 
@@ -60,7 +61,7 @@ static DBusPendingCall* notifyPayload(char* busname, char* objectpath, char* arg
 	DBusMessage* dbus_msg = dbus_message_new_method_call(busname, objectpath, "nl.ict.aapbridge.bulk", "onBulkRequest");
 	DBusMessageIter args;
 	DBusPendingCall* pending;
-	DBusConnection* con = dbus_bus_get(DBUS_BUS_SESSION,NULL);
+	DBusConnection* con = dbus_bus_get(FLAGS_bustype, NULL);
 
 	if(dbus_msg == NULL || con == NULL)
 		return NULL;

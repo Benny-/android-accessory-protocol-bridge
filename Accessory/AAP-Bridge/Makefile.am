@@ -10,6 +10,7 @@ AAP_bridge_SOURCES= \
     src/servicespawner.c \
     src/keepalive.c \
     src/main.c \
+    src/flags.c \
     src/bridge.c \
     src/Dbus/dbuslib.c \
     src/Dbus/listener.c \

@@ -7,6 +7,7 @@
 #include "dbuslib.h"
 #include "../Message/AccessoryMessage.h"
 
+#include "../flags.h"
 #include "method.h"
 
 /**
@@ -67,7 +68,7 @@ void* MethodInit(BridgeService* service)
 	DBusError dbusError;
 	dbus_error_init(&dbusError);
 	Methods* methods = malloc(sizeof(Methods));
-	methods->con = dbus_bus_get(DBUS_BUS_SESSION, &dbusError);
+	methods->con = dbus_bus_get(FLAGS_bustype, &dbusError);
 	methods->service = service;
 
 	dbus_threads_init_default();

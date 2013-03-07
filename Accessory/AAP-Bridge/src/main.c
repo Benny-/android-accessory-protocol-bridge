@@ -8,6 +8,7 @@
 #include <accessory.h>
 #include <config.h>
 
+#include "flags.h"
 #include "bridge.h"
 #include "Dbus/dbuslib.h"
 #include "Dbus/method.h"
@@ -97,16 +98,16 @@ int main (int argc, char *argv[])
 
 	const char* BUS = NULL;
 	config_lookup_string(&config, "BUS", &BUS);
-	DBusBusType bus;
+
 	if(BUS != NULL && strcmp(BUS,"DBUS_BUS_SYSTEM") == 0)
 	{
 		puts("Connecting to DBUS_BUS_SYSTEM\n");
-		bus = DBUS_BUS_SYSTEM;
+		FLAGS_bustype = DBUS_BUS_SYSTEM;
 	}
 	else
 	{
 		puts("Connecting to DBUS_BUS_SESSION\n");
-		bus = DBUS_BUS_SESSION;
+		FLAGS_bustype = DBUS_BUS_SESSION;
 	}
 
 	const char* uuids[100];
