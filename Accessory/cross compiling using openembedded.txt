@@ -1,0 +1,30 @@
+
+The AAP-Bridge and libAndroidAccessory project can both be cross-compiled.
+There is a bitbake file written for cross compiling using the openembedded
+framework.
+
+First follow these instructions:
+    http://www.angstrom-distribution.org/building-angstrom
+You can ignore the line for creating the kernel: "MACHINE=beaglebone ./oebb.sh bitbake virtual/kernel"
+
+There are now two ways for baking packages:
+1. bitbake aap-bridge
+2. bitbake -b ./path/to/aap-bridge.bb
+
+The first choice is normally the best choice. The second one does not consider package dependencies. For the first choice, we need a special map structure called a "bitbake layer". You can download a example layer here:
+    https://bitbucket.org/stamppot/android-accessory-protocol-bridge/downloads/v0.0.8.7z
+
+You can put this layer anywhere. Now go to "setup-scripts-Angstrom/conf/bblayers.conf" and edit the EXTRALAYERS.
+EXTRALAYERS ?= "/path/to/your/dev-layer"
+
+Normally, you should now be able to build the AAP-Bridge program using "bitbake aap-bridge". But the above layer has a problem. The meta-openembedded layer contained a too old libdbus version. So a recent version was added to the dev-layer. This recent version can't be build due to a dependency error. This is not a real dependency error, the code compiles if you force bitbake. To do this, first compile everything (you might need to disable the dev-layer for the moment). This might take a day:
+    bitbake console-image
+Now compile the more recent libdbus version:
+    bitbake -b ~/Desktop/dev-layer/dbus/dbus_1.6.4.bb
+Now you should be able to compile the AAP-Bridge program:
+    bitbake aap-bridge
+
+Move the ipkg's from "setup-scripts-Angstrom/build/tmp-angstrom_v2012_05-eglibc/deploy/ipk/armv7a" to the beaglebone and do a "opkg install aap-bridge_1.0-r8_armv7a.ipk". You need the ipkg's for libdbus, libconfig, libandroidaccessory and for aap-bridge. You don't need the debug or dev ipkg's.
+
+You should remove the libconfig and libdbus once the meta-openembedded layer provides more recent versions.
+
