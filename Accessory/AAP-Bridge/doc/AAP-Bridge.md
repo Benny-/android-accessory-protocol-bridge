@@ -80,7 +80,6 @@ Here is a example configuration file:
         "681c4035-8ac3-464a-bf5e-8672833ed8b9",
         "562f2ea2-db6b-45b3-9e9a-d5bd5ff01ede",
         "61bb8e93-a18f-4ac3-90bf-e38a7d79a4c1",
-        "a48e5d50-188b-4fca-b261-89c13914e118"
     ]
 
     # The following fields are used for identification on USB.

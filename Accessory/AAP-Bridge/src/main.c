@@ -112,15 +112,29 @@ int main (int argc, char *argv[])
 
 	const char* uuids[100];
 	config_setting_t* uuids_setting = config_lookup(&config, "UUIDS");
-	if(uuids_setting == NULL)
+
+	if(uuids_setting != NULL)
 	{
-		uuids[0] = "a48e5d50-188b-4fca-b261-89c13914e118";
-		uuids[1] = NULL;
+		for(int i = 0; i<100; i++)
+		{
+			// config_setting_get_string_elem() returns NULL if we get out of bounds.
+			uuids[i] = config_setting_get_string_elem(uuids_setting,i);
+			if(uuids[i] == NULL)
+			{
+				/**
+				 * All AAP-Bridge server's have this UUID. It represents a generic remote d-bus service where there
+				 * is no guarantee a specific payload is running.
+				 */
+				uuids[i] = "a48e5d50-188b-4fca-b261-89c13914e118";
+				uuids[i+1] = NULL;
+				break;
+			}
+		}
 	}
 	else
 	{
-		for(int i = 0; i<100; i++)
-			uuids[i] = config_setting_get_string_elem(uuids_setting,i);
+		uuids[0] = "a48e5d50-188b-4fca-b261-89c13914e118";
+		uuids[1] = NULL;
 	}
 
 	const char* manufacturer = "ICT";
