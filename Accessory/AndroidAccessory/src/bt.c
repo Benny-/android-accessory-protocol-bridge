@@ -17,7 +17,8 @@
 
 struct BT_SERVICE
 {
-	sdp_session_t* sdp_session;
+	sdp_session_t*	sdp_session;
+	sdp_record_t*	sdp_record;
 	int fd;
 };
 
@@ -74,7 +75,7 @@ static sdp_session_t* register_service(
                *profile_list = 0;
     sdp_data_t *channel = 0;
     sdp_profile_desc_t profile;
-    sdp_record_t record = { 0 };
+    sdp_record_t* record = sdp_record_alloc();
     sdp_session_t *session = 0;
 
     // set the service class
@@ -104,18 +105,18 @@ static sdp_session_t* register_service(
     sdp_uuid2strn(&svc_class_uuid, str, 256);
     printf("libAndroidAccessory: Registering UUID %36s on bluetooth's local SDP server (Serial Port)\n", str);
     svc_class_list = sdp_list_append(svc_class_list, &svc_class_uuid);
-    sdp_set_service_classes(&record, svc_class_list);
+    sdp_set_service_classes(record, svc_class_list);
 
     // set the Bluetooth profile information
     sdp_uuid16_create(&profile.uuid, SERIAL_PORT_PROFILE_ID);
     profile.version = 0x0100;
     profile_list = sdp_list_append(0, &profile);
-    sdp_set_profile_descs(&record, profile_list);
+    sdp_set_profile_descs(record, profile_list);
 
     // make the service record publicly browsable
     sdp_uuid16_create(&root_uuid, PUBLIC_BROWSE_GROUP);
     root_list = sdp_list_append(0, &root_uuid);
-    sdp_set_browse_groups( &record, root_list );
+    sdp_set_browse_groups(record, root_list );
 
     // set l2cap information
     sdp_uuid16_create(&l2cap_uuid, L2CAP_UUID);
@@ -130,28 +131,30 @@ static sdp_session_t* register_service(
     sdp_list_append( proto_list, rfcomm_list );
 
     access_proto_list = sdp_list_append( 0, proto_list );
-    sdp_set_access_protos( &record, access_proto_list );
+    sdp_set_access_protos(record, access_proto_list );
 
     // set the name, provider, and description
-    sdp_set_info_attr(&record, service_name, service_prov, svc_dsc);
+    sdp_set_info_attr(record, service_name, service_prov, svc_dsc);
 
     // connect to the local SDP server, register the service record,
     // and disconnect
     session = sdp_connect(BDADDR_ANY, BDADDR_LOCAL, SDP_RETRY_IF_BUSY);
     if(session != NULL)
-    	error = sdp_record_register(session, &record, 0);
+    	error = sdp_record_register(session, record, 0);
 
     // cleanup
     sdp_data_free( channel );
     sdp_list_free( l2cap_list, 0 );
+    sdp_list_free( proto_list, 0 );
     sdp_list_free( rfcomm_list, 0 );
     sdp_list_free( root_list, 0 );
     sdp_list_free( access_proto_list, 0 );
     sdp_list_free( svc_class_list, 0 );
     sdp_list_free( profile_list, 0 );
+    sdp_record_free(record);
 
     if(error == -1)
-    	return NULL;
+    	session = NULL;
 
     return session;
 }
