@@ -229,8 +229,11 @@ void  SignalsCleanup(void* service_data, BridgeService* service)
 	Signals* signals = service_data;
 
 	signals->work = 0;
-	pthread_join(signals->dbusSignalWatcher,NULL);
-	dbus_connection_close(signals->con);
+	if(pthread_equal(pthread_self(), signals->dbusSignalWatcher))
+		pthread_detach(signals->dbusSignalWatcher);
+	else
+		pthread_join(signals->dbusSignalWatcher,NULL);
+	dbus_connection_unref(signals->con);
 	pthread_mutex_destroy(&signals->dbus_mutex);
 
 	free(signals);

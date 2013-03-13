@@ -240,7 +240,12 @@ void BulkCleanup(void* service_data, BridgeService* service)
 	}
 
 	if(bulk->threadStarted)
-		pthread_join(bulk->bulkTransferThread,NULL);
+	{
+		if(pthread_equal(pthread_self(), bulk->bulkTransferThread))
+			pthread_detach(bulk->bulkTransferThread);
+		else
+			pthread_join(bulk->bulkTransferThread,NULL);
+	}
 
 	free(bulk);
 }

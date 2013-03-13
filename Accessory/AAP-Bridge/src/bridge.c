@@ -23,6 +23,7 @@ struct BridgeConnection
 	BridgeService* portStatusService;
 	short lastAllocatedPort;
 	pthread_t receive, send;
+	pthread_mutex_t cleanupLock;
 	volatile int8_t work;
 	volatile int8_t connectedToAndroid;
 };
@@ -201,6 +202,7 @@ void* sender(void* user_data) {
  */
 static void CleanupService(BridgeService* service)
 {
+	pthread_mutex_lock(&service->bridge->cleanupLock);
 	if(service->inputOpen || service->outputOpen)
 	{
 		fprintf(stderr, "WARNING: cleaning up a service which is still open on port %hi. Input: %s Output: %s\n",
@@ -221,6 +223,7 @@ static void CleanupService(BridgeService* service)
 	service->onBytesReceived = NULL;
 	service->onEof = NULL;
 	service->onCleanupService = NULL;
+	pthread_mutex_unlock(&service->bridge->cleanupLock);
 }
 
 static void* PortStatusInit(BridgeConnection* bridge)
@@ -376,6 +379,8 @@ BridgeConnection* initServer(AapConnection* con){
 	initreceiveQueue();
 	initSendQueue();
 
+	pthread_mutex_init(&bridge->cleanupLock, NULL);
+
 	pthread_create(&bridge->receive, NULL, receiver, bridge);
 	pthread_create(&bridge->send, NULL, sender, bridge);
 	return bridge;
@@ -401,6 +406,8 @@ void deInitServer(BridgeConnection* bridge)
 	pthread_join(bridge->send,NULL);
 	bridge->receive = 0;
 	bridge->send = 0;
+
+	pthread_mutex_destroy(&bridge->cleanupLock);
 
 	deInitSendQueue();
 	deInitreceiveQueue();
