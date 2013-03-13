@@ -161,6 +161,9 @@ void accessory_audio_start(void)
 		NULL	// pa_spawn_api. May be NULL if we dont use fork()
 	);
 
+    // Valgrind may report a memory leak here. The memory is never freed.
+    // This is not a problem as it does not continue to leak more and more
+    // memory. It is only allocated once.
 	pa_threaded_mainloop_start(pa_mainloop);
 
 	//pa_context_disconnect(pa_ctx);
