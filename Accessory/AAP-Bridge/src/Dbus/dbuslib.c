@@ -62,9 +62,11 @@ char* PrintDBusMessage(DBusMessage* message)
 
 					if(value.str && *value.str)
 					{
+						char* signature = dbus_message_iter_get_signature(&MessageIter);
 						printf("type          : %s (%i)\n",
-							dbus_message_iter_get_signature(&MessageIter),
+							signature,
 							dbus_message_iter_get_arg_type(&MessageIter));
+						dbus_free(signature);
 
 						printf("%s\n",value.str);
 						retval = value.str;
