@@ -155,7 +155,6 @@ void* sender(void* user_data) {
 			fprintf(stderr,"Error writing to accessory\n");
 			// Our device disconnected, stop the loop
 			bridge->work = 0;
-			break;
 		}
 		else
 		{
@@ -165,6 +164,8 @@ void* sender(void* user_data) {
 			puts("");
 #endif
 		}
+		free(msg->data);
+		free(msg);
 	}
 	bridge->connectedToAndroid = 0;
 	fprintf(stderr, "Sender thread has stopped\n");
