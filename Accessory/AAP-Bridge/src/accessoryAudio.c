@@ -27,7 +27,7 @@ static void on_new_source(pa_context *c, const pa_source_info *i, int eol, void 
 			const char* vendor_id = pa_proplist_gets(i->proplist,"device.vendor.id");
 			const char* product_id = pa_proplist_gets(i->proplist,"device.product.id");
 
-			if(!strcmp(vendor_id, "18d1") && (!strcmp(product_id, "2d02") || !strcmp(product_id, "2d03") || !strcmp(product_id, "2d05")) )
+			if(!strcmp(vendor_id, "18d1") && (!strcmp(product_id, "2d02") || !strcmp(product_id, "2d03") || !strcmp(product_id, "2d04") || !strcmp(product_id, "2d05")) )
 			{
 				char argument[20];
 				sprintf(argument, "source=%i", i->index);

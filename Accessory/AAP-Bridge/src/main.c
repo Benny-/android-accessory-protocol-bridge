@@ -155,6 +155,13 @@ int main (int argc, char *argv[])
 	const char* serialNumber = "0";
 	config_lookup_string(&config,  "modelName",		&serialNumber);
 
+	static int accessoryStarted = 0;
+	if(!accessoryStarted)
+	{
+		accessoryStarted = 1;
+		accessory_audio_start();
+	}
+
 	accessory = initAccessory(
 			manufacturer,
 			modelName,
