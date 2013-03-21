@@ -90,8 +90,16 @@ libusb_device_handle* findAndInitAccessory(
 					}
 				}
 
+				// We should in no circumstance try to put a accessory in accessory mode. This should filter most of them out.
+				if (desc.idVendor == GOOGLE && (desc.idProduct >= ACCESSORY && desc.idProduct <= ACCESSORY_AUDIO_ADB) )
+				{
+					printf("libAndroidAccessory: Ignoring a device which is already in accessory mode\n");
+					break;
+				}
+
 				// We're not already in accessory mode, try to send configuration commands.
 				handle = openUsb(ctx, desc.idVendor, desc.idProduct); //try to open the USB interface
+
 				if (handle != NULL) {
 					int version_supported = -1;
 

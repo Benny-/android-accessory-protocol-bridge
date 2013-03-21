@@ -17,9 +17,9 @@ static void on_module_load(pa_context *c, uint32_t idx, void *userdata)
 static void on_new_source(pa_context *c, const pa_source_info *i, int eol, void *userdata)
 {
 	printf("AccessoryAudio     : on_new_source()\n");
-	printf("AccessoryAudio     : pa_source_info: %p eol: %i\n", i, eol);
 	if(!eol && i->index > lastIndexChecked)
 	{
+		printf("AccessoryAudio     : index: %i\n", i->index);
 		if(pa_proplist_contains(i->proplist,"device.vendor.id") && pa_proplist_contains(i->proplist,"device.product.id"))
 		{
 			const char* vendor_id = pa_proplist_gets(i->proplist,"device.vendor.id");
