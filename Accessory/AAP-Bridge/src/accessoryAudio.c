@@ -7,7 +7,7 @@ static uint32_t lastIndexChecked = 0;
 
 static void on_module_load(pa_context *c, uint32_t idx, void *userdata)
 {
-	printf("on_module_load()\n");
+	printf("AccessoryAudio     : on_module_load()\n");
 }
 
 /**
@@ -16,14 +16,12 @@ static void on_module_load(pa_context *c, uint32_t idx, void *userdata)
  */
 static void on_new_source(pa_context *c, const pa_source_info *i, int eol, void *userdata)
 {
-	printf("on_new_source()\n");
-	printf("pa_source_info: %p eol: %i\n", i, eol);
+	printf("AccessoryAudio     : on_new_source()\n");
+	printf("AccessoryAudio     : pa_source_info: %p eol: %i\n", i, eol);
 	if(!eol && i->index > lastIndexChecked)
 	{
 		if(pa_proplist_contains(i->proplist,"device.vendor.id") && pa_proplist_contains(i->proplist,"device.product.id"))
 		{
-			printf("This might be a usb accessory audio source. Lets check it.\n");
-
 			const char* vendor_id = pa_proplist_gets(i->proplist,"device.vendor.id");
 			const char* product_id = pa_proplist_gets(i->proplist,"device.product.id");
 
@@ -47,7 +45,7 @@ static void on_new_source(pa_context *c, const pa_source_info *i, int eol, void 
 
 static void on_server_info(pa_context *c, const pa_server_info *i, void *userdata)
 {
-	printf("on_server_info()\n");
+	printf("AccessoryAudio     : on_server_info()\n");
 }
 
 static void my_subscription_callback(pa_context *c, pa_subscription_event_type_t t,
@@ -55,7 +53,7 @@ static void my_subscription_callback(pa_context *c, pa_subscription_event_type_t
 {
     if ((t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK) == PA_SUBSCRIPTION_EVENT_SOURCE) {
         if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_NEW) {
-            printf("... a source was added, let's do stuff! ...\n");
+            printf("AccessoryAudio     : ... a source was added, let's do stuff! ...\n");
 			pa_operation* pa_operation_get_sources = pa_context_get_source_info_list(
 				c,
 				&on_new_source,
@@ -68,32 +66,32 @@ static void my_subscription_callback(pa_context *c, pa_subscription_event_type_t
 
 static void on_new_context_state(pa_context *c, void *userdata)
 {
-	printf("on_new_context_state()\n");
+	printf("AccessoryAudio     : on_new_context_state()\n");
 	pa_context_state_t state = pa_context_get_state(c);
 	switch (state)
 	{
 		case PA_CONTEXT_UNCONNECTED:
 #ifdef DEBUG
-			printf("PA_CONTEXT_UNCONNECTED\n");
+			printf("AccessoryAudio     : PA_CONTEXT_UNCONNECTED\n");
 #endif
 			break;
 		case PA_CONTEXT_CONNECTING:
 #ifdef DEBUG
-			printf("PA_CONTEXT_CONNECTING \n");
+			printf("AccessoryAudio     : PA_CONTEXT_CONNECTING \n");
 #endif
 			break;
 		case PA_CONTEXT_AUTHORIZING:
 #ifdef DEBUG
-			printf("PA_CONTEXT_AUTHORIZING\n");
+			printf("AccessoryAudio     : PA_CONTEXT_AUTHORIZING\n");
 #endif
 			break;
 		case PA_CONTEXT_SETTING_NAME:
 #ifdef DEBUG
-			printf("PA_CONTEXT_SETTING_NAME\n");
+			printf("AccessoryAudio     : PA_CONTEXT_SETTING_NAME\n");
 #endif
 			break;
 		case PA_CONTEXT_READY:
-			printf("PA_CONTEXT_READY\n");
+			printf("AccessoryAudio     : PA_CONTEXT_READY\n");
 			pa_operation* pa_operation_get_serverinfo = pa_context_get_server_info(
 				c,
 				&on_server_info,
@@ -123,13 +121,13 @@ static void on_new_context_state(pa_context *c, void *userdata)
 			pa_operation_unref(pa_operation_get_sources);
 			break;
 		case PA_CONTEXT_FAILED:
-			fprintf(stderr, "PA_CONTEXT_FAILED\n");
+			fprintf(stderr, "AccessoryAudio     : PA_CONTEXT_FAILED\n");
 			break;
 		case PA_CONTEXT_TERMINATED:
-			fprintf(stderr, "PA_CONTEXT_TERMINATED\n");
+			fprintf(stderr, "AccessoryAudio     : PA_CONTEXT_TERMINATED\n");
 			break;
 		default:
-			fprintf(stderr, "PA_CONTEXT_UNKNOWN\n");
+			fprintf(stderr, "AccessoryAudio     : PA_CONTEXT_UNKNOWN\n");
 			break;
 	}
 
