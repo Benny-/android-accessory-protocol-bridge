@@ -6,7 +6,7 @@ The project consist of two parts. A Android library and a accessory application 
 
 ## Accessory
 
-The Accessory map contains two eclipse/autotool project. Make sure to read dependencies.txt and run `./autogen.sh` to bootstrap the autotools projects. Both projects contain a generic INSTALL file detailing further installing instructions. The payloads map contains applications who have a d-bus interface, these applications are used for testing and demonstration purposes.
+The Accessory map contains two eclipse/autotool projects. Make sure to read dependencies.txt and run `./autogen.sh` to bootstrap the autotools projects. Both projects contain a generic INSTALL file detailing further installing instructions. The payloads map contains applications which have a d-bus interface, these applications are used for testing and demonstration purposes.
 
 - /Accessory/dependencies.txt
 - /Accessory/AndroidAccessory/
