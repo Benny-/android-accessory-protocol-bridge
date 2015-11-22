@@ -10,6 +10,9 @@ sudo apt-get install default-jdk
 
 # ----------- AndroidAccessory dependencies
 
+# Build tool
+sudo apt-get install autoconf
+
 # New device detection
 sudo apt-get install libudev-dev
 
