@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([libandroidaccessory],[1.0],[benny.jacobs@ict.nl])
+AC_INIT([libandroidaccessory],[1.0],[benny@gmx.it])
 AC_CONFIG_SRCDIR([src/config.h])
 AC_CONFIG_HEADERS([config.h androidaccessoryconfig.h])
 
