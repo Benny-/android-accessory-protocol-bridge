@@ -42,7 +42,7 @@ libusb_device_handle* findAndInitAccessory(
 #ifdef DEBUG
 	printf("libAndroidAccessory: Enumerating devices\n");
 #endif
-	ssize_t cnt = libusb_get_device_list(NULL, &list);
+	ssize_t cnt = libusb_get_device_list(ctx, &list);
 
 	int i, j;
 	struct libusb_device_descriptor desc;
