@@ -31,11 +31,13 @@ static int readConfig(config_t* config)
 	sprintf(config_file,"./%s.config",PACKAGE_NAME);
 	if(config_read_file(config, config_file) == CONFIG_FALSE)
 	{
-		fprintf(stderr, "Could not read config file %s: %s\n", config_file, config_error_text(config));
+        fprintf(stderr, "Could not read config file %s:%d - %s\n", config_file,
+            config_error_line(config), config_error_text(config));
 		sprintf(config_file,"/etc/%s/%s.config",PACKAGE_NAME, PACKAGE_NAME);
 		if(config_read_file(config, config_file) == CONFIG_FALSE)
 		{
-			fprintf(stderr, "Could not read config file %s: %s\n", config_file, config_error_text(config));
+        fprintf(stderr, "Could not read config file %s:%d - %s\n", config_file,
+            config_error_line(config), config_error_text(config));
 			return 0;
 		}
 		else
