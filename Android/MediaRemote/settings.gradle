@@ -1,0 +1,5 @@
+include ':app'
+
+include ':SubAAPBridge'
+project(':SubAAPBridge').projectDir = new File(settingsDir, "../../../android-accessory-protocol-bridge/Android/AAPbridge/library")
+

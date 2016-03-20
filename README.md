@@ -24,7 +24,7 @@ AAP-Bridge managed the communication from android and the d-bus on the local sys
 - /Android/D-Finger/
 - /Android/UnitTestlibAAB/
 
-The Accessory map contains the library for communicating to the remote d-bus. In addition to this it contains several example projects. All examples use the libAndroidAccessoryBridge library to call d-bus function and listen to d-bus signals.
+The Accessory map contains the library for communicating to the remote d-bus. In addition to this it contains several example projects. All examples use the libAndroidAccessoryBridge library to call d-bus function and listen to d-bus signals. [Android studio](https://developer.android.com/sdk/ "Android studio download page") is used as the IDE.
 
 All examples use the default configuration for AAP-Bridge except for MediaRemote.
 
